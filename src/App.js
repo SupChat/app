@@ -1,26 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import './App.css'
+import { Route, Switch } from 'react-router'
+import PrivateRoute from './components/PrivateRoute'
+import Home from './components/Home'
+import Login from './components/Wellcome'
+import Navbar from './components/Navbar/Navbar'
+import { setUser } from './actions/auth'
+import { auth } from './firebase'
+import { connect } from 'react-redux'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  componentDidMount() {
+    const { setUser } = this.props
+    auth.onAuthStateChanged((user) => {
+      setUser(user)
+    })
+  }
+
+  render() {
+    return (
+      <div>
+        <Navbar />
+        <div className="App">
+          <Switch>
+            <Route path="/wellcome" component={Login} />
+            <PrivateRoute path="/" component={Home} />
+          </Switch>
+        </div>
+      </div>
+    )
+  }
 }
 
-export default App;
+const mapDispatchToProps = {
+  setUser,
+}
+
+export default connect(null, mapDispatchToProps)(App)
