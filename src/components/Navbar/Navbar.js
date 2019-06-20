@@ -31,7 +31,7 @@ export default function Navbar() {
       <AppBar position='relative'>
         <Toolbar className={classes.root}>
           <Typography color="inherit" className="flex">
-            Chat
+            CHAT
           </Typography>
           {
             user ? <Profile /> : <SignIn />

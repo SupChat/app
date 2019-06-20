@@ -15,13 +15,17 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center'
   },
+  title: {
+    padding: '10px 30px',
+  },
   dialogContent: {
     display: 'flex',
     flexDirection: 'column',
+    padding: 0,
     '& button': {
       margin: 5,
       textTransform: 'none',
-      padding: '8px 44px',
+      padding: '8px 50px',
     }
   },
   icon: {
@@ -69,7 +73,7 @@ const SignIn = () => {
         open={open}
         onClose={() => setOpen(false)}
         aria-labelledby="simple-dialog-title">
-        <DialogTitle id="simple-dialog-title">Sign In</DialogTitle>
+        <DialogTitle id="simple-dialog-title" className={classes.title}>Sign in to CHAT.</DialogTitle>
         <DialogContent className={classes.dialog}>
           <DialogContent className={classes.dialogContent}>
             <Button className={classes.googleBtn} onClick={googleSignIn} variant='outlined'>
