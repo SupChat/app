@@ -2,21 +2,32 @@ import React from 'react'
 import withStyles from '@material-ui/core/styles/withStyles'
 import { push } from 'connected-react-router'
 import { connect } from 'react-redux'
-import { setUser } from '../actions/auth'
 
-const Wellcome = ({ classes }) => {
-  return (
-    <div className={classes.root}>
-      Wellcome to CHAT.
-    </div>
-  )
+class Wellcome extends React.Component {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { user, push } = this.props
+    if (prevProps.user !== user) {
+      if (user) {
+        push('/')
+      }
+    }
+  }
+
+  render() {
+    const { classes } = this.props
+    return (
+      <div className={classes.root}>
+        Wellcome to CHAT.
+      </div>
+    )
+  }
+
 }
 
 const styles = {
   root: {
     marginTop: 20
-  },
-  social: {}
+  }
 }
 
 const mapStateToProps = (store) => ({
@@ -25,7 +36,6 @@ const mapStateToProps = (store) => ({
 
 const mapDispatchToProps = {
   push,
-  setUser,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Wellcome))
