@@ -1,9 +1,13 @@
 import React from 'react'
 import makeStyles from '@material-ui/core/styles/makeStyles'
+import Conversations from './Conversations/Conversations'
+import Chat from './Chat'
 
 const useStyles = makeStyles({
   root: {
-    marginTop: 20,
+    height: '100%',
+    display: 'flex',
+    boxSizing: 'border-box'
   }
 })
 
@@ -11,7 +15,10 @@ const Home = () => {
   const classes = useStyles()
 
   return (
-    <div className={classes.root}>Logged in to CHAT.</div>
+    <div className={classes.root}>
+      <Conversations />
+      <Chat />
+    </div>
   )
 }
 

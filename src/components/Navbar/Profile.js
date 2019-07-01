@@ -3,13 +3,6 @@ import Fab from '@material-ui/core/Fab'
 import { useSelector } from 'react-redux'
 import { makeStyles } from '@material-ui/core'
 import _get from 'lodash/get'
-import Popper from '@material-ui/core/Popper'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import MenuList from '@material-ui/core/MenuList'
-import MenuItem from '@material-ui/core/MenuItem'
-import { auth } from '../../firebase'
 
 const useStyles = makeStyles({
   profileImage: {
@@ -24,15 +17,15 @@ const useStyles = makeStyles({
 const Profile = () => {
   const classes = useStyles()
   const user = useSelector(state => state.auth.user)
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null)
 
-  function logout() {
-    auth.signOut().then(() => handleClose())
-  }
+  // function logout() {
+  //   auth.signOut().then(() => handleClose())
+  // }
 
-  function handleClose() {
-    setAnchorEl(null)
-  }
+  // function handleClose() {
+  //   setAnchorEl(null)
+  // }
 
   return (
     <React.Fragment>
@@ -43,24 +36,26 @@ const Profile = () => {
         <img alt='photoURL' src={_get(user, 'providerData[0].photoURL')} />
       </Fab>
 
-      <Popper open={Boolean(anchorEl)} anchorEl={anchorEl} keepMounted transition disablePortal>
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
-          >
-            <Paper id="menu-list-grow">
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList>
-                  <MenuItem onClick={handleClose}>Profile</MenuItem>
-                  <MenuItem onClick={handleClose}>My account</MenuItem>
-                  <MenuItem onClick={logout}>Logout</MenuItem>
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
+      {/*<Popper open={Boolean(anchorEl)} anchorEl={anchorEl} keepMounted transition disablePortal>*/}
+      {/*{*/}
+      {/*({ TransitionProps, placement }) => (*/}
+      {/*<Grow*/}
+      {/*{...TransitionProps}*/}
+      {/*style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}*/}
+      {/*>*/}
+      {/*<Paper id="menu-list-grow">*/}
+      {/*<ClickAwayListener onClickAway={handleClose}>*/}
+      {/*<MenuList>*/}
+      {/*<MenuItem onClick={handleClose}>Profile</MenuItem>*/}
+      {/*<MenuItem onClick={handleClose}>My account</MenuItem>*/}
+      {/*<MenuItem onClick={logout}>Logout</MenuItem>*/}
+      {/*</MenuList>*/}
+      {/*</ClickAwayListener>*/}
+      {/*</Paper>*/}
+      {/*</Grow>*/}
+      {/*)*/}
+      {/*}*/}
+      {/*</Popper>*/}
 
 
     </React.Fragment>
