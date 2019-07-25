@@ -237,40 +237,6 @@ const components = {
 
 export default function StartConversation({ onDone }) {
   const classes = useStyles()
-  const theme = useTheme()
-  const currentUser = useSelector(store => store.auth.user)
-  const users = useSelector(store => store.conversations.users)
-
-  const [multi, setMulti] = React.useState(null)
-  const options = Object.values(users).map((user) => ({ value: user.id, label: user.displayName }))
-
-  function handleChangeMulti(value) {
-    setMulti(value)
-  }
-
-  function startConversation() {
-    const id = uuid()
-    db.collection('conversations').doc(id).set({
-      id,
-      userIds: [
-        ...multi.map(({ value }) => value),
-        currentUser.uid
-      ]
-    })
-    console.log(multi)
-    onDone()
-  }
-
-  const selectStyles = {
-    input: base => ({
-      ...base,
-      color: theme.palette.text.primary,
-      '& input': {
-        font: 'inherit',
-      },
-    }),
-  }
-
   return (
     <div className={classes.root}>
       <Users />

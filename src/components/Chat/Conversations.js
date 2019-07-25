@@ -23,8 +23,8 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 360,
     backgroundColor: 'rgba(63, 81, 181, 0.05)',
     position: 'relative',
-    padding: 10,
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    boxShadow: '0px 0 2px 0px rgba(63, 81, 181, 0.6)',
   },
   add: {
     position: 'absolute',
@@ -37,7 +37,8 @@ const useStyles = makeStyles(theme => ({
   list: {
     height: '100%',
     overflow: 'auto',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    padding: 0,
   }
 }))
 
@@ -50,16 +51,22 @@ export default function Conversations() {
   const currentUser = useSelector(store => store.auth.user)
 
   useEffect(() => {
-    db.collection('conversations')
+    return db.collection('conversations')
+      .where(`members.${currentUser.uid}.active`, '==', true)
       .onSnapshot((snapshot) => {
-        const docsDictionary = snapshot.docs.reduce((prev, doc) => ({ ...prev, [doc.id]: doc.data() }), {})
+        const docsDictionary = snapshot.docs.reduce((prev, doc) => ({
+          ...prev, [doc.id]: doc.data() }), {})
         dispatch(setConversations(docsDictionary))
       })
-    db.collection('users')
+  }, [dispatch, currentUser])
+
+  useEffect(() => {
+    const unsubscribeUsers = db.collection('users')
       .onSnapshot((snapshot) => {
         const users = snapshot.docs.map(doc => doc.data())
         dispatch(setUsers(users.reduce((prev, user) => ({ ...prev, [user.id]: user }), {})))
       })
+    return () => unsubscribeUsers()
   }, [dispatch])
 
   function toggleAddConversationPopper(e) {
@@ -68,13 +75,13 @@ export default function Conversations() {
 
   function findAvatar(conversationId) {
     const conversation = conversations[conversationId]
-    const userId = (_get(conversation, 'userIds') || []).find((userId) => userId !== currentUser.uid)
+    const userId = Object.keys(_get(conversation, 'members') || {}).find((userId) => userId !== currentUser.uid)
     return _get(users, `[${userId}].photoURL`)
   }
 
   function findName(conversationId) {
     const conversation = conversations[conversationId]
-    const userId = (_get(conversation, 'userIds') || []).find((userId) => userId !== currentUser.uid)
+    const userId = Object.keys(_get(conversation, 'members') || {}).find((userId) => userId !== currentUser.uid)
     return _get(users, `[${userId}].displayName`)
   }
 
@@ -89,6 +96,7 @@ export default function Conversations() {
           ) : Object.values(conversations).map((conversation) => (
             <React.Fragment key={conversation.id}>
               <Conversation
+                id={conversation.id}
                 activeConversation={activeConversation === conversation.id}
                 avatar={findAvatar(conversation.id)}
                 name={findName(conversation.id)}

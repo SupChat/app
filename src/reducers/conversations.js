@@ -1,5 +1,6 @@
 const initialState = {
-  conversations: [],
+  conversations: {},
+  messages: {},
   activeConversation: '',
 }
 
@@ -11,6 +12,16 @@ const conversations = (state = initialState, action) => {
     case 'SET_ACTIVE_CONVERSATION':
       return { ...state, activeConversation: action.activeConversation }
 
+    case 'SET_MESSAGES':
+      const { id, messages } = action.payload
+
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [id]: { ...state.messages[id], ...messages }
+        },
+      }
     default:
       return state
   }

@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 class PrivateRoute extends React.Component {
   routeRender = () => {
     const { component: Component, user, initialized } = this.props
-    return user ? (<Component />) : initialized ? <Redirect to='/wellcome' /> : <div> Loading... </div>
+    return user ? (<Component />) : initialized ? <Redirect to='/welcome' /> : <div> Loading... </div>
   }
 
   render() {

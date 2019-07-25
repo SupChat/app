@@ -3,7 +3,7 @@ import './App.css'
 import { Route, Switch } from 'react-router'
 import PrivateRoute from './components/PrivateRoute'
 import Home from './components/Home'
-import Wellcome from './components/Wellcome'
+import Welcome from './components/Welcome'
 import Navbar from './components/Navbar/Navbar'
 import { setUser } from './actions/auth'
 import { auth, db } from './firebase'
@@ -29,7 +29,7 @@ class App extends React.Component {
         <Navbar />
         <div className={classes.app}>
           <Switch>
-            <Route path="/wellcome" component={Wellcome} />
+            <Route path="/welcome" component={Welcome} />
             <PrivateRoute path="/" component={Home} />
           </Switch>
         </div>

@@ -6,7 +6,7 @@ import _get from 'lodash/get'
 
 const useStyles = makeStyles({
   profileImage: {
-    marginLeft: 'auto',
+    position: 'relative',
     overflow: 'hidden',
     '& img': {
       width: '100%',

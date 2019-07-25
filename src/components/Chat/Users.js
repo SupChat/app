@@ -29,34 +29,24 @@ const useStyles = makeStyles(theme => ({
 
 export default function Users({ onDone }) {
   const classes = useStyles()
-  const [checked, setChecked] = React.useState([0])
-
+  const [checked, setChecked] = React.useState([])
   const currentUser = useSelector(store => store.auth.user)
-
-  const handleToggle = value => () => {
-    const currentIndex = checked.indexOf(value)
-    const newChecked = [...checked]
-
-    if (currentIndex === -1) {
-      newChecked.push(value)
-    } else {
-      newChecked.splice(currentIndex, 1)
-    }
-
-    setChecked(newChecked)
-  }
   const dispatch = useDispatch()
   const users = useSelector(store => store.users.users)
   const conversations = useSelector(store => store.conversations.conversations)
   const [searchText, setSearchText] = React.useState('')
 
-  async function startConversation(e) {
+  const handleToggle = value => () => {
+    setChecked(checked.includes(value) ? checked.filter((check) => check !== value) : [...checked, value])
+  }
+
+  async function startConversation(e, users) {
     e.preventDefault()
     let id
 
     const existConversation = _get(Object.values(conversations).find((conversation) => (
-      conversation.userIds.length === (checked.length + 1) &&
-      checked.every(user => conversation.userIds.includes(user))
+      Object.values(conversation.members).length === (users.length + 1) &&
+      users.every(user => Object.keys(conversation.members).includes(user.id))
     )), 'id')
 
     if (existConversation) {
@@ -65,10 +55,21 @@ export default function Users({ onDone }) {
       id = uuid()
       await db.collection('conversations').doc(id).set({
         id,
-        userIds: [
-          ...checked,
-          currentUser.uid
-        ]
+        members: {
+          ...users.reduce((prev, id) => {
+            return {
+              ...prev,
+              [id]: {
+                active: true,
+                lastSeen: new Date(0),
+              }
+            }
+          }, {}),
+          [currentUser.uid]: {
+            active: true,
+            lastSeen: new Date(0)
+          }
+        }
       })
     }
 
@@ -76,21 +77,9 @@ export default function Users({ onDone }) {
     onDone()
   }
 
-  function startConversationSingle(userId) {
-    const id = uuid()
-    db.collection('conversations').doc(id).set({
-      id,
-      userIds: [
-        userId,
-        currentUser.uid
-      ]
-    }).then(() => dispatch(setActiveConversation(id)))
-    onDone()
-  }
-
   return (
     <React.Fragment>
-      <form className={classes.topForm} onSubmit={startConversation}>
+      <form className={classes.topForm} onSubmit={(e) => startConversation(e, checked)}>
         <TextField
           onChange={(e) => setSearchText(e.target.value)}
           value={searchText}
@@ -103,7 +92,7 @@ export default function Users({ onDone }) {
 
       </form>
       <List className={classes.root}>
-        {Object.values(users).map(({ id, displayName }) => {
+        {Object.values(users).filter(user => user.id !== currentUser.uid).map(({ id, displayName }) => {
           const labelId = `checkbox-list-label-${id}`
           return (
             <ListItem key={id} role={undefined} dense button onClick={handleToggle(id)}>
@@ -122,7 +111,7 @@ export default function Users({ onDone }) {
                   edge="end"
                   aria-label="Comments"
                   type='button'
-                  onClick={() => startConversationSingle(id)}>
+                  onClick={(e) => startConversation(e, [id])}>
                   <CommentIcon />
                 </IconButton>
               </ListItemSecondaryAction>

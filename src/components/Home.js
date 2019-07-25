@@ -1,7 +1,8 @@
 import React from 'react'
 import makeStyles from '@material-ui/core/styles/makeStyles'
-import Conversations from './Conversations/Conversations'
-import Chat from './Chat'
+import Conversations from './Chat/Conversations'
+import Chat from './Chat/Chat'
+import { useSelector } from 'react-redux'
 
 const useStyles = makeStyles({
   root: {
@@ -13,11 +14,12 @@ const useStyles = makeStyles({
 
 const Home = () => {
   const classes = useStyles()
+  const activeConversation = useSelector(store => Boolean(store.conversations.activeConversation))
 
   return (
     <div className={classes.root}>
       <Conversations />
-      <Chat />
+      {activeConversation && <Chat />}
     </div>
   )
 }
