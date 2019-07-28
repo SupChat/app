@@ -36,7 +36,7 @@ export default function ChatHeader() {
   const user = _get(users, userId)
   const avatar = _get(user, 'photoURL')
   const name = _get(user, 'displayName')
-  const typings = _get(members, `${userId}.typings`)
+  const typing = _get(members, `${userId}.typing`)
 
   return (
     <Grid className={classes.root} container direction='row' alignItems='center'>
@@ -48,7 +48,7 @@ export default function ChatHeader() {
         </Typography>
 
         <Typography variant="subtitle2">
-          {typings ? 'typings...' : ''}
+          {typing ? 'typing...' : ''}
         </Typography>
       </div>
     </Grid>

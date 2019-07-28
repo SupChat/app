@@ -159,7 +159,10 @@ const Messages = () => {
               <ListItemAvatar>
                 <Avatar src={users[message.from].photoURL} />
               </ListItemAvatar>
-              <ListItemText primary={message.text} secondary={moment(message.date.toDate()).format('HH:mm:ss')} />
+              <ListItemText
+                dir="auto"
+                primary={message.text}
+                secondary={moment(message.date.toDate()).format('HH:mm:ss')} />
             </ListItem>
           ))
         }
