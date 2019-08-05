@@ -1,121 +1,86 @@
 import React, { useEffect, useRef } from 'react'
-import TextField from '@material-ui/core/TextField'
-import InputAdornment from '@material-ui/core/InputAdornment'
 import { useSelector } from 'react-redux'
-import SendIcon from '@material-ui/icons/Send'
-import TagFacesIcon from '@material-ui/icons/TagFaces'
-
-import IconButton from '@material-ui/core/IconButton'
 import uuid from 'uuid'
 import { selectActiveConversation } from '../../actions/conversations'
-import { db } from '../../firebase'
+import { db, storage } from '../../firebase'
 import 'emoji-mart/css/emoji-mart.css'
-import { Picker } from 'emoji-mart'
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+import ChatTextFiled from './ChatTextFiled'
+import FileDialog from './FileDialog'
+import Dialog from '@material-ui/core/Dialog'
 
 export default function ChatBox() {
   const [text, setText] = React.useState('')
   const [typing, setTyping] = React.useState(false)
-  const [showEmojis, setShowEmojis] = React.useState(false)
+  const [file, setFile] = React.useState(null)
 
   const currentUser = useSelector(store => store.auth.user)
   const activeConversation = useSelector(selectActiveConversation)
   const timeoutRef = useRef()
-
-  function submitOnEnter(event) {
-    if (event.which === 13 && !event.shiftKey) {
-      event.target.form.dispatchEvent(new Event('submit', { cancelable: true }))
-      event.preventDefault()
-    }
-  }
 
   useEffect(() => {
     db
       .collection('conversations')
       .doc(activeConversation.id)
       .set({ members: { [currentUser.uid]: { typing } } }, { merge: true })
-  }, [typing])
+  }, [typing, activeConversation.id, currentUser.uid])
 
-  function onTyping(e) {
-    setText(e.target.value)
+  function onTyping(text) {
+    setText(text)
     setTyping(true)
     clearTimeout(timeoutRef.current)
     timeoutRef.current = setTimeout(() => setTyping(false), 500)
   }
 
-  function sendMessage(e) {
-    e.preventDefault()
-    const msgId = uuid()
+  function toggleFile(file) {
+    setFile(file)
+  }
+
+  async function sendMessage(text) {
+    setFile(null)
     setText('')
-    setShowEmojis(false)
     setTyping(false)
 
-    db
+    const msgId = uuid()
+
+    const messageRef = db
       .collection('conversations')
       .doc(activeConversation.id)
       .collection('messages')
       .doc(msgId)
-      .set({
+
+    await messageRef.set({
         id: msgId,
         text,
+        ...(file ? { file: 'pending' } : {}),
         from: currentUser.uid,
         date: new Date(),
-        read: [],
       })
-  }
 
-  function addEmoji(emoji) {
-    setText(`${text}${emoji.native}`)
-  }
-
-  function toggleShowEmojis() {
-    setShowEmojis(!showEmojis)
+    if (file) {
+      const fileRef = await storage.ref(`conversations/${activeConversation.id}/${msgId}`).put(file).then((snapshot) => snapshot.ref.getDownloadURL());
+      await messageRef.set({ file: fileRef }, { merge: true })
+    }
   }
 
   return (
     <div>
-      <form noValidate autoComplete="off" onSubmit={sendMessage}>
-        <TextField
-          variant="outlined"
-          multiline
-          fullWidth
-          onChange={onTyping}
-          value={text}
-          onKeyPress={submitOnEnter}
-          inputProps={{
-            dir: 'auto',
-          }}
-          InputProps={{
-            endAdornment: (
-              <React.Fragment>
-                {
-                  showEmojis && (
-                    <ClickAwayListener onClickAway={toggleShowEmojis}>
-                      <Picker
-                        style={{ position: 'absolute', bottom: '100%', right: 0 }}
-                        onSelect={addEmoji}
-                        showPreview={false}
+      <ChatTextFiled
+        value={text}
+        onSubmit={sendMessage}
+        attachFile={setFile}
+        required
+        onChange={onTyping} />
 
-                        showSkinTones={false} />
-                    </ClickAwayListener>
-                  )
-                }
-                <InputAdornment position="end">
-                  <IconButton
-                    type='button'
-                    color={showEmojis ? 'primary' : 'default'}
-                    onClick={toggleShowEmojis}>
-                    <TagFacesIcon />
-                  </IconButton>
-                  <IconButton type='submit' disabled={!text}>
-                    <SendIcon />
-                  </IconButton>
-                </InputAdornment>
-              </React.Fragment>
-            ),
-          }}
-        />
-      </form>
+      <Dialog
+        open={Boolean(file)}
+        onClose={() => toggleFile(null)}>
+        <FileDialog
+          file={file}
+          handleClose={() => toggleFile(null)}
+          onDone={sendMessage} />
+      </Dialog>
+
+
     </div>
   )
 }

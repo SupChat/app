@@ -3,16 +3,21 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import { makeStyles } from '@material-ui/core/styles'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectActiveConversation, setMessages } from '../../actions/conversations'
+import { setMessages } from '../../actions/conversations'
 import List from '@material-ui/core/List'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Avatar from '@material-ui/core/Avatar'
 import moment from 'moment'
 import _get from 'lodash/get'
+import _groupBy from 'lodash/groupBy'
 import _last from 'lodash/last'
 import _sortBy from 'lodash/sortBy'
 import { db } from '../../firebase'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import Divider from '@material-ui/core/Divider'
+import DownloadIcon from '@material-ui/icons/ArrowDownward'
+import Container from '@material-ui/core/Container'
+import Fab from '@material-ui/core/Fab'
 
 const useStyles = makeStyles({
   root: {
@@ -34,6 +39,36 @@ const useStyles = makeStyles({
     width: '100%',
     justifyContent: 'center',
   },
+  avatar: {
+    alignSelf: 'baseline',
+  },
+  img: {
+    maxWidth: 190,
+  },
+  downloadIcon: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  imgContainer: {
+    display: 'flex',
+    position: 'relative',
+  },
+  day: {
+    position: 'sticky',
+    top: 2,
+    fontSize: 16,
+    textAlign: 'center',
+    '& span': {
+      color: '#3f51b5',
+      boxShadow: '0 0 3px 0 #3f51b5',
+      background: 'rgba(255, 255, 255, 0.5)',
+    },
+    margin: '20px auto',
+    display: 'flex',
+    justifyContent: 'center',
+    zIndex: 1,
+  }
 })
 
 function usePrevious(value) {
@@ -143,6 +178,10 @@ const Messages = () => {
     }
   }
 
+  const dayGroups = _groupBy(messages, function (message) {
+    return moment(message.date.toDate()).startOf('day').format('DD/MM/YY');
+  });
+
   return (
     <div className={classes.root}>
       {
@@ -152,21 +191,55 @@ const Messages = () => {
           </div>
         )
       }
-      <List ref={listRef} className={classes.list} onScroll={onScrollList}>
-        {
-          messages.map((message) => (
-            <ListItem key={message.id}>
-              <ListItemAvatar>
-                <Avatar src={users[message.from].photoURL} />
-              </ListItemAvatar>
-              <ListItemText
-                dir="auto"
-                primary={message.text}
-                secondary={moment(message.date.toDate()).format('HH:mm:ss')} />
-            </ListItem>
-          ))
-        }
-      </List>
+      <div ref={listRef} className={classes.list} onScroll={onScrollList}>
+      {
+        Object.entries(dayGroups).map(([day, messages]) => (
+          <React.Fragment key={day}>
+            <div className={classes.day}><span>{day}</span></div>
+
+            <List>
+              {
+                messages.map((message) => (
+                  <React.Fragment key={message.id}>
+                    <ListItem>
+                      <ListItemAvatar className={classes.avatar}>
+                        <Avatar src={users[message.from].photoURL} />
+                      </ListItemAvatar>
+                      <div className={classes.messageContent}>
+                        {
+                          message.file && (
+                            message.file !== 'pending' ? (
+                              <div className={classes.imgContainer}>
+                                <img className={classes.img} src={message.file} />
+                                <Container>
+                                  <Fab
+                                    size="small"
+                                    color="primary"
+                                    className={classes.downloadIcon}>
+                                    <DownloadIcon />
+                                  </Fab>
+                                </Container>
+                              </div>
+                            ) : <CircularProgress color="secondary" />
+                          )
+                        }
+
+                        <ListItemText
+                          dir="auto"
+                          primary={message.text}
+                          secondary={moment(message.date.toDate()).format('HH:mm:ss')} />
+                      </div>
+                    </ListItem>
+
+                  </React.Fragment>
+                ))
+              }
+            </List>
+
+          </React.Fragment>
+        ))
+      }
+        </div>
     </div>
   )
 }
