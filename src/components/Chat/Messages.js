@@ -14,10 +14,10 @@ import _last from 'lodash/last'
 import _sortBy from 'lodash/sortBy'
 import { db } from '../../firebase'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Divider from '@material-ui/core/Divider'
-import DownloadIcon from '@material-ui/icons/ArrowDownward'
-import Container from '@material-ui/core/Container'
+import Button from '@material-ui/core/Button'
+import Drawer from '@material-ui/core/Drawer'
 import Fab from '@material-ui/core/Fab'
+import CloseIcon from '@material-ui/icons/Close'
 
 const useStyles = makeStyles({
   root: {
@@ -31,6 +31,14 @@ const useStyles = makeStyles({
     overflow: 'auto',
     padding: 0,
     position: 'relative',
+    scrollPadding: 10,
+    '& li': {
+      overflowAnchor: 'none',
+    },
+  },
+  anchor: {
+    overflowAnchor: 'auto',
+    height: 1,
   },
   progress: {
     margin: 'auto',
@@ -56,37 +64,56 @@ const useStyles = makeStyles({
   },
   day: {
     position: 'sticky',
-    top: 2,
+    top: 20,
     fontSize: 16,
     textAlign: 'center',
     '& span': {
       color: '#3f51b5',
-      boxShadow: '0 0 3px 0 #3f51b5',
       background: 'rgba(255, 255, 255, 0.5)',
     },
     margin: '20px auto',
     display: 'flex',
     justifyContent: 'center',
     zIndex: 1,
-  }
+  },
+  paper: {
+    background: 'rgba(0, 0, 0, 0.5)',
+    position: 'absolute',
+    height: '100%',
+    top: 0,
+    zIndex: 10000,
+    width: '100%',
+  },
+  docked: {
+    height: '100%',
+  },
+  zoomImg: {
+    height: '100%',
+    display: 'flex',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    '& img': {
+      display: 'block',
+      height: '90%',
+    },
+  },
+  zoomImgCloseIcon: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+  },
 })
 
-function usePrevious(value) {
-  const ref = useRef()
-  useEffect(() => {
-    ref.current = value
-  })
-  return ref.current
-}
-
 const Messages = () => {
-  const listRef = useRef()
-  const progressRef = useRef()
-
-  const [isLoading, setIsLoading] = useState(false)
-  const [scrollObject, setScrollObject] = useState({ scrollTop: 0, scrollHeight: 0, clientHeight: 0 })
-  const dispatch = useDispatch()
   const classes = useStyles()
+  const listRef = useRef()
+  const dispatch = useDispatch()
+
+  const [zoomImg, setZoomImg] = useState(null)
+  const [allLoaded, setAllLoaded] = useState(false)
+  const [isLoadingPrevious, setIsLoadingPrevious] = useState(false)
+  const [scrollTop, setScrollTop] = useState(false)
 
   const conversationId = useSelector(store => store.conversations.activeConversation)
   const currentUserId = useSelector(store => store.auth.user.uid)
@@ -94,15 +121,35 @@ const Messages = () => {
   const messagesObject = useSelector(store => store.conversations.messages[store.conversations.activeConversation]) || {}
   const messages = _sortBy(Object.values(messagesObject || {}), 'date') || []
   const shouldFetchMessages = messages.length < 10
+  const lastMsgCurrentUser = _get(_last(messages), 'from') === currentUserId
 
-  const lastMsg = _get(_last(messages), 'from') === currentUserId
+  useEffect(() => {
+    if (shouldFetchMessages) {
+      loadPrevious()
+    } else {
+      listRef.current.scrollTop = listRef.current.scrollHeight
+    }
+  }, [shouldFetchMessages])
 
-  function setScrollObj() {
-    const scrollTop = _get(listRef, 'current.scrollTop') || 0
-    const scrollHeight = _get(listRef, 'current.scrollHeight') || 0
-    const clientHeight = _get(listRef, 'current.clientHeight') || 0
-    setScrollObject({ scrollTop, scrollHeight, clientHeight })
-  }
+  useEffect(() => {
+    if (lastMsgCurrentUser && !isLoadingPrevious) {
+      listRef.current.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
+    return () => setIsLoadingPrevious(false)
+  }, [messages.length])
+
+  useEffect(() => {
+    return db.collection('conversations')
+      .doc(conversationId)
+      .collection('messages')
+      .orderBy('date', 'desc')
+      .limit(1)
+      .onSnapshot(onGetMessages)
+
+  }, [conversationId, currentUserId, dispatch])
 
   function updateLastSeen() {
     return db
@@ -118,9 +165,7 @@ const Messages = () => {
   }
 
   function onGetMessages(snapshot) {
-    setIsLoading(false)
     updateLastSeen()
-    setScrollObj()
 
     const messagesList = (snapshot.docs || []).map((doc) => doc.data())
 
@@ -131,73 +176,65 @@ const Messages = () => {
 
   }
 
-  useEffect(() => {
-    const { scrollTop, scrollHeight, clientHeight } = scrollObject
-    const onEnd = scrollHeight - scrollTop === clientHeight
-    const onStart = listRef.current.scrollTop === 0
-
-    if (onStart) {
-      listRef.current.scrollTop = listRef.current.scrollHeight - (scrollHeight)
-      setIsLoading(false)
-    } else if (onEnd || lastMsg) {
-      listRef.current.scrollTo({
-        top: listRef.current.scrollHeight,
-        behavior: 'smooth',
-      })
-    }
-    return () => {
-    }
-  }, [messages.length])
-
-  useEffect(() => {
-    const messagesRef = db.collection('conversations')
+  function loadPrevious() {
+    setIsLoadingPrevious(true)
+    db.collection('conversations')
       .doc(conversationId)
       .collection('messages')
       .orderBy('date', 'desc')
-
-    if (shouldFetchMessages) {
-      messagesRef.limit(10).get().then(onGetMessages)
-    }
-
-    return messagesRef.limit(1).onSnapshot(onGetMessages)
-
-  }, [conversationId, currentUserId, shouldFetchMessages, dispatch])
+      .limit(10)
+      .where('date', '<', _get(messages, '[0].date') || new Date())
+      .get()
+      .then((snapshot) => {
+        if (!snapshot.size) {
+          setAllLoaded(true)
+          setIsLoadingPrevious(false)
+        }
+        return snapshot
+      })
+      .then(onGetMessages)
+  }
 
   function onScrollList(e) {
-    if (e.currentTarget.scrollTop === 0 && messages.length) {
-      setIsLoading(true)
-      db.collection('conversations')
-        .doc(conversationId)
-        .collection('messages')
-        .orderBy('date', 'desc')
-        .limit(10)
-        .where('date', '<', _get(messages, '[0].date' || new Date()))
-        .get()
-        .then(onGetMessages)
-        .catch(() => setIsLoading(false))
+    const isScrollingUp = scrollTop > e.currentTarget.scrollTop
+
+    if (e.currentTarget.scrollTop < 30 &&
+      isScrollingUp &&
+      messages.length &&
+      !allLoaded &&
+      !isLoadingPrevious) {
+
+      if (e.currentTarget.scrollTop === 0) {
+        e.currentTarget.scrollTop = 1
+      }
+
+      loadPrevious()
     }
+
+    setScrollTop(e.currentTarget.scrollTop)
   }
 
   const dayGroups = _groupBy(messages, function (message) {
-    return moment(message.date.toDate()).startOf('day').format('DD/MM/YY');
-  });
+    return moment(message.date.toDate()).startOf('day').format('DD/MM/YY')
+  })
 
   return (
     <div className={classes.root}>
       {
-        isLoading && (
+        isLoadingPrevious && (
           <div className={classes.progress}>
             <CircularProgress color="secondary" />
           </div>
         )
       }
-      <div ref={listRef} className={classes.list} onScroll={onScrollList}>
-      {
-        Object.entries(dayGroups).map(([day, messages]) => (
-          <React.Fragment key={day}>
-            <div className={classes.day}><span>{day}</span></div>
-
-            <List>
+      <List ref={listRef}
+            className={classes.list}
+            style={isLoadingPrevious ? { overflow: 'hidden' } : {}}
+            onScroll={onScrollList}>
+        {
+          Object.entries(dayGroups).map(([day, messages]) => (
+            <React.Fragment key={day}>
+              <ListItem className={classes.day}> <span> {day} </span> </ListItem>
               {
                 messages.map((message) => (
                   <React.Fragment key={message.id}>
@@ -205,20 +242,14 @@ const Messages = () => {
                       <ListItemAvatar className={classes.avatar}>
                         <Avatar src={users[message.from].photoURL} />
                       </ListItemAvatar>
-                      <div className={classes.messageContent}>
+                      <div>
                         {
                           message.file && (
                             message.file !== 'pending' ? (
                               <div className={classes.imgContainer}>
-                                <img className={classes.img} src={message.file} />
-                                <Container>
-                                  <Fab
-                                    size="small"
-                                    color="primary"
-                                    className={classes.downloadIcon}>
-                                    <DownloadIcon />
-                                  </Fab>
-                                </Container>
+                                <Button onClick={() => setZoomImg(message.file)}>
+                                  <img className={classes.img} src={message.file} />
+                                </Button>
                               </div>
                             ) : <CircularProgress color="secondary" />
                           )
@@ -234,12 +265,26 @@ const Messages = () => {
                   </React.Fragment>
                 ))
               }
-            </List>
+            </React.Fragment>
+          ))
+        }
+        <div className={classes.anchor} />
+      </List>
+      <Drawer
+        open={zoomImg}
+        classes={{ paper: classes.paper, docked: classes.docked }}
+        anchor='top'
+        variant='persistent'
+        onClose={() => setZoomImg(null)}>
 
-          </React.Fragment>
-        ))
-      }
+        <div className={classes.zoomImg} onClick={() => setZoomImg(null)}>
+          <Fab size='small' className={classes.zoomImgCloseIcon}>
+            <CloseIcon />
+          </Fab>
+          <img src={zoomImg} onClick={(e) => e.stopPropagation()} />
         </div>
+
+      </Drawer>
     </div>
   )
 }

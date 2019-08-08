@@ -43,6 +43,7 @@ export default function ChatTextFiled({ value, onChange, onSubmit, attachFile, r
         <TextField
           variant="outlined"
           multiline
+          autoFocus
           fullWidth
           onChange={(e) => onChange(e.target.value)}
           value={value}

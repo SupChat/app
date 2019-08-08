@@ -1,7 +1,7 @@
 const initialState = {
   conversations: {},
   messages: {},
-  activeConversation: '',
+  activeConversation: '' // sessionStorage.getItem('activeConversation') || '',
 }
 
 const conversations = (state = initialState, action) => {
@@ -10,6 +10,7 @@ const conversations = (state = initialState, action) => {
       return { ...state, conversations: action.conversations }
 
     case 'SET_ACTIVE_CONVERSATION':
+      // sessionStorage.setItem('activeConversation', action.activeConversation)
       return { ...state, activeConversation: action.activeConversation }
 
     case 'SET_MESSAGES':
