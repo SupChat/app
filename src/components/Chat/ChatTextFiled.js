@@ -1,5 +1,5 @@
 import React from 'react'
-import { Picker } from 'emoji-mart'
+import { Emoji, Picker } from 'emoji-mart'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -37,6 +37,8 @@ export default function ChatTextFiled({ value, onChange, onSubmit, attachFile, r
     e.target.value = ''
   }
 
+  const moreProps = { inputProps: { dir: 'auto' } }
+
   return (
     <div style={{ width: '100%' }}>
       <form noValidate autoComplete="off" onSubmit={submitForm}>
@@ -48,17 +50,16 @@ export default function ChatTextFiled({ value, onChange, onSubmit, attachFile, r
           onChange={(e) => onChange(e.target.value)}
           value={value}
           onKeyPress={submitOnEnter}
-          inputProps={{
-            dir: 'auto',
-          }}
           InputProps={{
+            dir: 'auto',
             endAdornment: (
               <React.Fragment>
                 {
                   showEmojis && (
                     <ClickAwayListener onClickAway={toggleShowEmojis}>
                       <Picker
-                        style={{ position: 'absolute', bottom: '100%', right: 0 }}
+                        style={{ position: 'absolute', bottom: '100%', right: 0, zIndex: 1 }}
+                        set='google'
                         onSelect={addEmoji}
                         showPreview={false}
 
@@ -101,6 +102,7 @@ export default function ChatTextFiled({ value, onChange, onSubmit, attachFile, r
               </React.Fragment>
             ),
           }}
+          {...moreProps}
         />
       </form>
     </div>

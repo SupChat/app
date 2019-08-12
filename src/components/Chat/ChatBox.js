@@ -8,7 +8,7 @@ import ChatTextFiled from './ChatTextFiled'
 import FileDialog from './FileDialog'
 import Dialog from '@material-ui/core/Dialog'
 
-export default function ChatBox() {
+export default function ChatBox({ onSendMessage }) {
   const [text, setText] = React.useState('')
   const [typing, setTyping] = React.useState(false)
   const [file, setFile] = React.useState(null)
@@ -36,6 +36,7 @@ export default function ChatBox() {
   }
 
   async function sendMessage(text) {
+    onSendMessage()
     setFile(null)
     setText('')
     setTyping(false)

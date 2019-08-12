@@ -9,12 +9,12 @@ import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
 import CommentIcon from '@material-ui/icons/Comment'
 import { useDispatch, useSelector } from 'react-redux'
-import TextField from '@material-ui/core/TextField'
 import uuid from 'uuid'
 import { db } from '../../firebase'
 import { setActiveConversation } from '../../actions/conversations'
-import Button from '@material-ui/core/Button'
 import _get from 'lodash/get'
+import Avatar from '@material-ui/core/Avatar'
+import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
   topForm: {
     display: 'flex',
     justifyContent: 'center',
-  }
+  },
 }))
 
 export default function Users({ onDone }) {
@@ -62,14 +62,14 @@ export default function Users({ onDone }) {
               [id]: {
                 active: true,
                 lastSeen: new Date(0),
-              }
+              },
             }
           }, {}),
           [currentUser.uid]: {
             active: true,
-            lastSeen: new Date(0)
-          }
-        }
+            lastSeen: new Date(0),
+          },
+        },
       })
     }
 
@@ -79,20 +79,20 @@ export default function Users({ onDone }) {
 
   return (
     <React.Fragment>
-      <form className={classes.topForm} onSubmit={(e) => startConversation(e, checked)}>
-        <TextField
-          onChange={(e) => setSearchText(e.target.value)}
-          value={searchText}
-          disabled={!checked.length}
-        />
+      {/*<form className={classes.topForm} onSubmit={(e) => startConversation(e, checked)}>*/}
+      {/*<TextField*/}
+      {/*onChange={(e) => setSearchText(e.target.value)}*/}
+      {/*value={searchText}*/}
+      {/*disabled={!checked.length}*/}
+      {/*/>*/}
 
-        <Button type='submit'>
-          START
-        </Button>
+      {/*<Button type='submit'>*/}
+      {/*START*/}
+      {/*</Button>*/}
 
-      </form>
+      {/*</form>*/}
       <List className={classes.root}>
-        {Object.values(users).filter(user => user.id !== currentUser.uid).map(({ id, displayName }) => {
+        {Object.values(users).filter(user => user.id !== currentUser.uid).map(({ id, displayName, photoURL }) => {
           const labelId = `checkbox-list-label-${id}`
           return (
             <ListItem key={id} role={undefined} dense button onClick={handleToggle(id)}>
@@ -105,6 +105,11 @@ export default function Users({ onDone }) {
                   inputProps={{ 'aria-labelledby': labelId }}
                 />
               </ListItemIcon>
+
+              <ListItemAvatar>
+                <Avatar src={photoURL} />
+              </ListItemAvatar>
+
               <ListItemText id={labelId} primary={`${displayName}`} />
               <ListItemSecondaryAction>
                 <IconButton

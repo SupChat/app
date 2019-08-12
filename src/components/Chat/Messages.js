@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { forwardRef, useEffect, useState } from 'react'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import { makeStyles } from '@material-ui/core/styles'
@@ -10,7 +10,6 @@ import Avatar from '@material-ui/core/Avatar'
 import moment from 'moment'
 import _get from 'lodash/get'
 import _groupBy from 'lodash/groupBy'
-import _last from 'lodash/last'
 import _sortBy from 'lodash/sortBy'
 import { db } from '../../firebase'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -18,6 +17,12 @@ import Button from '@material-ui/core/Button'
 import Drawer from '@material-ui/core/Drawer'
 import Fab from '@material-ui/core/Fab'
 import CloseIcon from '@material-ui/icons/Close'
+import { Emoji, emojiIndex } from 'emoji-mart'
+
+window['emojiIndex'] = emojiIndex
+
+window.groupE = _groupBy(emojiIndex.emojis, 'native')
+
 
 const useStyles = makeStyles({
   root: {
@@ -46,6 +51,7 @@ const useStyles = makeStyles({
     display: 'flex',
     width: '100%',
     justifyContent: 'center',
+    zIndex: 100,
   },
   avatar: {
     alignSelf: 'baseline',
@@ -69,7 +75,7 @@ const useStyles = makeStyles({
     textAlign: 'center',
     '& span': {
       color: '#3f51b5',
-      background: 'rgba(255, 255, 255, 0.5)',
+      background: 'rgba(255, 255, 255, 1)',
     },
     margin: '20px auto',
     display: 'flex',
@@ -105,9 +111,8 @@ const useStyles = makeStyles({
   },
 })
 
-const Messages = () => {
+const Messages = (props, listRef) => {
   const classes = useStyles()
-  const listRef = useRef()
   const dispatch = useDispatch()
 
   const [zoomImg, setZoomImg] = useState(null)
@@ -121,35 +126,17 @@ const Messages = () => {
   const messagesObject = useSelector(store => store.conversations.messages[store.conversations.activeConversation]) || {}
   const messages = _sortBy(Object.values(messagesObject || {}), 'date') || []
   const shouldFetchMessages = messages.length < 10
-  const lastMsgCurrentUser = _get(_last(messages), 'from') === currentUserId
 
   useEffect(() => {
+    listRef.current.scrollTop = listRef.current.scrollHeight
+
     if (shouldFetchMessages) {
       loadPrevious()
-    } else {
-      listRef.current.scrollTop = listRef.current.scrollHeight
     }
-  }, [shouldFetchMessages])
 
-  useEffect(() => {
-    if (lastMsgCurrentUser && !isLoadingPrevious) {
-      listRef.current.scrollTo({
-        top: listRef.current.scrollHeight,
-        behavior: 'smooth',
-      })
-    }
-    return () => setIsLoadingPrevious(false)
-  }, [messages.length])
+    return loadLastMessage()
 
-  useEffect(() => {
-    return db.collection('conversations')
-      .doc(conversationId)
-      .collection('messages')
-      .orderBy('date', 'desc')
-      .limit(1)
-      .onSnapshot(onGetMessages)
-
-  }, [conversationId, currentUserId, dispatch])
+  }, [conversationId, currentUserId, dispatch, shouldFetchMessages])
 
   function updateLastSeen() {
     return db
@@ -176,27 +163,69 @@ const Messages = () => {
 
   }
 
-  function loadPrevious() {
+  async function loadPrevious() {
     setIsLoadingPrevious(true)
-    db.collection('conversations')
+
+    const snapshot = await db.collection('conversations')
       .doc(conversationId)
       .collection('messages')
       .orderBy('date', 'desc')
       .limit(10)
       .where('date', '<', _get(messages, '[0].date') || new Date())
       .get()
-      .then((snapshot) => {
-        if (!snapshot.size) {
-          setAllLoaded(true)
-          setIsLoadingPrevious(false)
-        }
-        return snapshot
-      })
-      .then(onGetMessages)
+
+    if (!snapshot.size) {
+      setAllLoaded(true)
+    }
+    onGetMessages(snapshot)
+    setIsLoadingPrevious(false)
   }
 
-  function onScrollList(e) {
+  function loadLastMessage() {
+    return db.collection('conversations')
+      .doc(conversationId)
+      .collection('messages')
+      .orderBy('date', 'desc')
+      .limit(1)
+      .onSnapshot(onGetMessages)
+  }
+
+  function Text({ text }) {
+    return (
+      Array.from(text)
+        .reduce((result, char, index) => {
+          const emujiGroup = _get(window, `groupE[${char}]`)
+          if(emujiGroup && emujiGroup.length) {
+            console.log(emujiGroup)
+          }
+          const emuji = _get(window, `groupE[${char}][0]`)
+          if (emuji) {
+            return [
+              ...result,
+              (
+                <Emoji key={index}
+                       emoji={emuji}
+                       set={'google'}
+                       skin={emuji.skin || 1}
+                       size={24}
+                />
+              ),
+            ]
+          }
+          const last = result[result.length - 1]
+          if (typeof last === 'string') {
+            result[result.length - 1] = last + char
+          } else {
+            result.push(char)
+          }
+          return result
+        }, [])
+    )
+  }
+
+  async function onScrollList(e) {
     const isScrollingUp = scrollTop > e.currentTarget.scrollTop
+    setScrollTop(e.currentTarget.scrollTop)
 
     if (e.currentTarget.scrollTop < 30 &&
       isScrollingUp &&
@@ -208,10 +237,8 @@ const Messages = () => {
         e.currentTarget.scrollTop = 1
       }
 
-      loadPrevious()
+      await loadPrevious()
     }
-
-    setScrollTop(e.currentTarget.scrollTop)
   }
 
   const dayGroups = _groupBy(messages, function (message) {
@@ -257,7 +284,8 @@ const Messages = () => {
 
                         <ListItemText
                           dir="auto"
-                          primary={message.text}
+                          style={{ whiteSpace: 'pre' }}
+                          primary={<Text text={message.text} />}
                           secondary={moment(message.date.toDate()).format('HH:mm:ss')} />
                       </div>
                     </ListItem>
@@ -289,4 +317,4 @@ const Messages = () => {
   )
 }
 
-export default Messages
+export default forwardRef(Messages)

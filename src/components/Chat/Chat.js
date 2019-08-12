@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import Messages from './Messages'
 import ChatBox from './ChatBox'
 import { makeStyles } from '@material-ui/core'
@@ -16,11 +16,17 @@ const useStyles = makeStyles({
 
 const Chat = () => {
   const classes = useStyles()
+  const listRef = useRef()
+
+  function onSendMessage() {
+    listRef.current.scrollTop = listRef.current.scrollHeight
+  }
+
   return (
     <div className={classes.root}>
       <ChatHeader />
-      <Messages />
-      <ChatBox />
+      <Messages ref={listRef} />
+      <ChatBox onSendMessage={onSendMessage}/>
     </div>
   )
 }
