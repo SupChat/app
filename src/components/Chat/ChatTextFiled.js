@@ -1,5 +1,5 @@
 import React from 'react'
-import { Emoji, Picker } from 'emoji-mart'
+import { Picker } from 'emoji-mart'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
 import InputAdornment from '@material-ui/core/InputAdornment'

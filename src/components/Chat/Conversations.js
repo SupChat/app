@@ -18,9 +18,8 @@ import _get from 'lodash/get'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
     height: '100%',
-    maxWidth: 360,
+    width: 360,
     backgroundColor: 'rgba(63, 81, 181, 0.05)',
     position: 'relative',
     boxSizing: 'border-box',

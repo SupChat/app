@@ -11,6 +11,7 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
     flexDirection: 'column',
     position: 'relative',
+    width: 'calc(100% - 360px)',
   }
 })
 

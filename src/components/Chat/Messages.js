@@ -109,6 +109,20 @@ const useStyles = makeStyles({
     top: 10,
     left: 10,
   },
+  ListItemText: {
+    whiteSpace: 'pre-line',
+    background: 'rgba(63, 81, 181, 0.03)',
+    borderRadius: 8,
+    padding: 10,
+    boxShadow: '0 0 2px 0px #3f51b5',
+    wordBreak: 'break-all',
+    flex: 'none',
+    maxWidth: 'calc(100% - 56px)',
+    boxSizing: 'border-box',
+  },
+  listItem: {
+    flex: 'initial',
+  },
 })
 
 const Messages = (props, listRef) => {
@@ -194,10 +208,6 @@ const Messages = (props, listRef) => {
     return (
       Array.from(text)
         .reduce((result, char, index) => {
-          const emujiGroup = _get(window, `groupE[${char}]`)
-          if(emujiGroup && emujiGroup.length) {
-            console.log(emujiGroup)
-          }
           const emuji = _get(window, `groupE[${char}][0]`)
           if (emuji) {
             return [
@@ -216,7 +226,7 @@ const Messages = (props, listRef) => {
           if (typeof last === 'string') {
             result[result.length - 1] = last + char
           } else {
-            result.push(char)
+            return [...result, char]
           }
           return result
         }, [])
@@ -265,29 +275,27 @@ const Messages = (props, listRef) => {
               {
                 messages.map((message) => (
                   <React.Fragment key={message.id}>
-                    <ListItem>
+                    <ListItem className={classes.listItem}>
                       <ListItemAvatar className={classes.avatar}>
                         <Avatar src={users[message.from].photoURL} />
                       </ListItemAvatar>
-                      <div>
-                        {
-                          message.file && (
-                            message.file !== 'pending' ? (
-                              <div className={classes.imgContainer}>
-                                <Button onClick={() => setZoomImg(message.file)}>
-                                  <img className={classes.img} src={message.file} />
-                                </Button>
-                              </div>
-                            ) : <CircularProgress color="secondary" />
-                          )
-                        }
+                      {
+                        message.file && (
+                          message.file !== 'pending' ? (
+                            <div className={classes.imgContainer}>
+                              <Button onClick={() => setZoomImg(message.file)}>
+                                <img className={classes.img} src={message.file} />
+                              </Button>
+                            </div>
+                          ) : <CircularProgress color="secondary" />
+                        )
+                      }
 
-                        <ListItemText
-                          dir="auto"
-                          style={{ whiteSpace: 'pre' }}
-                          primary={<Text text={message.text} />}
-                          secondary={moment(message.date.toDate()).format('HH:mm:ss')} />
-                      </div>
+                      <ListItemText
+                        dir="auto"
+                        className={classes.ListItemText}
+                        primary={<Text text={message.text} />}
+                        secondary={moment(message.date.toDate()).format('HH:mm:ss')} />
                     </ListItem>
 
                   </React.Fragment>
