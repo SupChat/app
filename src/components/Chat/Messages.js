@@ -17,12 +17,7 @@ import Button from '@material-ui/core/Button'
 import Drawer from '@material-ui/core/Drawer'
 import Fab from '@material-ui/core/Fab'
 import CloseIcon from '@material-ui/icons/Close'
-import { Emoji, emojiIndex } from 'emoji-mart'
-
-window['emojiIndex'] = emojiIndex
-
-window.groupE = _groupBy(emojiIndex.emojis, 'native')
-
+import EmojiText from './EmujiText'
 
 const useStyles = makeStyles({
   root: {
@@ -55,6 +50,8 @@ const useStyles = makeStyles({
   },
   avatar: {
     alignSelf: 'baseline',
+    maxWidth: 'initial',
+    margin: '0 10px',
   },
   img: {
     maxWidth: 190,
@@ -117,11 +114,16 @@ const useStyles = makeStyles({
     boxShadow: '0 0 2px 0px #3f51b5',
     wordBreak: 'break-all',
     flex: 'none',
-    maxWidth: 'calc(100% - 56px)',
+    maxWidth: 'calc(70% - 60px)',
     boxSizing: 'border-box',
   },
   listItem: {
     flex: 'initial',
+    flexDirection: 'row-reverse',
+  },
+  listItemSelf: {
+    flex: 'initial',
+    flexDirection: 'row',
   },
 })
 
@@ -204,35 +206,6 @@ const Messages = (props, listRef) => {
       .onSnapshot(onGetMessages)
   }
 
-  function Text({ text }) {
-    return (
-      Array.from(text)
-        .reduce((result, char, index) => {
-          const emuji = _get(window, `groupE[${char}][0]`)
-          if (emuji) {
-            return [
-              ...result,
-              (
-                <Emoji key={index}
-                       emoji={emuji}
-                       set={'google'}
-                       skin={emuji.skin || 1}
-                       size={24}
-                />
-              ),
-            ]
-          }
-          const last = result[result.length - 1]
-          if (typeof last === 'string') {
-            result[result.length - 1] = last + char
-          } else {
-            return [...result, char]
-          }
-          return result
-        }, [])
-    )
-  }
-
   async function onScrollList(e) {
     const isScrollingUp = scrollTop > e.currentTarget.scrollTop
     setScrollTop(e.currentTarget.scrollTop)
@@ -275,7 +248,7 @@ const Messages = (props, listRef) => {
               {
                 messages.map((message) => (
                   <React.Fragment key={message.id}>
-                    <ListItem className={classes.listItem}>
+                    <ListItem className={message.from === currentUserId ? classes.listItemSelf : classes.listItem}>
                       <ListItemAvatar className={classes.avatar}>
                         <Avatar src={users[message.from].photoURL} />
                       </ListItemAvatar>
@@ -294,7 +267,7 @@ const Messages = (props, listRef) => {
                       <ListItemText
                         dir="auto"
                         className={classes.ListItemText}
-                        primary={<Text text={message.text} />}
+                        primary={<EmojiText text={message.text} />}
                         secondary={moment(message.date.toDate()).format('HH:mm:ss')} />
                     </ListItem>
 

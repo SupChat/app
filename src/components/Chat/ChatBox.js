@@ -4,9 +4,9 @@ import uuid from 'uuid'
 import { selectActiveConversation } from '../../actions/conversations'
 import { db, storage } from '../../firebase'
 import 'emoji-mart/css/emoji-mart.css'
-import ChatTextFiled from './ChatTextFiled'
 import FileDialog from './FileDialog'
 import Dialog from '@material-ui/core/Dialog'
+import ChatInput from './ChatInput'
 
 export default function ChatBox({ onSendMessage }) {
   const [text, setText] = React.useState('')
@@ -64,8 +64,8 @@ export default function ChatBox({ onSendMessage }) {
   }
 
   return (
-    <div>
-      <ChatTextFiled
+    <React.Fragment>
+      <ChatInput
         value={text}
         onSubmit={sendMessage}
         attachFile={setFile}
@@ -80,8 +80,6 @@ export default function ChatBox({ onSendMessage }) {
           handleClose={() => toggleFile(null)}
           onDone={sendMessage} />
       </Dialog>
-
-
-    </div>
+    </React.Fragment>
   )
 }

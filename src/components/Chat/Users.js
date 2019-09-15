@@ -92,7 +92,7 @@ export default function Users({ onDone }) {
 
       {/*</form>*/}
       <List className={classes.root}>
-        {Object.values(users).filter(user => user.id !== currentUser.uid).map(({ id, displayName, photoURL }) => {
+        {Object.values(users).filter(user => user.id !== currentUser.uid).map(({ id, displayName, photoURL, email }) => {
           const labelId = `checkbox-list-label-${id}`
           return (
             <ListItem key={id} role={undefined} dense button onClick={handleToggle(id)}>
@@ -110,7 +110,10 @@ export default function Users({ onDone }) {
                 <Avatar src={photoURL} />
               </ListItemAvatar>
 
-              <ListItemText id={labelId} primary={`${displayName}`} />
+              <ListItemText
+                id={labelId}
+                secondary={displayName}
+                primary={email} />
               <ListItemSecondaryAction>
                 <IconButton
                   edge="end"
