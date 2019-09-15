@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { Emoji, Picker } from 'emoji-mart'
-import { createTextHTML } from './EmujiText'
+import { createEmojiImg, createTextHTML } from './EmujiText'
 import ContentEditable from 'react-contenteditable'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
@@ -59,18 +59,6 @@ export default function ChatInput({ value: text, onChange, onSubmit, attachFile,
   const contentEditableRef = useRef()
   const classes = useStyles()
 
-  function getCurrentRange() {
-    return window.getSelection().getRangeAt(0).cloneRange()
-  }
-
-  function setCurrentRange(currentRange) {
-    const cloneCurrentRange = currentRange.cloneRange()
-    const selection = window.getSelection()
-    currentRange.collapse(true)
-    selection.removeAllRanges()
-    selection.addRange(cloneCurrentRange)
-  }
-
   useEffect(() => {
     const value = [...contentEditableRef.current.childNodes].map((e) => {
       if (e.nodeName === 'IMG') {
@@ -81,6 +69,15 @@ export default function ChatInput({ value: text, onChange, onSubmit, attachFile,
     }).join('')
     onChange(value)
   }, [contentHtml])
+
+
+  function setCurrentRange(currentRange) {
+    const cloneCurrentRange = currentRange.cloneRange()
+    const selection = window.getSelection()
+    currentRange.collapse(true)
+    selection.removeAllRanges()
+    selection.addRange(cloneCurrentRange)
+  }
 
   function onKeyPress(e) {
     if (e.which === 13 && !e.shiftKey) {
@@ -103,24 +100,16 @@ export default function ChatInput({ value: text, onChange, onSubmit, attachFile,
   }
 
   function addEmoji(emoji) {
-    const e = Emoji({
-      html: true,
-      set: 'google',
-      emoji: emoji,
-      skin: emoji.skin || 1,
-      size: 21,
-    }).replace(/span/g, 'img')
+    const html = createEmojiImg({ emoji })
 
-    const elem = document.createElement('div')
-    elem.innerHTML = e
-    elem.firstChild.setAttribute('alt', emoji.native)
     if (document.activeElement !== contentEditableRef.current) {
       contentEditableRef.current.focus()
       if (range) {
         setCurrentRange(range)
       }
     }
-    document.execCommand('insertHTML', false, elem.innerHTML)
+
+    document.execCommand('insertHTML', false, html)
   }
 
   function onAttachFile(e) {
@@ -141,7 +130,8 @@ export default function ChatInput({ value: text, onChange, onSubmit, attachFile,
   }
 
   function saveCurrentRange() {
-    setRange(getCurrentRange())
+    const currentRange = window.getSelection().getRangeAt(0).cloneRange()
+    setRange(currentRange)
   }
 
   return (

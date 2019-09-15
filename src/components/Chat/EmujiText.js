@@ -25,12 +25,12 @@ const useStyles = makeStyles({
   },
 })
 
-function createEmojiImg({ emoji }) {
+export function createEmojiImg({ emoji, size }) {
   const e = Emoji({
     html: true,
     set: 'google',
     emoji: emoji.colons,
-    size: 24,
+    size: size || 24,
   }).replace(/span/g, 'img')
 
   const elem = document.createElement('div')
