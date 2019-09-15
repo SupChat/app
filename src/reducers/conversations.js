@@ -1,7 +1,8 @@
 const initialState = {
   conversations: {},
   messages: {},
-  activeConversation: '' // sessionStorage.getItem('activeConversation') || '',
+  unreadMessagesCount: {},
+  activeConversation: '', // sessionStorage.getItem('activeConversation') || '',
 }
 
 const conversations = (state = initialState, action) => {
@@ -13,6 +14,14 @@ const conversations = (state = initialState, action) => {
       // sessionStorage.setItem('activeConversation', action.activeConversation)
       return { ...state, activeConversation: action.activeConversation }
 
+    case 'SET_UNREAD_MESSAGES_COUNT': {
+      const { id, count } = action.payload
+      const updates = { ...state, unreadMessagesCount: { ...state.unreadMessagesCount, [id]: count } }
+      const all = Object.values(updates.unreadMessagesCount).reduce((prev, current) => prev + +current, 0)
+      document.title = `Chat App ${all ? `(${all})` : ''}`
+      return updates
+    }
+
     case 'SET_MESSAGES':
       const { id, messages } = action.payload
 
@@ -20,7 +29,7 @@ const conversations = (state = initialState, action) => {
         ...state,
         messages: {
           ...state.messages,
-          [id]: { ...state.messages[id], ...messages }
+          [id]: { ...state.messages[id], ...messages },
         },
       }
     default:

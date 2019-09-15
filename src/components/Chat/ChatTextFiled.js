@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useRef } from 'react'
+import { makeStyles } from '@material-ui/core'
 import { Picker } from 'emoji-mart'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
@@ -8,8 +9,21 @@ import TagFacesIcon from '@material-ui/icons/TagFaces'
 import AttachFileIcon from '@material-ui/icons/AttachFile'
 import TextField from '@material-ui/core/TextField'
 
-export default function ChatTextFiled({ value, onChange, onSubmit, attachFile, required }) {
+const useStyles = makeStyles({
+  root: {
+    width: '100%',
+  },
+  input: {
+    whiteSpace: 'pre',
+  },
+})
+
+
+export default function ChatTextFiled({ value = '', onChange, onSubmit, attachFile, required }) {
+  const classes = useStyles()
   const [showEmojis, setShowEmojis] = React.useState(false)
+  const formRef = useRef()
+  const textFieldRef = useRef()
 
   function submitForm(e) {
     e.preventDefault()
@@ -22,12 +36,14 @@ export default function ChatTextFiled({ value, onChange, onSubmit, attachFile, r
   }
 
   function addEmoji(emoji) {
-    onChange(`${value}${emoji.native}`)
+    const endSelection = textFieldRef.current.selectionEnd
+    const newValue = `${value.substr(0, endSelection)}${emoji.native}${value.substr(endSelection, value.length)}`
+    onChange(newValue)
   }
 
   function submitOnEnter(event) {
     if (event.which === 13 && !event.shiftKey) {
-      event.target.form.dispatchEvent(new Event('submit', { cancelable: true }))
+      formRef.current.dispatchEvent(new Event('submit', { cancelable: true }))
       event.preventDefault()
     }
   }
@@ -37,11 +53,11 @@ export default function ChatTextFiled({ value, onChange, onSubmit, attachFile, r
     e.target.value = ''
   }
 
-  const moreProps = { inputProps: { dir: 'auto' } }
+  const moreProps = { inputProps: { dir: 'auto', ref: textFieldRef } }
 
   return (
-    <div style={{ width: '100%' }}>
-      <form noValidate autoComplete="off" onSubmit={submitForm}>
+    <div className={classes.root}>
+      <form noValidate autoComplete="off" onSubmit={submitForm} ref={formRef}>
         <TextField
           variant="outlined"
           multiline
@@ -51,7 +67,6 @@ export default function ChatTextFiled({ value, onChange, onSubmit, attachFile, r
           value={value}
           onKeyPress={submitOnEnter}
           InputProps={{
-            dir: 'auto',
             endAdornment: (
               <React.Fragment>
                 {

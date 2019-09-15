@@ -31,3 +31,18 @@
     transform: rotate(360deg);
   }
 }
+
+img.emoji-mart-emoji {
+  content: url("data:image/gif;base64,R0lGODlhAQABAPAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==");
+  font-size: 1.3em;
+  line-height: 1em;
+}
+
+.emoji-mart-emoji {
+  vertical-align: top;
+  cursor: text;
+  user-select: text;
+}
+.emoji-mart-category-list li, button.emoji-mart-emoji {
+  outline: none;
+}
