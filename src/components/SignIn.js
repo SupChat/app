@@ -8,7 +8,7 @@ import { faGoogle } from '@fortawesome/free-brands-svg-icons/faGoogle'
 import DialogContent from '@material-ui/core/DialogContent'
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub'
 import * as firebase from 'firebase/app'
-import { auth } from '../../firebase'
+import { auth } from '../firebase'
 
 const useStyles = makeStyles({
   dialog: {

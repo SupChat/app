@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
-import { Emoji, Picker } from 'emoji-mart'
+import { Picker } from 'emoji-mart'
 import { createEmojiImg, createTextHTML } from './EmujiText'
 import ContentEditable from 'react-contenteditable'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
@@ -22,8 +22,9 @@ const useStyles = makeStyles({
     lineHeight: '1.1875em',
     border: '1px solid #abb3ea',
     '&:focus-within': {
+      background: 'rgb(245, 246, 251)',
       borderColor: '#3f51b5',
-    }
+    },
   },
   input: {
     whiteSpace: 'pre',
@@ -47,6 +48,7 @@ const useStyles = makeStyles({
     display: 'flex',
     alignSelf: 'flex-end',
     padding: 8,
+    borderLeft: '1px solid rgba(171, 179, 234, 0.5)',
   },
 })
 
@@ -130,8 +132,12 @@ export default function ChatInput({ value: text, onChange, onSubmit, attachFile,
   }
 
   function saveCurrentRange() {
-    const currentRange = window.getSelection().getRangeAt(0).cloneRange()
-    setRange(currentRange)
+    try {
+      const currentRange = window.getSelection().getRangeAt(0).cloneRange()
+      setRange(currentRange)
+    } catch (e) {
+      setRange(null)
+    }
   }
 
   return (

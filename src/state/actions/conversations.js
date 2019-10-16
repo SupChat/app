@@ -15,4 +15,9 @@ export const setMessages = ({ id, messages }) => ({
   payload: { id, messages }
 })
 
+export const setIsLoadingMessages = (isLoadingMessages) => ({
+  type: 'SET_IS_LOADING_MESSAGES',
+  isLoadingMessages
+})
+
 export const selectActiveConversation = ({ conversations: { conversations, activeConversation }}) => _get(conversations, activeConversation)

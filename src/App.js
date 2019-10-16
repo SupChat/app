@@ -1,56 +1,54 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './App.css'
 import { Route, Switch } from 'react-router'
 import PrivateRoute from './components/PrivateRoute'
-import Home from './components/Home'
+import Home from './components/Home/Home'
 import Welcome from './components/Welcome'
-import Navbar from './components/Navbar/Navbar'
-import { setUser } from './actions/auth'
-import { auth, db } from './firebase'
-import { connect } from 'react-redux'
-import withStyles from '@material-ui/core/styles/withStyles'
+import { setUser } from './state/actions/auth'
+import { auth, db, messaging } from './firebase'
+import { useDispatch } from 'react-redux'
 
-class App extends React.Component {
-  componentDidMount() {
-    const { setUser } = this.props
-    auth.onAuthStateChanged((user) => {
+const App = () => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    function handleTokenRefresh() {
+      return messaging.getToken().then((token) => {
+        console.log('token', token)
+        db.collection('users')
+          .doc(auth.currentUser.uid)
+          .set({ token }, { merge: true })
+      })
+    }
+
+    function onAuthStateChanged(user) {
       if (user) {
-        const { uid: id,   displayName, photoURL,email, phoneNumber } = user
-        db.collection('users').doc(user.uid).set({ id, displayName, photoURL,email, phoneNumber })
+        const { uid: id, displayName, photoURL, email, phoneNumber } = user
+        db.collection('users').doc(user.uid).set({ id, displayName, photoURL, email, phoneNumber })
+
+        Notification.requestPermission()
+          .then(handleTokenRefresh)
+          .catch((err) => console.log('error getting permission :(', err))
+
+        messaging.onTokenRefresh(handleTokenRefresh)
+
+        messaging.onMessage((what) => {
+          console.log('onMessage!!!!!!!!!!!!!!!!!!', what)
+        })
       }
-      setUser(user)
-    })
-  }
 
-  render() {
-    const { classes } = this.props
-    return (
-      <div className={classes.root}>
-        <Navbar />
-        <div className={classes.app}>
-          <Switch>
-            <Route path="/welcome" component={Welcome} />
-            <PrivateRoute path="/" component={Home} />
-          </Switch>
-        </div>
-      </div>
-    )
-  }
+      dispatch(setUser(user))
+    }
+
+    auth.onAuthStateChanged(onAuthStateChanged)
+  }, [dispatch])
+
+  return (
+    <Switch>
+      <Route path="/welcome" component={Welcome} />
+      <PrivateRoute path="/" component={Home} />
+    </Switch>
+  )
 }
 
-const mapDispatchToProps = {
-  setUser,
-}
-
-const styles = {
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-  },
-  app: {
-    height: 'calc(100vh - 64px)',
-  }
-}
-
-export default connect(null, mapDispatchToProps)(withStyles(styles)(App))
+export default App

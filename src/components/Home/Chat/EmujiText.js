@@ -39,7 +39,7 @@ export function createEmojiImg({ emoji, size }) {
   return elem.innerHTML
 }
 
-export function createTextHTML (text) {
+export function createTextHTML(text) {
   let comp = text
   let match
   let index = 0
@@ -49,7 +49,7 @@ export function createTextHTML (text) {
 
     const emoji = _get(emojiByNative, `${emojiNative}`)
     if (emoji && match.index >= index) {
-      const replaceStr =  comp.substr(0, match.index) +  createEmojiImg({ emoji })
+      const replaceStr = comp.substr(0, match.index) + createEmojiImg({ emoji })
       comp = replaceStr + comp.substr(match.index + emojiLength)
       index = replaceStr.length
     }
