@@ -3,6 +3,7 @@ import makeStyles from '@material-ui/core/styles/makeStyles'
 import Conversations from './Chat/Conversations'
 import Chat from './Chat/Chat'
 import { useSelector } from 'react-redux'
+import DropZone from './Chat/DropZone'
 
 const useStyles = makeStyles({
   root: {
