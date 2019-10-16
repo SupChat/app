@@ -3,7 +3,7 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import { makeStyles } from '@material-ui/core/styles'
 import { useDispatch, useSelector } from 'react-redux'
-import { setMessages } from '../../actions/conversations'
+import { setIsLoadingMessages, setMessages } from '../../../state/actions/conversations'
 import List from '@material-ui/core/List'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Avatar from '@material-ui/core/Avatar'
@@ -11,7 +11,7 @@ import moment from 'moment'
 import _get from 'lodash/get'
 import _groupBy from 'lodash/groupBy'
 import _sortBy from 'lodash/sortBy'
-import { db } from '../../firebase'
+import { db } from '../../../firebase'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Button from '@material-ui/core/Button'
 import Drawer from '@material-ui/core/Drawer'
@@ -70,7 +70,7 @@ const useStyles = makeStyles({
   },
   day: {
     position: 'sticky',
-    top: 20,
+    top: 60,
     fontSize: 16,
     textAlign: 'center',
     '& span': {
@@ -87,7 +87,7 @@ const useStyles = makeStyles({
     position: 'absolute',
     height: '100%',
     top: 0,
-    zIndex: 10000,
+    zIndex: 'initial',
     width: '100%',
   },
   docked: {
@@ -136,9 +136,9 @@ const Messages = ({ isDragOn }, listRef) => {
 
   const [zoomImg, setZoomImg] = useState(null)
   const [allLoaded, setAllLoaded] = useState(false)
-  const [isLoadingPrevious, setIsLoadingPrevious] = useState(false)
   const [scrollTop, setScrollTop] = useState(false)
 
+  const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
   const conversationId = useSelector(store => store.conversations.activeConversation)
   const currentUserId = useSelector(store => store.auth.user.uid)
   const users = useSelector(store => store.users.users)
@@ -153,7 +153,12 @@ const Messages = ({ isDragOn }, listRef) => {
       loadPrevious()
     }
 
-    return loadLastMessage()
+    return db.collection('conversations')
+      .doc(conversationId)
+      .collection('messages')
+      .orderBy('date', 'desc')
+      .limit(1)
+      .onSnapshot(onGetMessages)
 
   }, [conversationId, currentUserId, dispatch, shouldFetchMessages])
 
@@ -183,7 +188,7 @@ const Messages = ({ isDragOn }, listRef) => {
   }
 
   async function loadPrevious() {
-    setIsLoadingPrevious(true)
+    dispatch(setIsLoadingMessages(true))
 
     const snapshot = await db.collection('conversations')
       .doc(conversationId)
@@ -197,16 +202,8 @@ const Messages = ({ isDragOn }, listRef) => {
       setAllLoaded(true)
     }
     onGetMessages(snapshot)
-    setIsLoadingPrevious(false)
-  }
 
-  function loadLastMessage() {
-    return db.collection('conversations')
-      .doc(conversationId)
-      .collection('messages')
-      .orderBy('date', 'desc')
-      .limit(1)
-      .onSnapshot(onGetMessages)
+    dispatch(setIsLoadingMessages(false))
   }
 
   async function onScrollList(e) {
@@ -217,7 +214,7 @@ const Messages = ({ isDragOn }, listRef) => {
       isScrollingUp &&
       messages.length &&
       !allLoaded &&
-      !isLoadingPrevious) {
+      !isLoadingMessages) {
 
       if (e.currentTarget.scrollTop === 0) {
         e.currentTarget.scrollTop = 1
@@ -233,16 +230,9 @@ const Messages = ({ isDragOn }, listRef) => {
 
   return (
     <div className={`${classes.root} ${isDragOn ? classes.opacity : ''}`}>
-      {
-        isLoadingPrevious && (
-          <div className={classes.progress}>
-            <CircularProgress color="secondary" />
-          </div>
-        )
-      }
       <List ref={listRef}
             className={classes.list}
-            style={isLoadingPrevious ? { overflow: 'hidden' } : {}}
+            style={isLoadingMessages ? { overflow: 'hidden' } : {}}
             onScroll={onScrollList}>
         {
           Object.entries(dayGroups).map(([day, messages]) => (

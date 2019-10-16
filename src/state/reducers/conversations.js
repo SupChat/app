@@ -1,6 +1,7 @@
 const initialState = {
   conversations: {},
   messages: {},
+  isLoadingMessages: false,
   unreadMessagesCount: {},
   activeConversation: '', // sessionStorage.getItem('activeConversation') || '',
 }
@@ -12,7 +13,7 @@ const conversations = (state = initialState, action) => {
 
     case 'SET_ACTIVE_CONVERSATION':
       // sessionStorage.setItem('activeConversation', action.activeConversation)
-      return { ...state, activeConversation: action.activeConversation }
+      return { ...state, activeConversation: action.activeConversation, isLoadingMessages: false }
 
     case 'SET_UNREAD_MESSAGES_COUNT': {
       const { id, count } = action.payload
@@ -32,6 +33,9 @@ const conversations = (state = initialState, action) => {
           [id]: { ...state.messages[id], ...messages },
         },
       }
+    case 'SET_IS_LOADING_MESSAGES': {
+      return { ...state, isLoadingMessages: action.isLoadingMessages }
+    }
     default:
       return state
   }

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
-import { selectActiveConversation } from '../../actions/conversations'
-import { db } from '../../firebase'
+import { selectActiveConversation } from '../../../state/actions/conversations'
+import { db } from '../../../firebase'
 import 'emoji-mart/css/emoji-mart.css'
 import ChatInput from './ChatInput'
 
