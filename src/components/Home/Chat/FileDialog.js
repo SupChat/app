@@ -4,7 +4,8 @@ import { DialogActions } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import makeStyles from '@material-ui/core/styles/makeStyles'
-import ChatTextFiled from './ChatTextFiled'
+import Dialog from '@material-ui/core/Dialog'
+import ChatInput from './ChatInput'
 
 const useStyles = makeStyles({
   content: {
@@ -14,44 +15,50 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
+    boxSizing: 'border-box',
   },
   img: {
     height: '80%',
   },
 })
 
-export default function FileDialog({ handleClose, onDone, file }) {
+export default function FileDialog({ onClose, onDone, file }) {
   const classes = useStyles()
   const [image, setImage] = useState(null)
   const [text, setText] = useState('')
   const reader = useRef(new FileReader())
 
   useEffect(() => {
-    reader.current.onload = () => {
-      setImage(reader.current.result)
+    if (file) {
+      reader.current.onload = () => {
+        setImage(reader.current.result)
+      }
+      reader.current.readAsDataURL(file)
     }
-    reader.current.readAsDataURL(file)
-  }, [])
+  }, [file])
 
   return (
-    <React.Fragment>
+    <Dialog
+      open={Boolean(file)}
+      onClose={onClose}>
+
       <DialogTitle>
         Upload Image
       </DialogTitle>
 
       <DialogContent dividers className={classes.content}>
         <img className={classes.img} src={image} />
-        <ChatTextFiled value={text} onChange={setText} onSubmit={onDone} />
+        <ChatInput value={text} onChange={setText} onSubmit={onDone} />
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={handleClose} color="primary">
+        <Button onClick={onClose} color="primary">
           Cancel
         </Button>
         <Button onClick={() => onDone(text)} color="primary">
           Send
         </Button>
       </DialogActions>
-    </React.Fragment>
+    </Dialog>
   )
 }
