@@ -6,14 +6,14 @@ import ChatHeader from './ChatHeader'
 import DropZone from './DropZone'
 
 const useStyles = makeStyles({
-    root: {
-        flex: 1,
-        display: 'flex',
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-        position: 'relative',
-        width: 'calc(100% - 360px)',
-    }
+  root: {
+    flex: 1,
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    position: 'relative',
+    width: 'calc(100% - 360px)',
+  }
 })
 
 const Chat = () => {
@@ -26,7 +26,7 @@ const Chat = () => {
         setIsDragOn(false)
     }
 
-    function onDragEvent(){
+    function onDragEvent() {
         setIsDragOn(true)
     }
 
