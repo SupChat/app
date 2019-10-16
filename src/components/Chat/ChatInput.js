@@ -11,6 +11,7 @@ import AttachFileIcon from '@material-ui/icons/AttachFile'
 
 const useStyles = makeStyles({
   root: {
+    width: '100%',
     position: 'relative',
     color: 'rgba(0, 0, 0, 0.87)',
     cursor: 'text',
@@ -51,7 +52,7 @@ const useStyles = makeStyles({
 })
 
 
-export default function ChatInput({ value: text, onChange, onSubmit, attachFile, required }) {
+export default function ChatInput({ value: text, onChange, onSubmit, required, attachFile }) {
   const [showEmojis, setShowEmojis] = React.useState(false)
   const [contentHtml, setContentHtml] = React.useState('')
   const [range, setRange] = React.useState(null)
@@ -112,7 +113,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, attachFile,
     document.execCommand('insertHTML', false, html)
   }
 
-  function onAttachFile(e) {
+  function onChangeFileInput(e) {
     attachFile(e.target.files.length ? e.target.files.item(0) : null)
     e.target.value = ''
   }
@@ -172,27 +173,23 @@ export default function ChatInput({ value: text, onChange, onSubmit, attachFile,
         )
       }
       <div className={classes.actions}>
-        {
-          attachFile && (
-            <React.Fragment>
-              <input
-                accept="image/*"
-                style={{ display: 'none' }}
-                id="raised-button-file"
-                onChange={onAttachFile}
-                type="file"
-              />
-              <label htmlFor="raised-button-file">
-                <IconButton
-                  component="span"
-                  type='button'
-                  color='default'>
-                  <AttachFileIcon />
-                </IconButton>
-              </label>
-            </React.Fragment>
-          )
-        }
+        <React.Fragment>
+          <input
+            accept="image/*"
+            style={{ display: 'none' }}
+            id="raised-button-file"
+            onChange={onChangeFileInput}
+            type="file"
+          />
+          <label htmlFor="raised-button-file">
+            <IconButton
+              component="span"
+              type='button'
+              color='default'>
+              <AttachFileIcon />
+            </IconButton>
+          </label>
+        </React.Fragment>
         <IconButton
           type='button'
           color={showEmojis ? 'primary' : 'default'}

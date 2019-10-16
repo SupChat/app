@@ -25,6 +25,9 @@ const useStyles = makeStyles({
     position: 'relative',
     overflow: 'hidden',
   },
+  opacity: {
+    opacity: 0.3,
+  },
   list: {
     height: '100%',
     width: '100%',
@@ -127,7 +130,7 @@ const useStyles = makeStyles({
   },
 })
 
-const Messages = (props, listRef) => {
+const Messages = ({ isDragOn }, listRef) => {
   const classes = useStyles()
   const dispatch = useDispatch()
 
@@ -229,7 +232,7 @@ const Messages = (props, listRef) => {
   })
 
   return (
-    <div className={classes.root}>
+    <div className={`${classes.root} ${isDragOn ? classes.opacity : ''}`}>
       {
         isLoadingPrevious && (
           <div className={classes.progress}>
