@@ -5,9 +5,9 @@ import { makeStyles } from '@material-ui/core'
 import ChatHeader from './ChatHeader'
 import DropZone from './DropZone'
 import uuid from 'uuid'
-import { db, storage } from '../../firebase'
+import { db, storage } from '../../../firebase'
 import { useSelector } from 'react-redux'
-import { selectActiveConversation } from '../../actions/conversations'
+import { selectActiveConversation } from '../../../state/actions/conversations'
 import FileDialog from './FileDialog'
 
 const useStyles = makeStyles({

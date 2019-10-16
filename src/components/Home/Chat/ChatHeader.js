@@ -2,7 +2,6 @@ import React from 'react'
 import Typography from '@material-ui/core/Typography'
 import makeStyles from '@material-ui/core/styles/makeStyles'
 import Grid from '@material-ui/core/Grid'
-import Avatar from '@material-ui/core/Avatar'
 import { selectActiveConversation } from '../../../state/actions/conversations'
 import { useSelector } from 'react-redux'
 import _get from 'lodash/get'
@@ -32,7 +31,7 @@ const useStyles = makeStyles({
     height: 50,
     width: 50,
     margin: '0 5px',
-  }
+  },
 })
 
 export default function ChatHeader() {

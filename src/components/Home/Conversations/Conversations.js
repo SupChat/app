@@ -3,18 +3,16 @@ import { makeStyles } from '@material-ui/core/styles'
 import List from '@material-ui/core/List'
 import { db } from '../../../firebase'
 import { useDispatch, useSelector } from 'react-redux'
-import { setActiveConversation, setConversations } from '../../../state/actions/conversations'
+import { setConversations } from '../../../state/actions/conversations'
 import Conversation from './Conversation'
 import Divider from '@material-ui/core/Divider'
 import { isEmpty } from 'lodash'
-import { setUsers } from '../../../state/actions/users'
-import _get from 'lodash/get'
 import AddConversation from './AddConversation'
 import { Chat } from '@material-ui/icons'
 import Fab from '@material-ui/core/Fab'
 import Dialog from '@material-ui/core/Dialog'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
   root: {
     height: '100%',
     width: 360,
@@ -41,7 +39,7 @@ const useStyles = makeStyles(theme => ({
     overflow: 'visible',
     width: 450,
   },
-}))
+})
 
 export default function Conversations() {
   const [open, setOpen] = useState(false)
@@ -60,7 +58,7 @@ export default function Conversations() {
         }), {})
         dispatch(setConversations(docsDictionary))
       })
-  }, [currentUser])
+  }, [dispatch, currentUser])
 
   function onCloseDialog() {
     setOpen(false)

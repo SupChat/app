@@ -35,12 +35,10 @@ const useStyles = makeStyles({
 
 const Conversation = ({ data: conversation }) => {
   const [lastMessage, setLastMessage] = useState('')
-
   const classes = useStyles()
   const { id } = conversation
   const count = useSelector(store => store.conversations.unreadMessagesCount[id])
   const currentUser = useSelector(store => store.auth.user)
-  const users = useSelector(store => store.users.users)
   const lastSeen = _get(conversation, `members[${currentUser.uid}].lastSeen`)
   const { uid: currentUserId } = currentUser
   const dispatch = useDispatch()
@@ -49,11 +47,6 @@ const Conversation = ({ data: conversation }) => {
   function setActive() {
     dispatch(setActiveConversation(id))
   }
-
-  const membersList = Object.keys(conversation.members || {})
-    .filter((userId) => userId !== currentUserId)
-
-  const primary = membersList.map((userId) => _get(users, `[${userId}].displayName`)).join(', ')
 
   useEffect(() => {
     return db
@@ -67,7 +60,7 @@ const Conversation = ({ data: conversation }) => {
         dispatch({ type: 'SET_UNREAD_MESSAGES_COUNT', payload: { id, count } })
       })
 
-  }, [id, lastSeen, currentUserId])
+  }, [dispatch, id, lastSeen, currentUserId])
 
   useEffect(() => {
     return db
