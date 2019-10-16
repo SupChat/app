@@ -2,13 +2,16 @@ import React, { useEffect } from 'react'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { makeStyles } from '@material-ui/core'
+import Navbar from './Navbar'
 
 export default function Welcome() {
   function useStyles() {
-   return  makeStyles({
+    return makeStyles({
       root: {
-        marginTop: 20
-      }
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+      },
     })
   }
 
@@ -24,7 +27,10 @@ export default function Welcome() {
 
   return (
     <div className={classes.root}>
-      Welcome to CHAT.
+      <Navbar />
+      <div>
+        Welcome to CHAT.
+      </div>
     </div>
   )
 }
