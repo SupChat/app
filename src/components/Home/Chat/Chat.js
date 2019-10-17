@@ -10,87 +10,93 @@ import { useSelector } from 'react-redux'
 import { selectActiveConversation } from '../../../state/actions/conversations'
 import FileDialog from './FileDialog'
 
+export const fileTypes = {
+    image: 'image',
+    video: 'video',
+}
+
 const useStyles = makeStyles({
-  root: {
-    flex: 1,
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexDirection: 'column',
-    position: 'relative',
-    width: '100%',
-    height: '100%',
-  },
+    root: {
+        flex: 1,
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+    },
 })
 
 const Chat = () => {
-  const classes = useStyles()
-  const listRef = useRef()
-  const [isDragOn, setIsDragOn] = useState(false)
-  const [file, setFile] = React.useState(null)
+    const classes = useStyles()
+    const listRef = useRef()
+    const [isDragOn, setIsDragOn] = useState(false)
+    const [file, setFile] = React.useState(null)
 
-  const currentUser = useSelector(store => store.auth.user)
-  const activeConversation = useSelector(selectActiveConversation)
+    const currentUser = useSelector(store => store.auth.user)
+    const activeConversation = useSelector(selectActiveConversation)
 
-  async function onSendMessage(text) {
-    listRef.current.scrollTop = listRef.current.scrollHeight
-    setIsDragOn(false)
-    setFile(null)
+    async function onSendMessage(text) {
+        listRef.current.scrollTop = listRef.current.scrollHeight
+        setIsDragOn(false)
+        setFile(null)
 
-    const msgId = uuid()
+        const msgId = uuid()
 
-    const messageRef = db
-      .collection('conversations')
-      .doc(activeConversation.id)
-      .collection('messages')
-      .doc(msgId)
+        const messageRef = db
+            .collection('conversations')
+            .doc(activeConversation.id)
+            .collection('messages')
+            .doc(msgId)
 
-    await messageRef.set({
-      id: msgId,
-      text,
-      ...(file ? { file: 'pending' } : {}),
-      from: currentUser.uid,
-      date: new Date(),
-    })
+        await messageRef.set({
+            id: msgId,
+            text,
+            ...(file ? { file: 'pending' } : {}),
+            ...(file ? { fileType: Object.keys(fileTypes).find(type => file.type.includes(type)) } : {}),
+            from: currentUser.uid,
+            date: new Date(),
+        })
 
-    if (file) {
-      const fileRef = await storage.ref(`conversations/${activeConversation.id}/${msgId}`).put(file).then((snapshot) => snapshot.ref.getDownloadURL())
-      await messageRef.set({ file: fileRef }, { merge: true })
+        if (file) {
+            const fileRef = await storage.ref(`conversations/${activeConversation.id}/${msgId}`).put(file).then((snapshot) => snapshot.ref.getDownloadURL())
+            await messageRef.set({ file: fileRef }, { merge: true })
+        }
     }
-  }
 
-  function onDragEnter() {
-    setIsDragOn(true)
-  }
+    function onDragEnter() {
+        setIsDragOn(true)
+    }
 
-  function onDragLeave() {
-    setIsDragOn(false)
-  }
+    function onDragLeave() {
+        setIsDragOn(false)
+    }
 
-  return (
-    <div className={classes.root} onDragEnter={onDragEnter}>
-      <ChatHeader />
+    return (
+        <div className={classes.root} onDragEnter={onDragEnter}>
+            <ChatHeader />
 
-      <Messages ref={listRef} isDragOn={isDragOn} />
+            <Messages ref={listRef} isDragOn={isDragOn} />
 
-      <ChatBox
-        attachFile={setFile}
-        onSendMessage={onSendMessage} />
+            <ChatBox
+                attachFile={setFile}
+                onSendMessage={onSendMessage} />
 
-      <FileDialog
-        file={file}
-        onClose={() => setFile(null)}
-        onDone={onSendMessage} />
+            <FileDialog
+                file={file}
+                onClose={() => setFile(null)}
+                onDone={onSendMessage} />
 
-      {
-        isDragOn && (
-          <DropZone
-            onDragLeave={onDragLeave}
-            setFile={setFile} />
-        )
-      }
+            {
+                isDragOn && (
+                    <DropZone
+                        onDragLeave={onDragLeave}
+                        setFile={setFile} />
+                )
+            }
 
-    </div>
-  )
+        </div>
+    )
 }
 
 export default Chat
