@@ -30,6 +30,8 @@ const useStyles = makeStyles({
   ellipsis: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    maxHeight: '24px',
+    whiteSpace: 'nowrap',
   },
 })
 
