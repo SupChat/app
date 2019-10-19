@@ -250,7 +250,7 @@ const Messages = ({ isDragOn }, listRef) => {
                           message.file !== 'pending' ? (
                             <div className={classes.imgContainer}>
                               <Button onClick={() => setZoomImg(message.file)}>
-                                <img className={classes.img} alt={message.file} src={message.file} />
+                                <img className={classes.img} alt="" src={message.file} />
                               </Button>
                             </div>
                           ) : <CircularProgress color="secondary" />

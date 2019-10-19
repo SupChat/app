@@ -67,7 +67,11 @@ const Home = () => {
       {/*}}>*/}
       {/*</Drawer>*/}
       {
-        <SplitPane split="vertical" defaultSize={350} minSize={250} >
+        <SplitPane
+          split="vertical"
+          minSize={250}
+          defaultSize={ parseInt(localStorage.getItem('splitPos'), 10) || 350}
+          onChange={size => localStorage.setItem('splitPos', size)}>
           <Conversations />
           <div className={classes.main}>
             <Navbar />
