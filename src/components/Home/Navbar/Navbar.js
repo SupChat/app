@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { AppBar, Toolbar, Typography } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import makeStyles from '@material-ui/core/styles/makeStyles'
@@ -48,9 +48,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function Navbar() {
   const classes = useStyles()
-  // const currentUser = useSelector(store => store.auth.user)
-  const conversations = useSelector(store => store.conversations.conversations)
-  const [msgCount] = useState(0)
   const dispatch = useDispatch()
   const showUsers = useSelector(store => store.ui.showUsers)
 
@@ -63,15 +60,15 @@ export default function Navbar() {
       <Toolbar className={classes.root}>
         <div className={classes.rightSize}>
           {
-              <Fab size='small' className={classes.showUsers} onClick={handleDrawer}>
-                {
-                  showUsers ? (
-                    <ChevronLeftIcon />
-                  ) : (
-                    <FontAwesomeIcon icon={faUsers} />
-                  )
-                }
-              </Fab>
+            <Fab size='small' className={classes.showUsers} onClick={handleDrawer}>
+              {
+                showUsers ? (
+                  <ChevronLeftIcon />
+                ) : (
+                  <FontAwesomeIcon icon={faUsers} />
+                )
+              }
+            </Fab>
           }
           <Typography color="inherit" className="flex">
             CHAT
@@ -85,7 +82,3 @@ export default function Navbar() {
     </AppBar>
   )
 }
-
-// {/*<Badge className={classes.msgBadge} badgeContent={msgCount} color="secondary">*/}
-// {/*<MailIcon />*/}
-// {/*</Badge>*/}

@@ -90,7 +90,11 @@ const Conversation = ({ data: conversation }) => {
       </ListItemAvatar>
 
       <ListItemText
-        primary={<ConversationTitle conversation={conversation} />}
+        primary={
+          <Typography className={classes.ellipsis}>
+            <ConversationTitle conversation={conversation} />
+          </Typography>
+        }
         secondary={(
           <Typography className={classes.ellipsis}>{lastMessage}</Typography>
         )} />

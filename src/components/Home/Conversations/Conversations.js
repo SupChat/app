@@ -15,7 +15,6 @@ import Dialog from '@material-ui/core/Dialog'
 const useStyles = makeStyles({
   root: {
     height: '100%',
-    width: 360,
     backgroundColor: 'rgba(63, 81, 181, 0.05)',
     position: 'relative',
     boxSizing: 'border-box',
