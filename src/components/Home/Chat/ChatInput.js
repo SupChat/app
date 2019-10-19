@@ -28,7 +28,7 @@ const useStyles = makeStyles({
     },
   },
   input: {
-    whiteSpace: 'pre',
+    whiteSpace: 'pre-wrap',
     outline: 'none',
     font: 'inherit',
     color: 'currentColor',
@@ -44,6 +44,16 @@ const useStyles = makeStyles({
     display: 'inline-block',
     padding: 20,
     boxSizing: 'border-box',
+    '&::-webkit-scrollbar': {
+      width: '6px!important',
+      height: '6px!important',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'hsla(0,0%,100%,.08)',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.2)',
+    },
   },
   actions: {
     display: 'flex',
