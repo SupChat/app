@@ -3,19 +3,23 @@ import makeStyles from '@material-ui/core/styles/makeStyles'
 import Conversations from './Conversations/Conversations'
 import Chat from './Chat/Chat'
 import { useDispatch, useSelector } from 'react-redux'
-import Drawer from '@material-ui/core/Drawer'
 import Navbar from './Navbar/Navbar'
 import { db } from '../../firebase'
 import { setUsers } from '../../state/actions/users'
+import SplitPane from 'react-split-pane'
 
 const useStyles = makeStyles({
   root: {
     position: 'relative',
     height: '100vh',
     width: '100vw',
-
     display: 'flex',
     boxSizing: 'border-box',
+    '&.hidePane1': {
+      '& .Pane1': {
+        display: 'none !important',
+      },
+    },
   },
   drawer: {
     width: 360,
@@ -33,6 +37,7 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
+    height: '100%',
   },
 })
 
@@ -51,30 +56,25 @@ const Home = () => {
   }, [dispatch])
 
   return (
-    <div className={classes.root}>
-
-      <Drawer
-        className={`${showUsers ? classes.drawer : ''}`}
-        variant="persistent"
-        anchor="left"
-        open={showUsers}
-        classes={{
-          paper: classes.drawerPaper,
-        }}>
-        {/*<div className={classes.drawerHeader}>*/}
-        {/*<IconButton onClick={handleDrawerClose}>*/}
-        {/*<ChevronLeftIcon />*/}
-        {/*</IconButton>*/}
-        {/*</div>*/}
-        {/*<Divider />*/}
-        <Conversations />
-      </Drawer>
-
-      <div className={classes.main}>
-        <Navbar />
-        {activeConversation && <Chat />}
-      </div>
-
+    <div className={`${classes.root} ${showUsers ? '' : 'hidePane1'}`}>
+      {/*<Drawer*/}
+      {/*className={`${showUsers ? classes.drawer : ''}`}*/}
+      {/*variant="persistent"*/}
+      {/*anchor="left"*/}
+      {/*open={showUsers}*/}
+      {/*classes={{*/}
+      {/*paper: classes.drawerPaper,*/}
+      {/*}}>*/}
+      {/*</Drawer>*/}
+      {
+        <SplitPane split="vertical" defaultSize={350} minSize={250} >
+          <Conversations />
+          <div className={classes.main}>
+            <Navbar />
+            {activeConversation && <Chat />}
+          </div>
+        </SplitPane>
+      }
     </div>
   )
 }
