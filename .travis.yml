@@ -1,20 +1,21 @@
 language: node_js
 
 node_js:
-  - 'node'
+  - node
 
 install:
-  - "npm install"
+  - npm install
 
 cache:
   directories:
-    - "./node_modules"
+    - ./node_modules
 
 script:
-  - "npm run build"
+  - unset CI # <-------- this line helped
+  - npm run build
 
 before_deploy:
-  - "npm install -g firebase-tools"
+  - npm install -g firebase-tools
 
 
 deploy:
