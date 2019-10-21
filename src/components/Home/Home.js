@@ -70,7 +70,7 @@ const Home = () => {
         <SplitPane
           split="vertical"
           minSize={250}
-          defaultSize={ parseInt(localStorage.getItem('splitPos'), 10) || 350}
+          defaultSize={ parseInt(localStorage.getItem('splitPos') || 350, 10) }
           onChange={size => localStorage.setItem('splitPos', size)}>
           <Conversations />
           <div className={classes.main}>
