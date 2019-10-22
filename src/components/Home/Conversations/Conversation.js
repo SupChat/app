@@ -112,7 +112,7 @@ const Conversation = ({ data: conversation }) => {
 
       <ListItemText
         primary={
-          <Typography className={`${classes.primary} ${classes.ellipsis}`}>
+          <Typography className={classes.ellipsis}>
             <ConversationTitle conversation={conversation} />
           </Typography>
         }
