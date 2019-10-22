@@ -11,6 +11,7 @@ import { setActiveConversation } from '../../../state/actions/conversations'
 import _get from 'lodash/get'
 import ConversationAvatar from './ConversationAvatar'
 import { ConversationTitle } from './ConversationTitle'
+import moment from 'moment'
 
 const useStyles = makeStyles({
   root: {
@@ -25,13 +26,20 @@ const useStyles = makeStyles({
   },
   counter: {
     top: '50%',
-    alignSelf: 'center',
+    margin: '1px 0',
+    alignSelf: 'flex-end',
   },
   ellipsis: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxHeight: '24px',
     whiteSpace: 'nowrap',
+  },
+  right: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    margin: 6,
   },
 })
 
@@ -48,6 +56,19 @@ const Conversation = ({ data: conversation }) => {
 
   function setActive() {
     dispatch(setActiveConversation(id))
+  }
+
+  function parsedDate(date) {
+    const momDate = moment(date.toDate())
+    const sameDay = momDate.isSame(new Date(), 'day')
+    const sameYear = momDate.isSame(new Date(), 'year')
+    if (sameDay) {
+      return momDate.format('HH:mm')
+    }
+    if (sameYear) {
+      return momDate.format('DD/MM')
+    }
+    return momDate.format('DD/MM/YY')
   }
 
   useEffect(() => {
@@ -73,7 +94,7 @@ const Conversation = ({ data: conversation }) => {
       .limit(1)
       .onSnapshot((snapshot) => {
         if (snapshot.docs.length) {
-          setLastMessage(snapshot.docs[0].data().text)
+          setLastMessage(snapshot.docs[0].data())
         }
       })
 
@@ -96,18 +117,19 @@ const Conversation = ({ data: conversation }) => {
           </Typography>
         }
         secondary={(
-          <Typography className={classes.ellipsis}>{lastMessage}</Typography>
+          <Typography className={classes.ellipsis}>{lastMessage && lastMessage.text}</Typography>
         )} />
-      {
-        Boolean(count) && (
+      <div className={classes.right}>
+        {lastMessage && <span>{parsedDate(lastMessage.date)}</span>}
+        {Boolean(count) && (
           <Chip
             variant='default'
             color='primary'
             className={classes.counter}
             size="small"
             label={count} />
-        )
-      }
+        )}
+      </div>
 
     </ListItem>
   )
