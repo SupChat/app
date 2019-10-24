@@ -66,7 +66,7 @@ const useStyles = makeStyles({
 
 export default function ChatInput({ value: text, onChange, onSubmit, required, attachFile }) {
   const [showEmojis, setShowEmojis] = React.useState(false)
-  const [contentHtml, setContentHtml] = React.useState(text)
+  const [contentHtml, setContentHtml] = React.useState('')
   const [range, setRange] = React.useState(null)
   const formRef = useRef()
   const contentEditableRef = useRef()

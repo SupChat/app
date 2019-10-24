@@ -12,7 +12,7 @@ import { db } from '../../../firebase'
 import Drawer from '@material-ui/core/Drawer'
 import Fab from '@material-ui/core/Fab'
 import CloseIcon from '@material-ui/icons/Close'
-import { Message } from './Message'
+import Message from './Message'
 
 const useStyles = makeStyles({
   root: {
