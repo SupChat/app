@@ -65,16 +65,10 @@ const useStyles = makeStyles({
   },
 })
 
-
-export const Message = ({ message, conversationId, setZoomImg }) => {
+export default function Message({ message, conversationId, setZoomImg }) {
   const classes = useStyles()
   const currentUserId = useSelector(store => store.auth.user.uid)
   const avatarPhotoURL = useSelector(store => _get(store, `users.users[${message.from}].photoURL`))
-  const members = useSelector(store => _get(store, `conversations.conversations[${conversationId}].members`))
-
-  const isMessageRead = Object.values(members).every(member => {
-    return member.lastSeen.toDate().getTime() >= message.date.toDate().getTime()
-  })
 
   return (
     <ListItem key={message.id} className={message.from === currentUserId ? classes.listItemSelf : classes.listItem}>
@@ -102,9 +96,10 @@ export const Message = ({ message, conversationId, setZoomImg }) => {
           <Typography className={classes.secondary}>
             {
               message.from === currentUserId && (
-                <FontAwesomeIcon
-                  className={`${classes.faCheck} ${isMessageRead ? classes.faCheckDouble : ''}`}
-                  icon={isMessageRead ? faCheckDouble : faCheck} />
+                <MessageReadIndicator
+                  conversationId={conversationId}
+                  classes={classes}
+                  date={message.date} />
               )
             }
             <span>{moment(message.date.toDate()).format('HH:mm:ss')}</span>
@@ -112,5 +107,18 @@ export const Message = ({ message, conversationId, setZoomImg }) => {
         } />
     </ListItem>
   )
+}
 
+function MessageReadIndicator ({ classes, conversationId, date }) {
+  const members = useSelector(store => _get(store, `conversations.conversations[${conversationId}].members`))
+
+  const isMessageRead = Object.values(members).every(member => (
+    member.lastSeen.toDate().getTime() >= date.toDate().getTime()
+  ))
+
+  return (
+    <FontAwesomeIcon
+      className={`${classes.faCheck} ${isMessageRead ? classes.faCheckDouble : ''}`}
+      icon={isMessageRead ? faCheckDouble : faCheck} />
+  )
 }
