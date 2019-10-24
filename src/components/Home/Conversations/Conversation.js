@@ -43,7 +43,7 @@ const useStyles = makeStyles({
   },
 })
 
-const Conversation = ({ data: conversation }) => {
+const Conversation = ({ data: conversation, dispatchLocal }) => {
   const [lastMessage, setLastMessage] = useState('')
   const classes = useStyles()
   const { id } = conversation
@@ -95,6 +95,7 @@ const Conversation = ({ data: conversation }) => {
       .onSnapshot((snapshot) => {
         if (snapshot.docs.length) {
           setLastMessage(snapshot.docs[0].data())
+          dispatchLocal({ type: 'UPDATE', payload: { [conversation.id]: snapshot.docs[0].data().date.toDate() } })
         }
       })
 
