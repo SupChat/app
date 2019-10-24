@@ -13,7 +13,6 @@ import EmojiText from './EmujiText'
 import moment from 'moment'
 import _get from 'lodash/get'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
 
 const useStyles = makeStyles({
@@ -73,10 +72,10 @@ export const Message = ({ message, conversationId, setZoomImg }) => {
   const avatarPhotoURL = useSelector(store => _get(store, `users.users[${message.from}].photoURL`))
   const members = useSelector(store => _get(store, `conversations.conversations[${conversationId}].members`))
 
-  const isMessageReaded = Object.values(members).every(member => {
+  const isMessageRead = Object.values(members).every(member => {
     return member.lastSeen.toDate().getTime() >= message.date.toDate().getTime()
   })
-  
+
   return (
     <ListItem key={message.id} className={message.from === currentUserId ? classes.listItemSelf : classes.listItem}>
       <ListItemAvatar className={classes.avatar}>
@@ -101,9 +100,13 @@ export const Message = ({ message, conversationId, setZoomImg }) => {
         primary={<EmojiText text={message.text} />}
         secondary={
           <Typography className={classes.secondary}>
-            <FontAwesomeIcon
-              className={`${classes.faCheck} ${isMessageReaded ? classes.faCheckDouble : ''}`}
-              icon={isMessageReaded ? faCheckDouble : faCheck} />
+            {
+              message.from === currentUserId && (
+                <FontAwesomeIcon
+                  className={`${classes.faCheck} ${isMessageRead ? classes.faCheckDouble : ''}`}
+                  icon={isMessageRead ? faCheckDouble : faCheck} />
+              )
+            }
             <span>{moment(message.date.toDate()).format('HH:mm:ss')}</span>
           </Typography>
         } />
