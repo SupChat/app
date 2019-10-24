@@ -36,6 +36,7 @@ export function createEmojiImg({ emoji, size }) {
   const elem = document.createElement('div')
   elem.innerHTML = e
   elem.firstChild.setAttribute('alt', emoji.native)
+  elem.firstChild.style.display = null
   return elem.innerHTML
 }
 

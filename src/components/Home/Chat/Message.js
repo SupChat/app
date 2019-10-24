@@ -14,6 +14,7 @@ import moment from 'moment'
 import _get from 'lodash/get'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Tooltip from '@material-ui/core/Tooltip'
+import Typography from '@material-ui/core/Typography'
 
 const useStyles = makeStyles({
   avatar: {
@@ -99,15 +100,12 @@ export const Message = ({ message, conversationId, setZoomImg }) => {
         className={classes.ListItemText}
         primary={<EmojiText text={message.text} />}
         secondary={
-          <div className={classes.secondary}>
-            <Tooltip title={isMessageReaded ? 'Read': 'Unread'}>
+          <Typography className={classes.secondary}>
             <FontAwesomeIcon
               className={`${classes.faCheck} ${isMessageReaded ? classes.faCheckDouble : ''}`}
               icon={isMessageReaded ? faCheckDouble : faCheck} />
-            </Tooltip>
             <span>{moment(message.date.toDate()).format('HH:mm:ss')}</span>
-
-          </div>
+          </Typography>
         } />
     </ListItem>
   )
