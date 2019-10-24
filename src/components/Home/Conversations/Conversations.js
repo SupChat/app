@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import List from '@material-ui/core/List'
 import { db } from '../../../firebase'
@@ -11,6 +11,7 @@ import AddConversation from './AddConversation'
 import { Chat } from '@material-ui/icons'
 import Fab from '@material-ui/core/Fab'
 import Dialog from '@material-ui/core/Dialog'
+import _get from 'lodash/get'
 
 const useStyles = makeStyles({
   root: {
@@ -40,9 +41,24 @@ const useStyles = makeStyles({
   },
 })
 
+const initalState = {
+  conversations: {}
+}
+
+function reducer(state = initalState, action) {
+  switch (action.type) {
+    case 'UPDATE': {
+      return { ...state, conversations: { ...state.conversations, ...action.payload } }
+    }
+    default: {
+      return state
+    }
+  }
+}
+
 export default function Conversations() {
   const [open, setOpen] = useState(false)
-
+  const [state, dispatchLocal] = useReducer(reducer)
   const classes = useStyles()
   const dispatch = useDispatch()
   const conversations = useSelector((store) => store.conversations.conversations)
@@ -63,6 +79,11 @@ export default function Conversations() {
     setOpen(false)
   }
 
+  function sortConversationByDate(conA, conB) {
+    const firstDate = _get(state, `conversations.${conA.id}`) ||  new Date(0) 
+    const secondDate = _get(state, `conversations.${conB.id}`) ||  new Date(0)
+    return firstDate >= secondDate ? -1 : 1
+  }
 
   return (
     <div className={classes.root}>
@@ -70,9 +91,9 @@ export default function Conversations() {
         {
           isEmpty(Object.values(conversations)) ? (
             <p>No conversations.</p>
-          ) : Object.values(conversations).map((conversation) => (
+          ) : Object.values(conversations).sort(sortConversationByDate).map((conversation) => (
             <React.Fragment key={conversation.id}>
-              <Conversation data={conversation} />
+              <Conversation data={conversation} dispatchLocal={dispatchLocal} />
               <Divider variant="inset" component="li" />
             </React.Fragment>
           ))
