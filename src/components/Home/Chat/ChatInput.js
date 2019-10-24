@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { Picker } from 'emoji-mart'
-import { createEmojiImg, createTextHTML } from './EmujiText'
+import { createTextHTML } from './EmujiText'
 import ContentEditable from 'react-contenteditable'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
@@ -73,6 +73,11 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
   const classes = useStyles()
 
   useEffect(() => {
+    const html = createTextHTML(text)
+    setContentHtml(html)
+  }, [text])
+
+  useEffect(() => {
     const value = [...contentEditableRef.current.childNodes].map((e) => {
       if (e.nodeName === 'IMG') {
         return e.getAttribute('alt')
@@ -113,7 +118,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
   }
 
   function addEmoji(emoji) {
-    const html = createEmojiImg({ emoji })
+    const html = createTextHTML(emoji.native)
 
     if (document.activeElement !== contentEditableRef.current) {
       contentEditableRef.current.focus()
