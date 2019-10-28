@@ -7,7 +7,6 @@ import DropZone from './DropZone'
 import uuid from 'uuid'
 import { db, storage } from '../../../firebase'
 import { useSelector } from 'react-redux'
-import { selectActiveConversation } from '../../../state/actions/conversations'
 import FileDialog from './FileDialog'
 
 const useStyles = makeStyles({
@@ -29,7 +28,7 @@ const Chat = () => {
   const [file, setFile] = React.useState(null)
 
   const currentUser = useSelector(store => store.auth.user)
-  const activeConversation = useSelector(selectActiveConversation)
+  const activeConversation = useSelector(store => store.conversations.conversations[store.conversations.activeConversation])
 
   async function onSendMessage(text) {
     listRef.current.scrollTop = listRef.current.scrollHeight

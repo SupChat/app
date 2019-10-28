@@ -97,7 +97,7 @@ export default function Message({ message, conversationId, setZoomImg }) {
             {
               message.from === currentUserId && (
                 <MessageReadIndicator
-                  conversationId={conversationId}
+                  id={conversationId}
                   classes={classes}
                   date={message.date} />
               )
@@ -109,13 +109,16 @@ export default function Message({ message, conversationId, setZoomImg }) {
   )
 }
 
-function MessageReadIndicator ({ classes, conversationId, date }) {
-  const members = useSelector(store => _get(store, `conversations.conversations[${conversationId}].members`))
-
-  const isMessageRead = Object.values(members).every(member => (
-    member.lastSeen.toDate().getTime() >= date.toDate().getTime()
-  ))
-
+function MessageReadIndicator ({ classes, id, date }) {
+  const members = useSelector(store => _get(store, `conversations.members[${id}]`))
+  console.log('members', Object.values(members || {}).forEach(({lastSeen}) => console.log(lastSeen)))
+  const isMessageRead = Object.values(members || {}).every(member => {
+    
+    return (
+      member.lastSeen ? member.lastSeen.toDate().getTime() : new Date(0).getTime() >= date.toDate().getTime()
+    )
+  })
+  console.log(isMessageRead)
   return (
     <FontAwesomeIcon
       className={`${classes.faCheck} ${isMessageRead ? classes.faCheckDouble : ''}`}

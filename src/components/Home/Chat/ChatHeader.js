@@ -2,7 +2,6 @@ import React from 'react'
 import Typography from '@material-ui/core/Typography'
 import makeStyles from '@material-ui/core/styles/makeStyles'
 import Grid from '@material-ui/core/Grid'
-import { selectActiveConversation } from '../../../state/actions/conversations'
 import { useSelector } from 'react-redux'
 import _get from 'lodash/get'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -37,23 +36,24 @@ const useStyles = makeStyles({
 export default function ChatHeader() {
   const classes = useStyles()
   const currentUser = useSelector(store => store.auth.user)
-  const conversation = useSelector(selectActiveConversation)
-  const members = _get(conversation, 'members') || {}
+  const id = useSelector(store => store.conversations.activeConversation)
+
+  const members = useSelector(store => store.conversations.members[id]) || {}
   const userId = Object.keys(members).find((userId) => userId !== currentUser.uid)
   const typing = _get(members, `${userId}.typing`)
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
 
   return (
     <Grid className={classes.root} container direction='row' alignItems='center'>
-      <ConversationAvatar conversation={conversation} />
+      <ConversationAvatar id={id} />
 
       <div className={classes.titles}>
         <Typography variant="subtitle1">
-          <ConversationTitle conversation={conversation} />
+          <ConversationTitle id={id} />
         </Typography>
 
         <Typography variant="subtitle2">
-          {typing ? 'typing...' : ''}
+          {typing && false ? 'typing...' : ''}
         </Typography>
       </div>
       {

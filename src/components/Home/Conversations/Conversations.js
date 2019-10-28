@@ -66,8 +66,9 @@ export default function Conversations() {
 
   useEffect(() => {
     return db.collection('conversations')
-      .where(`members.${currentUser.uid}.active`, '==', true)
+      .where(`members.${currentUser.uid}`, '==', true)
       .onSnapshot((snapshot) => {
+        console.log('conversations Snapshot')
         const docsDictionary = snapshot.docs.reduce((prev, doc) => ({
           ...prev, [doc.id]: doc.data(),
         }), {})
@@ -80,8 +81,8 @@ export default function Conversations() {
   }
 
   function sortConversationByDate(conA, conB) {
-    const firstDate = _get(state, `conversations.${conA.id}`) ||  new Date(0) 
-    const secondDate = _get(state, `conversations.${conB.id}`) ||  new Date(0)
+    const firstDate = _get(state, `conversations.${conA}`) ||  new Date(0) 
+    const secondDate = _get(state, `conversations.${conB}`) ||  new Date(0)
     return firstDate >= secondDate ? -1 : 1
   }
 
@@ -89,11 +90,11 @@ export default function Conversations() {
     <div className={classes.root}>
       <List className={classes.list}>
         {
-          isEmpty(Object.values(conversations)) ? (
+          isEmpty(Object.keys(conversations)) ? (
             <p>No conversations.</p>
-          ) : Object.values(conversations).sort(sortConversationByDate).map((conversation) => (
-            <React.Fragment key={conversation.id}>
-              <Conversation data={conversation} dispatchLocal={dispatchLocal} />
+          ) : Object.keys(conversations).sort(sortConversationByDate).map((id) => (
+            <React.Fragment key={id}>
+              <Conversation id={id} dispatchLocal={dispatchLocal} />
               <Divider variant="inset" component="li" />
             </React.Fragment>
           ))

@@ -88,6 +88,13 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
     onChange(value)
   }, [contentHtml])
 
+  // const onInput = useCallback(_throttle(() => {
+  //   const state = store.getState()
+  //   const userId = _get(state, 'auth.user.uid')
+  //   const conversationId = _get(state, 'conversations.activeConversation')
+  //
+  //   axios.post(`${api}/typing`, { userId, conversationId }).then((res) => console.log(res.data))
+  // }, 1000))
 
   function setCurrentRange(currentRange) {
     const cloneCurrentRange = currentRange.cloneRange()

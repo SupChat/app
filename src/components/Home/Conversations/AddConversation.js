@@ -93,26 +93,32 @@ export default function AddConversation({ onClose }) {
       id = existConversation
     } else {
       id = uuid()
+      const batch = db.batch()
+
+      const members = {
+        ...selected.reduce((prev, { value: id }) => {
+          return {
+            ...prev,
+            [id]: true,
+          }
+        }, {}),
+        [currentUser.uid]: true,
+      }
+
       await db.collection('conversations').doc(id).set({
         id,
-        members: {
-          ...selected.reduce((prev, { value: id }) => {
-            return {
-              ...prev,
-              [id]: {
-                active: true,
-                lastSeen: new Date(0),
-              },
-            }
-          }, {}),
-          [currentUser.uid]: {
-            active: true,
-            lastSeen: new Date(0),
-          },
-        },
+        owner: currentUser.uid,
+        members,
       })
-    }
 
+      const membersCollection = db.collection('conversations').doc(id).collection('members')
+      Object.keys(members).forEach((memberId) => {
+        const memberRef = membersCollection.doc(memberId)
+        batch.set(memberRef, { id: memberId,  active: true, lastSeen: new Date(0) })
+      })
+
+      await batch.commit()
+    }
     dispatch(setActiveConversation(id))
     onClose()
   }
@@ -130,11 +136,6 @@ export default function AddConversation({ onClose }) {
         <Select
           autoFocus
           placeholder={'Find or start a conversation.'}
-          styles={{
-            // container: () => ({
-            //   width: 300,
-            // }),
-          }}
           closeMenuOnSelect={false}
           components={{
             Option,

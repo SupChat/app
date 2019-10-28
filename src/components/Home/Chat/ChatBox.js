@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectActiveConversation } from '../../../state/actions/conversations'
 import { db } from '../../../firebase'
 import 'emoji-mart/css/emoji-mart.css'
 import ChatInput from './ChatInput'
@@ -12,25 +11,27 @@ export default function ChatBox({ onSendMessage, attachFile }) {
   const [typing, setTyping] = React.useState(false)
 
   const currentUser = useSelector(store => store.auth.user)
-  const activeConversation = useSelector(selectActiveConversation)
+  const activeConversation = useSelector(store => store.conversations.activeConversation)
   const timeoutRef = useRef()
   const dispatch = useDispatch()
 
   useEffect(() => {
     const state = store.getState()
-    const historyText = _get(state, `ui.chatInputHistory[${state.conversations.activeConversation}`)
+    const historyText = _get(state, `ui.chatInputHistory[${activeConversation}`)
     setText(historyText || '')
-  }, [activeConversation.id])
+  }, [activeConversation])
 
   useEffect(() => {
     db
       .collection('conversations')
-      .doc(activeConversation.id)
-      .set({ members: { [currentUser.uid]: { typing } } }, { merge: true })
-  }, [typing, activeConversation.id, currentUser.uid])
+      .doc(activeConversation)
+      .collection('members')
+      .doc(currentUser.uid)
+      .set({ typing }, { merge: true })
+  }, [typing, activeConversation, currentUser.uid])
 
-  function onTyping(text) {
-    dispatch({ type: 'UPDATE_CHAT_INPUT_HISTORY', payload: { [activeConversation.id]: text } })
+  function onChange(text) {
+    dispatch({ type: 'UPDATE_CHAT_INPUT_HISTORY', payload: { [activeConversation]: text } })
     setText(text)
     setTyping(true)
     clearTimeout(timeoutRef.current)
@@ -49,6 +50,6 @@ export default function ChatBox({ onSendMessage, attachFile }) {
       value={text}
       onSubmit={sendMessage}
       required
-      onChange={onTyping} />
+      onChange={onChange} />
   )
 }

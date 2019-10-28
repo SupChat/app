@@ -12,6 +12,7 @@ import _get from 'lodash/get'
 import ConversationAvatar from './ConversationAvatar'
 import { ConversationTitle } from './ConversationTitle'
 import moment from 'moment'
+import _keyBy from 'lodash/keyBy'
 
 const useStyles = makeStyles({
   root: {
@@ -43,13 +44,13 @@ const useStyles = makeStyles({
   },
 })
 
-const Conversation = ({ data: conversation, dispatchLocal }) => {
+const Conversation = ({ id, dispatchLocal }) => {
   const [lastMessage, setLastMessage] = useState('')
   const classes = useStyles()
-  const { id } = conversation
   const count = useSelector(store => store.conversations.unreadMessagesCount[id])
   const currentUser = useSelector(store => store.auth.user)
-  const lastSeen = _get(conversation, `members[${currentUser.uid}].lastSeen`)
+  const lastSeen = useSelector(store => _get(store, `conversations.members[${id}][${currentUser.uid}].lastSeen`))
+
   const { uid: currentUserId } = currentUser
   const dispatch = useDispatch()
   const activeConversation = useSelector(store => store.conversations.activeConversation)
@@ -72,18 +73,20 @@ const Conversation = ({ data: conversation, dispatchLocal }) => {
   }
 
   useEffect(() => {
+    console.log(lastSeen ? lastSeen.toDate().getTime() : 0)
     return db
       .collection('conversations')
       .doc(id)
       .collection('messages')
       .where('date', '>=', lastSeen || new Date(0))
       .onSnapshot((snapshot) => {
+        console.log('onMessagesSnapshot')
         const snapshotData = (snapshot.docs || []).map((doc) => doc.data())
         const count = snapshotData.reduce((count, message) => message.from === currentUserId ? count : count + 1, 0)
         dispatch({ type: 'SET_UNREAD_MESSAGES_COUNT', payload: { id, count } })
       })
 
-  }, [dispatch, id, lastSeen, currentUserId])
+  }, [dispatch, id, lastSeen ? lastSeen.toDate().getTime() : 0, currentUserId])
 
   useEffect(() => {
     return db
@@ -95,10 +98,23 @@ const Conversation = ({ data: conversation, dispatchLocal }) => {
       .onSnapshot((snapshot) => {
         if (snapshot.docs.length) {
           setLastMessage(snapshot.docs[0].data())
-          dispatchLocal({ type: 'UPDATE', payload: { [conversation.id]: snapshot.docs[0].data().date.toDate() } })
+          dispatchLocal({ type: 'UPDATE', payload: { [id]: snapshot.docs[0].data().date.toDate() } })
         }
       })
+  }, [id, currentUserId])
 
+
+  useEffect(() => {
+    return db
+      .collection('conversations')
+      .doc(id)
+      .collection('members')
+      .onSnapshot((snapshot) => {
+        if (snapshot.docs.length) {
+          const members = _keyBy(snapshot.docs.map(doc => doc.data()), 'id')
+          dispatch({ type: 'SET_MEMBERS', payload: { id, members } })
+        }
+      })
   }, [id, currentUserId])
 
   return (
@@ -108,13 +124,13 @@ const Conversation = ({ data: conversation, dispatchLocal }) => {
       alignItems="flex-start">
 
       <ListItemAvatar>
-        <ConversationAvatar conversation={conversation} />
+        <ConversationAvatar id={id} />
       </ListItemAvatar>
 
       <ListItemText
         primary={
           <Typography className={classes.ellipsis}>
-            <ConversationTitle conversation={conversation} />
+            <ConversationTitle id={id} />
           </Typography>
         }
         secondary={(
