@@ -99,10 +99,10 @@ const Messages = ({ isDragOn }, listRef) => {
   // consy [messages]
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
   const conversationId = useSelector(store => store.conversations.activeConversation)
-  const members = useSelector(store => _get(store, `conversations.conversations[${store.conversations.activeConversation}].members`))
+  const members = useSelector(store => _get(store, `conversations.members[${store.conversations.activeConversation}]`))
 
   const currentUserId = useSelector(store => store.auth.user.uid)
-  const users = useSelector(store => store.users.users)
+
   const messagesObject = useSelector(store => store.conversations.messages[store.conversations.activeConversation]) || {}
   const messages = _sortBy(Object.values(messagesObject || {}), 'date') || []
   const shouldFetchMessages = messages.length < 10
@@ -127,12 +127,12 @@ const Messages = ({ isDragOn }, listRef) => {
     return db
       .collection('conversations')
       .doc(conversationId)
+      .collection('members')
+      .doc(currentUserId)
       .set({
-        members: {
-          [currentUserId]: {
-            lastSeen: new Date(),
-          },
-        },
+        active: true,
+        id: currentUserId,
+        lastSeen: new Date(),
       }, { merge: true })
   }
 
@@ -183,10 +183,6 @@ const Messages = ({ isDragOn }, listRef) => {
 
       await loadPrevious()
     }
-  }
-
-  function isMessageReaded(messgae) {
-    return Object.values(members).every(member => new Date(member.lastSeen) <= messgae.date.toDate())
   }
 
   const dayGroups = _groupBy(messages, function (message) {

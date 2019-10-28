@@ -10,7 +10,6 @@ export function Auth({ children }) {
     function handleTokenRefresh() {
       return messaging.getToken()
         .then((token) => {
-          console.log('token', token)
           return db.collection('users')
             .doc(auth.currentUser.uid)
             .set({ token }, { merge: true })
@@ -33,8 +32,6 @@ export function Auth({ children }) {
 
         Notification.requestPermission().then(handleTokenRefresh)
         messaging.onTokenRefresh(handleTokenRefresh)
-
-        messaging.onMessage((payload) => console.log('onMessage', payload))
       }
 
       dispatch(setUser(user))

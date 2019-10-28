@@ -20,3 +20,4 @@ export const db = fire.firestore()
 export const auth = fire.auth()
 export const storage = fire.storage()
 export const messaging = fire.messaging()
+export const api = 'https://us-central1-react-firestore-chat.cloudfunctions.net/api'

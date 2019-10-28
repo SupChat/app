@@ -57,28 +57,17 @@ const Home = () => {
 
   return (
     <div className={`${classes.root} ${showUsers ? '' : 'hidePane1'}`}>
-      {/*<Drawer*/}
-      {/*className={`${showUsers ? classes.drawer : ''}`}*/}
-      {/*variant="persistent"*/}
-      {/*anchor="left"*/}
-      {/*open={showUsers}*/}
-      {/*classes={{*/}
-      {/*paper: classes.drawerPaper,*/}
-      {/*}}>*/}
-      {/*</Drawer>*/}
-      {
-        <SplitPane
-          split="vertical"
-          minSize={250}
-          defaultSize={ parseInt(localStorage.getItem('splitPos') || 350, 10) }
-          onChange={size => localStorage.setItem('splitPos', size)}>
-          <Conversations />
-          <div className={classes.main}>
-            <Navbar />
-            {activeConversation && <Chat />}
-          </div>
-        </SplitPane>
-      }
+      <SplitPane
+        split="vertical"
+        minSize={250}
+        defaultSize={parseInt(localStorage.getItem('splitPos') || 350, 10)}
+        onChange={size => localStorage.setItem('splitPos', size)}>
+        <Conversations />
+        <div className={classes.main}>
+          <Navbar />
+          {activeConversation && <Chat />}
+        </div>
+      </SplitPane>
     </div>
   )
 }
