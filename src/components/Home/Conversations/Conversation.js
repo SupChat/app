@@ -73,7 +73,6 @@ const Conversation = ({ id, dispatchLocal }) => {
   }
 
   useEffect(() => {
-    console.log(lastSeen ? lastSeen.toDate().getTime() : 0)
     return db
       .collection('conversations')
       .doc(id)
