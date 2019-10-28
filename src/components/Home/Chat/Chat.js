@@ -28,7 +28,7 @@ const Chat = () => {
   const [file, setFile] = React.useState(null)
 
   const currentUser = useSelector(store => store.auth.user)
-  const activeConversation = useSelector(store => store.conversations.conversations[store.conversations.activeConversation])
+  const activeConversation = useSelector(store => store.conversations.activeConversation)
 
   async function onSendMessage(text) {
     listRef.current.scrollTop = listRef.current.scrollHeight
@@ -39,7 +39,7 @@ const Chat = () => {
 
     const messageRef = db
       .collection('conversations')
-      .doc(activeConversation.id)
+      .doc(activeConversation)
       .collection('messages')
       .doc(msgId)
 
@@ -52,7 +52,7 @@ const Chat = () => {
     })
 
     if (file) {
-      const fileRef = await storage.ref(`conversations/${activeConversation.id}/${msgId}`).put(file).then((snapshot) => snapshot.ref.getDownloadURL())
+      const fileRef = await storage.ref(`conversations/${activeConversation}/${msgId}`).put(file).then((snapshot) => snapshot.ref.getDownloadURL())
       await messageRef.set({ file: fileRef }, { merge: true })
     }
   }
