@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
 import makeStyles from '@material-ui/core/styles/makeStyles'
 import Grid from '@material-ui/core/Grid'
@@ -39,9 +39,21 @@ export default function ChatHeader() {
   const id = useSelector(store => store.conversations.activeConversation)
 
   const members = useSelector(store => store.conversations.members[id]) || {}
-  const userId = Object.keys(members).find((userId) => userId !== currentUser.uid)
-  const typing = _get(members, `${userId}.typing`)
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
+  const [typing, setTyping] = useState(false)
+  const timeoutRef = useRef()
+
+  useEffect(() => {
+    const userId = Object.keys(members).find((userId) => userId !== currentUser.uid)
+    const typingTime = _get(members, `${userId}.typing`)
+    if ((typingTime ? typingTime.toDate().getTime() : 0) + 900 > new Date().getTime()) {
+      setTyping(true)
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = setTimeout(() => {
+        setTyping(false)
+      }, 500)
+    }
+  }, [members])
 
   return (
     <Grid className={classes.root} container direction='row' alignItems='center'>
@@ -53,7 +65,7 @@ export default function ChatHeader() {
         </Typography>
 
         <Typography variant="subtitle2">
-          {typing && false ? 'typing...' : ''}
+          {typing ? 'typing...' : ''}
         </Typography>
       </div>
       {

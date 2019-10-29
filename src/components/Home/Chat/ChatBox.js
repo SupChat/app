@@ -8,11 +8,9 @@ import { store } from '../../../configureStore'
 
 export default function ChatBox({ onSendMessage, attachFile }) {
   const [text, setText] = React.useState('')
-  const [typing, setTyping] = React.useState(false)
 
   const currentUser = useSelector(store => store.auth.user)
   const activeConversation = useSelector(store => store.conversations.activeConversation)
-  const timeoutRef = useRef()
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -21,27 +19,30 @@ export default function ChatBox({ onSendMessage, attachFile }) {
     setText(historyText || '')
   }, [activeConversation])
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   db
+  //     .collection('conversations')
+  //     .doc(activeConversation)
+  //     .collection('members')
+  //     .doc(currentUser.uid)
+  //     .set({ typing }, { merge: true })
+  // }, [typing, activeConversation, currentUser.uid])
+
+  function onChange(text) {
+    dispatch({ type: 'UPDATE_CHAT_INPUT_HISTORY', payload: { [activeConversation]: text } })
+    setText(text)
+
     db
       .collection('conversations')
       .doc(activeConversation)
       .collection('members')
       .doc(currentUser.uid)
-      .set({ typing }, { merge: true })
-  }, [typing, activeConversation, currentUser.uid])
-
-  function onChange(text) {
-    dispatch({ type: 'UPDATE_CHAT_INPUT_HISTORY', payload: { [activeConversation]: text } })
-    setText(text)
-    setTyping(true)
-    clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => setTyping(false), 500)
+      .set({ typing: new Date() }, { merge: true })
   }
 
   function sendMessage(text) {
     onSendMessage(text)
     setText('')
-    setTyping(false)
   }
 
   return (

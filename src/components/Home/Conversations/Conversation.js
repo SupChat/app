@@ -111,6 +111,7 @@ const Conversation = ({ id, dispatchLocal }) => {
       .onSnapshot((snapshot) => {
         if (snapshot.docs.length) {
           const members = _keyBy(snapshot.docs.map(doc => doc.data()), 'id')
+          console.log('members snapshot!', members)
           dispatch({ type: 'SET_MEMBERS', payload: { id, members } })
         }
       })
