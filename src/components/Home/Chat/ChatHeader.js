@@ -17,6 +17,7 @@ const useStyles = makeStyles({
     background: 'rgba(255, 255, 255, 0.9)',
     boxSizing: 'border-box',
     borderBottom: '1px solid #e2e3e7',
+    height: 61,
   },
   typography: {
     padding: 2,
@@ -25,6 +26,8 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     margin: '0 5px',
+    justifyContent: 'center',
+    height:'100%',
   },
   avatar: {
     height: 50,
@@ -63,10 +66,13 @@ export default function ChatHeader() {
         <Typography variant="subtitle1">
           <ConversationTitle id={id} />
         </Typography>
-
-        <Typography variant="subtitle2">
-          {typing ? 'typing...' : ''}
-        </Typography>
+        {
+          (typing || true) && (
+            <Typography className='typing'>
+              typing<span>.</span><span>.</span><span>.</span>
+            </Typography>
+          )
+        }
       </div>
       {
         isLoadingMessages && (

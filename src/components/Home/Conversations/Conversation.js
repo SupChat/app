@@ -100,7 +100,7 @@ const Conversation = ({ id, dispatchLocal }) => {
           dispatchLocal({ type: 'UPDATE', payload: { [id]: snapshot.docs[0].data().date.toDate() } })
         }
       })
-  }, [id, currentUserId])
+  }, [dispatch, id, currentUserId])
 
 
   useEffect(() => {
@@ -111,11 +111,10 @@ const Conversation = ({ id, dispatchLocal }) => {
       .onSnapshot((snapshot) => {
         if (snapshot.docs.length) {
           const members = _keyBy(snapshot.docs.map(doc => doc.data()), 'id')
-          console.log('members snapshot!', members)
           dispatch({ type: 'SET_MEMBERS', payload: { id, members } })
         }
       })
-  }, [id, currentUserId])
+  }, [dispatch, id, currentUserId])
 
   return (
     <ListItem
