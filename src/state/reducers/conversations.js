@@ -1,7 +1,10 @@
+import _get from 'lodash/get'
+
 const initialState = {
   conversations: {},
   members: {},
   messages: {},
+  typing: {},
 
   lastMessages: {},
   isLoadingMessages: false,
@@ -25,6 +28,17 @@ const conversations = (state = initialState, action) => {
         members: {
           ...state.members,
           [id]: members,
+        },
+      }
+    }
+
+    case 'SET_TYPING': {
+      const { id, data } = action.payload
+      return {
+        ...state,
+        typing: {
+          ...state.typing,
+          [id]: data,
         },
       }
     }
@@ -56,3 +70,7 @@ const conversations = (state = initialState, action) => {
 }
 
 export default conversations
+
+export const selectTypingUsername = (id) => (store) => (
+  _get(store, `conversations.typing[${id}].username`)
+)

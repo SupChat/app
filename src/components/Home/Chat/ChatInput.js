@@ -92,6 +92,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
   }, [contentHtml])
 
   const onInput = useCallback(_throttle(() => {
+    console.log('onInput')
     const state = store.getState()
     const activeConversation = state.conversations.activeConversation
     const memberId = state.auth.user.uid
@@ -103,7 +104,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
       .doc(memberId)
       .set({ typing: new Date() }, { merge: true })
 
-  }, 500))
+  }, 200))
 
   function setCurrentRange(currentRange) {
     const cloneCurrentRange = currentRange.cloneRange()

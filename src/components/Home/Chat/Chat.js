@@ -67,7 +67,7 @@ const Chat = () => {
 
   return (
     <div className={classes.root} onDragEnter={onDragEnter}>
-      <ChatHeader />
+      <ChatHeader id={activeConversation} />
 
       <Messages ref={listRef} isDragOn={isDragOn} />
 
