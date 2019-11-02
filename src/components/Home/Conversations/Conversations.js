@@ -68,7 +68,6 @@ export default function Conversations() {
     return db.collection('conversations')
       .where(`members.${currentUser.uid}`, '==', true)
       .onSnapshot((snapshot) => {
-        console.log('conversations Snapshot')
         const docsDictionary = snapshot.docs.reduce((prev, doc) => ({
           ...prev, [doc.id]: doc.data(),
         }), {})

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { Picker } from 'emoji-mart'
 import { createTextHTML } from './EmujiText'
@@ -8,6 +8,9 @@ import IconButton from '@material-ui/core/IconButton'
 import SendIcon from '@material-ui/icons/Send'
 import TagFacesIcon from '@material-ui/icons/TagFaces'
 import AttachFileIcon from '@material-ui/icons/AttachFile'
+import { db } from '../../../firebase'
+import {store} from '../../../configureStore'
+import _throttle from 'lodash/throttle'
 
 const useStyles = makeStyles({
   root: {
@@ -88,13 +91,20 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
     onChange(value)
   }, [contentHtml])
 
-  // const onInput = useCallback(_throttle(() => {
-  //   const state = store.getState()
-  //   const userId = _get(state, 'auth.user.uid')
-  //   const conversationId = _get(state, 'conversations.activeConversation')
-  //
-  //   axios.post(`${api}/typing`, { userId, conversationId }).then((res) => console.log(res.data))
-  // }, 1000))
+  const onInput = useCallback(_throttle(() => {
+    console.log('onInput')
+    const state = store.getState()
+    const activeConversation = state.conversations.activeConversation
+    const memberId = state.auth.user.uid
+    
+    db
+      .collection('conversations')
+      .doc(activeConversation)
+      .collection('members')
+      .doc(memberId)
+      .set({ typing: new Date() }, { merge: true })
+
+  }, 200))
 
   function setCurrentRange(currentRange) {
     const cloneCurrentRange = currentRange.cloneRange()
@@ -145,6 +155,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
   function onChangeContentEditable(e) {
     setContentHtml(e.target.value)
     saveCurrentRange()
+    onInput()
   }
 
   function onPaste(e) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ListItemText from '@material-ui/core/ListItemText'
 import Typography from '@material-ui/core/Typography'
 import ListItem from '@material-ui/core/ListItem'
@@ -13,6 +13,9 @@ import ConversationAvatar from './ConversationAvatar'
 import { ConversationTitle } from './ConversationTitle'
 import moment from 'moment'
 import _keyBy from 'lodash/keyBy'
+import { store } from '../../../configureStore'
+import { selectTypingUsername } from '../../../state/reducers/conversations'
+import Typing from './Typing'
 
 const useStyles = makeStyles({
   root: {
@@ -50,10 +53,12 @@ const Conversation = ({ id, dispatchLocal }) => {
   const count = useSelector(store => store.conversations.unreadMessagesCount[id])
   const currentUser = useSelector(store => store.auth.user)
   const lastSeen = useSelector(store => _get(store, `conversations.members[${id}][${currentUser.uid}].lastSeen`))
-
   const { uid: currentUserId } = currentUser
   const dispatch = useDispatch()
   const activeConversation = useSelector(store => store.conversations.activeConversation)
+  const typingUsername = useSelector(selectTypingUsername(id))
+
+  const timeoutRef = useRef()
 
   function setActive() {
     dispatch(setActiveConversation(id))
@@ -79,7 +84,6 @@ const Conversation = ({ id, dispatchLocal }) => {
       .collection('messages')
       .where('date', '>=', lastSeen || new Date(0))
       .onSnapshot((snapshot) => {
-        console.log('onMessagesSnapshot')
         const snapshotData = (snapshot.docs || []).map((doc) => doc.data())
         const count = snapshotData.reduce((count, message) => message.from === currentUserId ? count : count + 1, 0)
         dispatch({ type: 'SET_UNREAD_MESSAGES_COUNT', payload: { id, count } })
@@ -100,7 +104,7 @@ const Conversation = ({ id, dispatchLocal }) => {
           dispatchLocal({ type: 'UPDATE', payload: { [id]: snapshot.docs[0].data().date.toDate() } })
         }
       })
-  }, [id, currentUserId])
+  }, [dispatch, id, currentUserId])
 
 
   useEffect(() => {
@@ -112,9 +116,28 @@ const Conversation = ({ id, dispatchLocal }) => {
         if (snapshot.docs.length) {
           const members = _keyBy(snapshot.docs.map(doc => doc.data()), 'id')
           dispatch({ type: 'SET_MEMBERS', payload: { id, members } })
+
+          const userId = Object.entries(members)
+            .filter(([id]) => id !== currentUserId)
+            .reduce((result, [id, member]) => {
+              const dateA = member.typing ? member.typing.toDate().getTime() : 0
+              const dateB = members[result] || 0
+              return Math.max(dateA, dateB) === dateA ? id : result
+            }, null)
+
+          const typingTime = _get(members, `${userId}.typing`)
+
+          if ((typingTime ? typingTime.toDate().getTime() : 0) + 600 > new Date().getTime()) {
+            clearTimeout(timeoutRef.current)
+            const username = _get(store.getState(), `users.users[${userId}].displayName`)
+            dispatch({ type: 'SET_TYPING', payload: { id, data: { username } } })
+            timeoutRef.current = setTimeout(() => {
+              dispatch({ type: 'SET_TYPING', payload: { id, data: null } })
+            }, 800)
+          }
         }
       })
-  }, [id, currentUserId])
+  }, [dispatch, id, currentUserId])
 
   return (
     <ListItem
@@ -132,9 +155,13 @@ const Conversation = ({ id, dispatchLocal }) => {
             <ConversationTitle id={id} />
           </Typography>
         }
-        secondary={(
-          <Typography className={classes.ellipsis}>{lastMessage && lastMessage.text}</Typography>
-        )} />
+        secondary={
+          typingUsername ? (
+            <Typing username={typingUsername} />
+          ) : (
+            <Typography className={classes.ellipsis}>{lastMessage && lastMessage.text}</Typography>
+          )
+        } />
       <div className={classes.right}>
         {lastMessage && <span>{parsedDate(lastMessage.date)}</span>}
         {Boolean(count) && (

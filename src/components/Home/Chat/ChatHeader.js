@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
 import makeStyles from '@material-ui/core/styles/makeStyles'
 import Grid from '@material-ui/core/Grid'
@@ -7,6 +7,8 @@ import _get from 'lodash/get'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ConversationAvatar from '../Conversations/ConversationAvatar'
 import { ConversationTitle } from '../Conversations/ConversationTitle'
+import Typing from '../Conversations/Typing'
+import { selectTypingUsername } from '../../../state/reducers/conversations'
 
 const useStyles = makeStyles({
   root: {
@@ -17,6 +19,7 @@ const useStyles = makeStyles({
     background: 'rgba(255, 255, 255, 0.9)',
     boxSizing: 'border-box',
     borderBottom: '1px solid #e2e3e7',
+    height: 61,
   },
   typography: {
     padding: 2,
@@ -25,6 +28,8 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     margin: '0 5px',
+    justifyContent: 'center',
+    height:'100%',
   },
   avatar: {
     height: 50,
@@ -33,15 +38,26 @@ const useStyles = makeStyles({
   },
 })
 
-export default function ChatHeader() {
+export default function ChatHeader({ id }) {
   const classes = useStyles()
-  const currentUser = useSelector(store => store.auth.user)
-  const id = useSelector(store => store.conversations.activeConversation)
-
-  const members = useSelector(store => store.conversations.members[id]) || {}
-  const userId = Object.keys(members).find((userId) => userId !== currentUser.uid)
-  const typing = _get(members, `${userId}.typing`)
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
+
+  const typingUsername = useSelector(selectTypingUsername(id))
+  // const members = useSelector(store => store.conversations.members[id]) || {}
+  // const [typing, setTyping] = useState(false)
+  // const timeoutRef = useRef()
+
+  // useEffect(() => {
+  //   const userId = Object.keys(members).find((userId) => userId !== currentUser.uid)
+  //   const typingTime = _get(members, `${userId}.typing`)
+  //   if ((typingTime ? typingTime.toDate().getTime() : 0) + 900 > new Date().getTime()) {
+  //     setTyping(true)
+  //     clearTimeout(timeoutRef.current)
+  //     timeoutRef.current = setTimeout(() => {
+  //       setTyping(false)
+  //     }, 500)
+  //   }
+  // }, [currentUser.uid, members])
 
   return (
     <Grid className={classes.root} container direction='row' alignItems='center'>
@@ -52,9 +68,7 @@ export default function ChatHeader() {
           <ConversationTitle id={id} />
         </Typography>
 
-        <Typography variant="subtitle2">
-          {typing && false ? 'typing...' : ''}
-        </Typography>
+        { Boolean(typingUsername) && <Typing username={typingUsername} /> }
       </div>
       {
         isLoadingMessages && (
