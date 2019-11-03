@@ -14,6 +14,7 @@ import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import Select from 'react-select'
 import _get from 'lodash/get'
+import _isEqual from 'lodash/isEqual'
 import uuid from 'uuid'
 import { db } from '../../../firebase'
 import { setActiveConversation } from '../../../state/actions/conversations'
@@ -84,8 +85,7 @@ export default function AddConversation({ onClose }) {
 
     const existConversation = _get(Object.values(conversations).find((conversation) => {
       return (
-        Object.values(conversation.members).length === (selected.length + 1) &&
-        selected.every(user => Object.keys(conversation.members).includes(user.value))
+        _isEqual(Object.keys(conversation.members).sort(), [...selected, currentUser.uid].sort())
       )
     }), 'id')
 

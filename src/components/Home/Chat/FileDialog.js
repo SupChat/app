@@ -47,7 +47,7 @@ export default function FileDialog({ onClose, onDone, file }) {
       </DialogTitle>
 
       <DialogContent dividers className={classes.content}>
-        <img className={classes.img} src={image} />
+        <img className={classes.img} src={image} alt={image} />
         <ChatInput value={text} onChange={setText} onSubmit={onDone} />
       </DialogContent>
 

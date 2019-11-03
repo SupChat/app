@@ -92,7 +92,6 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
   }, [contentHtml])
 
   const onInput = useCallback(_throttle(() => {
-    console.log('onInput')
     const state = store.getState()
     const activeConversation = state.conversations.activeConversation
     const memberId = state.auth.user.uid

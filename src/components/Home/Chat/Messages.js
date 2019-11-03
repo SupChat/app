@@ -96,10 +96,8 @@ const Messages = ({ isDragOn }, listRef) => {
   const [zoomImg, setZoomImg] = useState(null)
   const [allLoaded, setAllLoaded] = useState(false)
   const [scrollTop, setScrollTop] = useState(false)
-  // consy [messages]
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
   const conversationId = useSelector(store => store.conversations.activeConversation)
-  const members = useSelector(store => _get(store, `conversations.members[${store.conversations.activeConversation}]`))
 
   const currentUserId = useSelector(store => store.auth.user.uid)
 

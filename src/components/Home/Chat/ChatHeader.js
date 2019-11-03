@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import Typography from '@material-ui/core/Typography'
 import makeStyles from '@material-ui/core/styles/makeStyles'
 import Grid from '@material-ui/core/Grid'
 import { useSelector } from 'react-redux'
-import _get from 'lodash/get'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ConversationAvatar from '../Conversations/ConversationAvatar'
 import { ConversationTitle } from '../Conversations/ConversationTitle'
@@ -29,7 +28,7 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     margin: '0 5px',
     justifyContent: 'center',
-    height:'100%',
+    height: '100%',
   },
   avatar: {
     height: 50,
@@ -43,21 +42,6 @@ export default function ChatHeader({ id }) {
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
 
   const typingUsername = useSelector(selectTypingUsername(id))
-  // const members = useSelector(store => store.conversations.members[id]) || {}
-  // const [typing, setTyping] = useState(false)
-  // const timeoutRef = useRef()
-
-  // useEffect(() => {
-  //   const userId = Object.keys(members).find((userId) => userId !== currentUser.uid)
-  //   const typingTime = _get(members, `${userId}.typing`)
-  //   if ((typingTime ? typingTime.toDate().getTime() : 0) + 900 > new Date().getTime()) {
-  //     setTyping(true)
-  //     clearTimeout(timeoutRef.current)
-  //     timeoutRef.current = setTimeout(() => {
-  //       setTyping(false)
-  //     }, 500)
-  //   }
-  // }, [currentUser.uid, members])
 
   return (
     <Grid className={classes.root} container direction='row' alignItems='center'>
@@ -68,7 +52,7 @@ export default function ChatHeader({ id }) {
           <ConversationTitle id={id} />
         </Typography>
 
-        { Boolean(typingUsername) && <Typing username={typingUsername} /> }
+        {Boolean(typingUsername) && <Typing username={typingUsername} />}
       </div>
       {
         isLoadingMessages && (
