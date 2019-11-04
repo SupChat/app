@@ -11,14 +11,24 @@ export default function ConversationAvatar({ id }) {
   const members = useSelector(store => _get(store, `conversations.members[${id}]`))
 
   const membersList = Object.keys(members || {})
-    .filter((userId) => userId !== currentUserId)
 
-  return membersList.length === 1 ? (
-    <Avatar src={_get(users, `${membersList[0]}.photoURL`)} />
-  ) : (
-    <Avatar>
-      <FontAwesomeIcon icon={faUsers} />
-    </Avatar>
-  )
+  switch (membersList.length) {
+    case 0: {
+      return <Avatar />
+    }
+    case 1: {
+      return <Avatar src={_get(users, `${currentUserId}.photoURL`)} />
+    }
+    case 2: {
+      const memberId = membersList.find(userId => userId !== currentUserId)
+      return <Avatar src={_get(users, `${memberId}.photoURL`)} />
+    }
+    default: {
+      return <Avatar>
+        <FontAwesomeIcon icon={faUsers} />
+      </Avatar>
+
+    }
+  }
 
 }

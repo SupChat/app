@@ -15,11 +15,14 @@ const useStyles = makeStyles({
     width: '100vw',
     display: 'flex',
     boxSizing: 'border-box',
-    '&.hidePane1': {
-      '& .Pane1': {
-        display: 'none !important',
-      },
+  },
+  hidePane1: {
+    '& .Pane1': {
+      display: 'none !important',
     },
+    '& .Resizer': {
+      display: 'none !important',
+    }
   },
   drawer: {
     width: 360,
@@ -56,7 +59,7 @@ const Home = () => {
   }, [dispatch])
 
   return (
-    <div className={`${classes.root} ${showUsers ? '' : 'hidePane1'}`}>
+    <div className={`${classes.root} ${showUsers ? '' : classes.hidePane1}`}>
       <SplitPane
         split="vertical"
         minSize={250}

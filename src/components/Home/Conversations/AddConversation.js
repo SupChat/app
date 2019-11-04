@@ -14,6 +14,9 @@ import Button from '@material-ui/core/Button'
 import DialogActions from '@material-ui/core/DialogActions'
 import Select from 'react-select'
 import _get from 'lodash/get'
+import _isEqual from 'lodash/isEqual'
+import _uniq from 'lodash/uniq'
+
 import uuid from 'uuid'
 import { db } from '../../../firebase'
 import { setActiveConversation } from '../../../state/actions/conversations'
@@ -84,8 +87,10 @@ export default function AddConversation({ onClose }) {
 
     const existConversation = _get(Object.values(conversations).find((conversation) => {
       return (
-        Object.values(conversation.members).length === (selected.length + 1) &&
-        selected.every(user => Object.keys(conversation.members).includes(user.value))
+        _isEqual(
+          _uniq(Object.keys(conversation.members).sort()),
+          _uniq([...selected.map(({ value }) => value), currentUser.uid].sort()),
+        )
       )
     }), 'id')
 
@@ -114,7 +119,7 @@ export default function AddConversation({ onClose }) {
       const membersCollection = db.collection('conversations').doc(id).collection('members')
       Object.keys(members).forEach((memberId) => {
         const memberRef = membersCollection.doc(memberId)
-        batch.set(memberRef, { id: memberId,  active: true, lastSeen: new Date(0) })
+        batch.set(memberRef, { id: memberId, active: true, lastSeen: new Date(0) })
       })
 
       await batch.commit()
@@ -141,7 +146,7 @@ export default function AddConversation({ onClose }) {
             Option,
           }}
           value={selected}
-          onChange={setSelected}
+          onChange={(e) => setSelected(e)}
           options={usersOptions}
           isMulti>
 
