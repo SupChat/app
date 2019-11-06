@@ -9,7 +9,7 @@ const initialState = {
   lastMessages: {},
   isLoadingMessages: false,
   unreadMessagesCount: {},
-  activeConversation: sessionStorage.getItem('activeConversation') || '',
+  activeConversation: (sessionStorage.getItem('activeConversation') || '').split(',').filter(Boolean),
 }
 
 const conversations = (state = initialState, action) => {
@@ -18,8 +18,9 @@ const conversations = (state = initialState, action) => {
       return { ...state, conversations: action.conversations }
 
     case 'SET_ACTIVE_CONVERSATION':
-      sessionStorage.setItem('activeConversation', action.activeConversation)
-      return { ...state, activeConversation: action.activeConversation, isLoadingMessages: false }
+      const activeConversation = [...state.activeConversation, action.activeConversation]
+      sessionStorage.setItem('activeConversation', activeConversation)
+      return { ...state, activeConversation, isLoadingMessages: false }
 
     case 'SET_MEMBERS': {
       const { id, members } = action.payload

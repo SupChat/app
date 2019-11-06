@@ -16,6 +16,8 @@ import _keyBy from 'lodash/keyBy'
 import { store } from '../../../configureStore'
 import { selectTypingUsername } from '../../../state/reducers/conversations'
 import Typing from './Typing'
+import IconButton from '@material-ui/core/IconButton'
+import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
 
 const useStyles = makeStyles({
   root: {
@@ -61,7 +63,9 @@ const Conversation = ({ id, dispatchLocal }) => {
   const timeoutRef = useRef()
 
   function setActive() {
-    dispatch(setActiveConversation(id))
+    if (!activeConversation.includes(id)) {
+      dispatch(setActiveConversation(id))
+    }
   }
 
   function parsedDate(date) {
@@ -89,7 +93,7 @@ const Conversation = ({ id, dispatchLocal }) => {
         dispatch({ type: 'SET_UNREAD_MESSAGES_COUNT', payload: { id, count } })
       })
 
-  }, [dispatch, id, lastSeen ? lastSeen.toDate().getTime() : 0, currentUserId])
+  }, [dispatch, id, lastSeen, currentUserId])
 
   useEffect(() => {
     return db
@@ -104,7 +108,7 @@ const Conversation = ({ id, dispatchLocal }) => {
           dispatchLocal({ type: 'UPDATE', payload: { [id]: snapshot.docs[0].data().date.toDate() } })
         }
       })
-  }, [dispatch, id, currentUserId])
+  }, [dispatchLocal, dispatch, id, currentUserId])
 
 
   useEffect(() => {
@@ -139,10 +143,17 @@ const Conversation = ({ id, dispatchLocal }) => {
       })
   }, [dispatch, id, currentUserId])
 
+  function onDragStart(e) {
+    console.log('id', id)
+    e.dataTransfer.setData('conversationId', id)
+  }
+
   return (
     <ListItem
+      onDragStart={onDragStart}
+      draggable
       onClick={setActive}
-      className={`${classes.root} ${id === activeConversation ? classes.activeConversation : ''}`}
+      className={`${classes.root} ${activeConversation.includes(id) ? classes.activeConversation : ''}`}
       alignItems="flex-start">
 
       <ListItemAvatar>
@@ -172,6 +183,10 @@ const Conversation = ({ id, dispatchLocal }) => {
             size="small"
             label={count} />
         )}
+        <IconButton>
+          <DragIndicatorIcon />
+        </IconButton>
+
       </div>
 
     </ListItem>

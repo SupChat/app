@@ -44,7 +44,8 @@ export function createTextHTML(text) {
   let comp = text
   let match
   let index = 0
-  while (match = emojiRegex.exec(comp)) {
+
+  while (Boolean(match = emojiRegex.exec(comp))) {
     const emojiNative = match[0]
     const emojiLength = emojiNative.length
 

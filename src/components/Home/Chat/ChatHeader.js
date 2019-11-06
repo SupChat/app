@@ -37,19 +37,19 @@ const useStyles = makeStyles({
   },
 })
 
-export default function ChatHeader({ id }) {
+export default function ChatHeader({ conversationId }) {
   const classes = useStyles()
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
 
-  const typingUsername = useSelector(selectTypingUsername(id))
+  const typingUsername = useSelector(selectTypingUsername(conversationId))
 
   return (
     <Grid className={classes.root} container direction='row' alignItems='center'>
-      <ConversationAvatar id={id} />
+      <ConversationAvatar id={conversationId} />
 
       <div className={classes.titles}>
         <Typography variant="subtitle1">
-          <ConversationTitle id={id} />
+          <ConversationTitle id={conversationId} />
         </Typography>
 
         {Boolean(typingUsername) && <Typing username={typingUsername} />}
@@ -64,3 +64,32 @@ export default function ChatHeader({ id }) {
     </Grid>
   )
 }
+
+/*
+<React.Fragment>
+  <input
+    accept="image/*"
+    style={{ display: 'none' }}
+    id="raised-button-file"
+    onChange={onChangeFileInput}
+    type="file"
+  />
+  <label htmlFor="raised-button-file">
+    <IconButton
+      component="span"
+      type='button'
+      color='default'>
+      <AttachFileIcon />
+    </IconButton>
+  </label>
+</React.Fragment>
+*/
+
+/*
+
+  function onChangeFileInput(e) {
+    attachFile(e.target.files.length ? e.target.files.item(0) : null)
+    e.target.value = ''
+  }
+
+ */
