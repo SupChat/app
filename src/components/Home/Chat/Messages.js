@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useState } from 'react'
 import ListItem from '@material-ui/core/ListItem'
 import { makeStyles } from '@material-ui/core/styles'
 import { useDispatch, useSelector } from 'react-redux'
@@ -7,7 +7,6 @@ import List from '@material-ui/core/List'
 import moment from 'moment'
 import _get from 'lodash/get'
 import _groupBy from 'lodash/groupBy'
-import _sortBy from 'lodash/sortBy'
 import { db } from '../../../firebase'
 import Drawer from '@material-ui/core/Drawer'
 import Fab from '@material-ui/core/Fab'
@@ -89,7 +88,7 @@ const useStyles = makeStyles({
   },
 })
 
-const Messages = ({ isDragOn }, listRef) => {
+const Messages = ({ conversationId, isDragOn }, listRef) => {
   const classes = useStyles()
   const dispatch = useDispatch()
 
@@ -97,20 +96,62 @@ const Messages = ({ isDragOn }, listRef) => {
   const [allLoaded, setAllLoaded] = useState(false)
   const [scrollTop, setScrollTop] = useState(false)
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
-  const conversationId = useSelector(store => store.conversations.activeConversation)
-
   const currentUserId = useSelector(store => store.auth.user.uid)
 
-  const messagesObject = useSelector(store => store.conversations.messages[store.conversations.activeConversation]) || {}
-  const messages = _sortBy(Object.values(messagesObject || {}), 'date') || []
+  const messages = useSelector(store => store.conversations.messages[conversationId] || [])
   const shouldFetchMessages = messages.length < 10
+  const lastDate = _get(messages, '[0].date')
+
+  const updateLastSeen = useCallback(() => {
+    return db
+      .collection('conversations')
+      .doc(conversationId)
+      .collection('members')
+      .doc(currentUserId.toString())
+      .set({
+        active: true,
+        id: currentUserId,
+        lastSeen: new Date(),
+      }, { merge: true })
+  }, [conversationId, currentUserId])
+
+  const onGetMessages = useCallback(async (snapshot) => {
+    dispatch(setMessages({
+      id: conversationId,
+      messages: (snapshot.docs || []).map((doc) => doc.data()),
+    }))
+
+    await updateLastSeen()
+  }, [conversationId, updateLastSeen, dispatch])
+
+  const loadPrevious = useCallback(async () => {
+    dispatch(setIsLoadingMessages(true))
+
+    const snapshot = await db.collection('conversations')
+      .doc(conversationId)
+      .collection('messages')
+      .orderBy('date', 'desc')
+      .limit(10)
+      .where('date', '<', lastDate || new Date())
+      .get()
+
+    if (snapshot.size < 10) {
+      setAllLoaded(true)
+    }
+
+    onGetMessages(snapshot)
+
+    dispatch(setIsLoadingMessages(false))
+  }, [lastDate, dispatch, conversationId, onGetMessages])
+
+  useEffect(() => {
+    if (shouldFetchMessages) {
+      loadPrevious()
+    }    
+  }, [loadPrevious, shouldFetchMessages])
 
   useEffect(() => {
     listRef.current.scrollTop = listRef.current.scrollHeight
-
-    if (shouldFetchMessages) {
-      loadPrevious()
-    }
 
     return db.collection('conversations')
       .doc(conversationId)
@@ -119,51 +160,12 @@ const Messages = ({ isDragOn }, listRef) => {
       .limit(1)
       .onSnapshot(onGetMessages)
 
-  }, [conversationId, currentUserId, dispatch, shouldFetchMessages])
-
-  function updateLastSeen() {
-    return db
-      .collection('conversations')
-      .doc(conversationId)
-      .collection('members')
-      .doc(currentUserId)
-      .set({
-        active: true,
-        id: currentUserId,
-        lastSeen: new Date(),
-      }, { merge: true })
-  }
-
-  function onGetMessages(snapshot) {
-    updateLastSeen()
-
-    const messagesList = (snapshot.docs || []).map((doc) => doc.data())
-
-    dispatch(setMessages({
-      id: conversationId,
-      messages: messagesList.reduce((prev, doc) => ({ ...prev, [doc.id]: doc }), {}),
-    }))
-
-  }
-
-  async function loadPrevious() {
-    dispatch(setIsLoadingMessages(true))
-
-    const snapshot = await db.collection('conversations')
-      .doc(conversationId)
-      .collection('messages')
-      .orderBy('date', 'desc')
-      .limit(10)
-      .where('date', '<', _get(messages, '[0].date') || new Date())
-      .get()
-
-    if (!snapshot.size) {
-      setAllLoaded(true)
-    }
-    onGetMessages(snapshot)
-
-    dispatch(setIsLoadingMessages(false))
-  }
+  }, [
+    listRef,
+    onGetMessages,
+    conversationId,
+    dispatch,
+  ])
 
   async function onScrollList(e) {
     const isScrollingUp = scrollTop > e.currentTarget.scrollTop
@@ -183,9 +185,9 @@ const Messages = ({ isDragOn }, listRef) => {
     }
   }
 
-  const dayGroups = _groupBy(messages, function (message) {
-    return moment(message.date.toDate()).startOf('day').format('DD/MM/YY')
-  })
+  const dayGroups = _groupBy(messages, (message) => (
+    moment(message.date.toDate()).startOf('day').format('DD/MM/YY')
+  ))
 
   return (
     <div className={`${classes.root} ${isDragOn ? classes.opacity : ''}`}>

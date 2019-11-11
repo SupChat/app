@@ -3,11 +3,11 @@ import Messages from './Messages'
 import ChatBox from './ChatBox'
 import { makeStyles } from '@material-ui/core'
 import ChatHeader from './ChatHeader'
-import DropZone from './DropZone'
 import uuid from 'uuid'
 import { db, storage } from '../../../firebase'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import FileDialog from './FileDialog'
+import { setActiveConversation } from '../../../state/actions/conversations'
 
 const useStyles = makeStyles({
   root: {
@@ -17,17 +17,19 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     position: 'relative',
     width: '100%',
-    height: '100%',
+    height: 'calc(100% - 20px)',
+    margin: '0 10px',
+    boxShadow: '0 0 2px 0px #3f51b5',
   },
 })
 
-const Chat = () => {
+const Chat = ({ conversationId }) => {
   const classes = useStyles()
   const listRef = useRef()
   const [isDragOn, setIsDragOn] = useState(false)
   const [file, setFile] = React.useState(null)
-
-  const currentUser = useSelector(store => store.auth.user)
+  const dispatch = useDispatch()
+  const currentUserId = useSelector(store => store.auth.user.uid)
   const activeConversation = useSelector(store => store.conversations.activeConversation)
 
   async function onSendMessage(text) {
@@ -39,7 +41,7 @@ const Chat = () => {
 
     const messageRef = db
       .collection('conversations')
-      .doc(activeConversation)
+      .doc(conversationId)
       .collection('messages')
       .doc(msgId)
 
@@ -47,46 +49,53 @@ const Chat = () => {
       id: msgId,
       text,
       ...(file ? { file: 'pending' } : {}),
-      from: currentUser.uid,
+      from: currentUserId,
       date: new Date(),
     })
 
     if (file) {
-      const fileRef = await storage.ref(`conversations/${activeConversation}/${msgId}`).put(file).then((snapshot) => snapshot.ref.getDownloadURL())
+      const fileRef = await storage.ref(`conversations/${conversationId}/${msgId}`).put(file).then((snapshot) => snapshot.ref.getDownloadURL())
       await messageRef.set({ file: fileRef }, { merge: true })
     }
   }
 
-  function onDragEnter() {
-    setIsDragOn(true)
+  function onDragOver(e) {
+    e.preventDefault()
   }
 
-  function onDragLeave() {
-    setIsDragOn(false)
+  function onDrop(e) {
+    e.preventDefault()
+    const conversationId = e.dataTransfer.getData('conversationId')
+    if (activeConversation.includes(conversationId)) {
+      dispatch(setActiveConversation([...activeConversation, conversationId]))
+    }
+    // console.log(e.dataTransfer.getData('conversationId'))
   }
+
+  // function onDragLeave() {
+  //   setIsDragOn(false)
+  // }
 
   return (
-    <div className={classes.root} onDragEnter={onDragEnter}>
-      <ChatHeader id={activeConversation} />
+    <div className={classes.root} onDragOver={onDragOver} onDrop={onDrop}>
+      <ChatHeader conversationId={conversationId} attachFile={setFile} />
 
-      <Messages ref={listRef} isDragOn={isDragOn} />
+      <Messages conversationId={conversationId} ref={listRef} isDragOn={isDragOn} />
 
-      <ChatBox
-        attachFile={setFile}
-        onSendMessage={onSendMessage} />
+      <ChatBox conversationId={conversationId} onSendMessage={onSendMessage} />
 
       <FileDialog
         file={file}
         onClose={() => setFile(null)}
         onDone={onSendMessage} />
 
-      {
-        isDragOn && (
-          <DropZone
-            onDragLeave={onDragLeave}
-            setFile={setFile} />
-        )
-      }
+      {/*{*/}
+        {/*isDragOn && (*/}
+          {/*<DropZone*/}
+            {/*onDragLeave={onDragLeave}*/}
+            {/*setFile={setFile} />*/}
+        {/*)*/}
+      {/*}*/}
 
     </div>
   )

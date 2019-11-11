@@ -8,7 +8,7 @@ import Conversation from './Conversation'
 import Divider from '@material-ui/core/Divider'
 import { isEmpty } from 'lodash'
 import AddConversation from './AddConversation'
-import { Chat } from '@material-ui/icons'
+import ChatIcon from '@material-ui/icons/Chat'
 import Fab from '@material-ui/core/Fab'
 import Dialog from '@material-ui/core/Dialog'
 import _get from 'lodash/get'
@@ -104,7 +104,7 @@ export default function Conversations() {
         className={classes.add}
         onClick={() => setOpen(true)}
         color='primary'>
-        <Chat />
+        <ChatIcon />
       </Fab>
 
       <Dialog

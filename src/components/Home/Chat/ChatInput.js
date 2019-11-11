@@ -7,10 +7,9 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
 import SendIcon from '@material-ui/icons/Send'
 import TagFacesIcon from '@material-ui/icons/TagFaces'
-import AttachFileIcon from '@material-ui/icons/AttachFile'
 import { db } from '../../../firebase'
-import {store} from '../../../configureStore'
 import _throttle from 'lodash/throttle'
+import { useSelector } from 'react-redux'
 
 const useStyles = makeStyles({
   root: {
@@ -67,13 +66,14 @@ const useStyles = makeStyles({
 })
 
 
-export default function ChatInput({ value: text, onChange, onSubmit, required, attachFile }) {
+export default function ChatInput({ value: text, onChange, onSubmit, required, conversationId }) {
   const [showEmojis, setShowEmojis] = React.useState(false)
   const [contentHtml, setContentHtml] = React.useState('')
   const [range, setRange] = React.useState(null)
   const formRef = useRef()
   const contentEditableRef = useRef()
   const classes = useStyles()
+  const currentUserId = useSelector(store => store.auth.user.uid)
 
   useEffect(() => {
     const html = createTextHTML(text)
@@ -89,21 +89,16 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
       }
     }).join('')
     onChange(value)
-  }, [contentHtml])
+  }, [onChange, contentHtml])
 
   const onInput = useCallback(_throttle(() => {
-    const state = store.getState()
-    const activeConversation = state.conversations.activeConversation
-    const memberId = state.auth.user.uid
-    
     db
       .collection('conversations')
-      .doc(activeConversation)
+      .doc(conversationId)
       .collection('members')
-      .doc(memberId)
+      .doc(currentUserId.toString())
       .set({ typing: new Date() }, { merge: true })
-
-  }, 200))
+  }, 200), [conversationId, currentUserId])
 
   function setCurrentRange(currentRange) {
     const cloneCurrentRange = currentRange.cloneRange()
@@ -144,11 +139,6 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
     }
 
     document.execCommand('insertHTML', false, html)
-  }
-
-  function onChangeFileInput(e) {
-    attachFile(e.target.files.length ? e.target.files.item(0) : null)
-    e.target.value = ''
   }
 
   function onChangeContentEditable(e) {
@@ -211,23 +201,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, a
         )
       }
       <div className={classes.actions}>
-        <React.Fragment>
-          <input
-            accept="image/*"
-            style={{ display: 'none' }}
-            id="raised-button-file"
-            onChange={onChangeFileInput}
-            type="file"
-          />
-          <label htmlFor="raised-button-file">
-            <IconButton
-              component="span"
-              type='button'
-              color='default'>
-              <AttachFileIcon />
-            </IconButton>
-          </label>
-        </React.Fragment>
+       
         <IconButton
           type='button'
           color={showEmojis ? 'primary' : 'default'}

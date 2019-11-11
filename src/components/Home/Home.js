@@ -7,6 +7,7 @@ import Navbar from './Navbar/Navbar'
 import { db } from '../../firebase'
 import { setUsers } from '../../state/actions/users'
 import SplitPane from 'react-split-pane'
+import Grid from '@material-ui/core/Grid'
 
 const useStyles = makeStyles({
   root: {
@@ -22,7 +23,7 @@ const useStyles = makeStyles({
     },
     '& .Resizer': {
       display: 'none !important',
-    }
+    },
   },
   drawer: {
     width: 360,
@@ -42,13 +43,17 @@ const useStyles = makeStyles({
     flex: 1,
     height: '100%',
   },
+  chats: {
+    height: '100%',
+    alignItems: 'center',
+  }
 })
 
 const Home = () => {
   const dispatch = useDispatch()
   const showUsers = useSelector(store => store.ui.showUsers)
   const classes = useStyles()
-  const activeConversation = useSelector(store => Boolean(store.conversations.activeConversation))
+  const activeConversation = useSelector(store => store.conversations.activeConversation)
 
   useEffect(() => {
     return db.collection('users')
@@ -68,7 +73,16 @@ const Home = () => {
         <Conversations />
         <div className={classes.main}>
           <Navbar />
-          {activeConversation && <Chat />}
+
+          <Grid container className={classes.chats}>
+            {
+              activeConversation.map((conversationId) => (
+                <Chat
+                  key={conversationId}
+                  conversationId={conversationId} />
+              ))
+            }  
+          </Grid>
         </div>
       </SplitPane>
     </div>

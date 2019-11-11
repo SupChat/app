@@ -1,4 +1,6 @@
 import _get from 'lodash/get'
+import _sortBy from 'lodash/sortBy'
+import _uniqBy from 'lodash/uniqBy'
 
 const initialState = {
   conversations: {},
@@ -9,7 +11,7 @@ const initialState = {
   lastMessages: {},
   isLoadingMessages: false,
   unreadMessagesCount: {},
-  activeConversation: sessionStorage.getItem('activeConversation') || '',
+  activeConversation: (sessionStorage.getItem('activeConversation') || '').split(',').filter(Boolean),
 }
 
 const conversations = (state = initialState, action) => {
@@ -53,12 +55,17 @@ const conversations = (state = initialState, action) => {
 
     case 'SET_MESSAGES':
       const { id, messages } = action.payload
+        
+      const list = _uniqBy(_sortBy(
+        state.messages[id] ? [...state.messages[id], ...messages] : messages,
+        'date'
+      ), (msg) => msg.id)
 
       return {
         ...state,
         messages: {
           ...state.messages,
-          [id]: { ...state.messages[id], ...messages },
+          [id]: list,
         },
       }
     case 'SET_IS_LOADING_MESSAGES': {

@@ -1,25 +1,23 @@
 import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import 'emoji-mart/css/emoji-mart.css'
 import ChatInput from './ChatInput'
 import _get from 'lodash/get'
 import { store } from '../../../configureStore'
 
-export default function ChatBox({ onSendMessage, attachFile }) {
+export default function ChatBox({ onSendMessage, conversationId }) {
   const [text, setText] = React.useState('')
-
-  const activeConversation = useSelector(store => store.conversations.activeConversation)
   const dispatch = useDispatch()
 
   useEffect(() => {
     const state = store.getState()
-    const historyText = _get(state, `ui.chatInputHistory[${activeConversation}`)
+    const historyText = _get(state, `ui.chatInputHistory[${conversationId}`)
     setText(historyText || '')
-  }, [activeConversation])
+  }, [conversationId])
 
   useEffect(() => {
-    dispatch({ type: 'UPDATE_CHAT_INPUT_HISTORY', payload: { [activeConversation]: text } })
-  }, [activeConversation, dispatch, text])
+    dispatch({ type: 'UPDATE_CHAT_INPUT_HISTORY', payload: { [conversationId]: text } })
+  }, [conversationId, dispatch, text])
 
   function sendMessage(text) {
     onSendMessage(text)
@@ -28,7 +26,7 @@ export default function ChatBox({ onSendMessage, attachFile }) {
 
   return (
     <ChatInput
-      attachFile={attachFile}
+      conversationId={conversationId}
       onSubmit={sendMessage}
       required
       value={text}
