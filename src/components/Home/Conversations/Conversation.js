@@ -144,7 +144,6 @@ const Conversation = ({ id, dispatchLocal }) => {
   }, [dispatch, id, currentUserId])
 
   function onDragStart(e) {
-    console.log('id', id)
     e.dataTransfer.setData('conversationId', id)
   }
 

@@ -56,8 +56,6 @@ const conversations = (state = initialState, action) => {
     case 'SET_MESSAGES':
       const { id, messages } = action.payload
         
-      console.log('SET_MESSAGES')
-
       const list = _uniqBy(_sortBy(
         state.messages[id] ? [...state.messages[id], ...messages] : messages,
         'date'
