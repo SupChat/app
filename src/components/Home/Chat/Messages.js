@@ -7,7 +7,6 @@ import List from '@material-ui/core/List'
 import moment from 'moment'
 import _get from 'lodash/get'
 import _groupBy from 'lodash/groupBy'
-import _sortBy from 'lodash/sortBy'
 import { db } from '../../../firebase'
 import Drawer from '@material-ui/core/Drawer'
 import Fab from '@material-ui/core/Fab'
@@ -97,11 +96,9 @@ const Messages = ({ conversationId, isDragOn }, listRef) => {
   const [allLoaded, setAllLoaded] = useState(false)
   const [scrollTop, setScrollTop] = useState(false)
   const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
-
   const currentUserId = useSelector(store => store.auth.user.uid)
 
-  const messagesObject = useSelector(store => store.conversations.messages[conversationId])
-  const messages = _sortBy(Object.values(messagesObject || {}), 'date') || []
+  const messages = useSelector(store => store.conversations.messages[conversationId] || [])
   const shouldFetchMessages = messages.length < 10
   const lastDate = _get(messages, '[0].date')
 
@@ -119,11 +116,9 @@ const Messages = ({ conversationId, isDragOn }, listRef) => {
   }, [conversationId, currentUserId])
 
   const onGetMessages = useCallback(async (snapshot) => {
-    const messagesList = (snapshot.docs || []).map((doc) => doc.data())
-
     dispatch(setMessages({
       id: conversationId,
-      messages: messagesList.reduce((prev, doc) => ({ ...prev, [doc.id]: doc }), {}),
+      messages: (snapshot.docs || []).map((doc) => doc.data()),
     }))
 
     await updateLastSeen()
@@ -150,11 +145,13 @@ const Messages = ({ conversationId, isDragOn }, listRef) => {
   }, [lastDate, dispatch, conversationId, onGetMessages])
 
   useEffect(() => {
-    listRef.current.scrollTop = listRef.current.scrollHeight
-
     if (shouldFetchMessages) {
       loadPrevious()
-    }
+    }    
+  }, [loadPrevious, shouldFetchMessages])
+
+  useEffect(() => {
+    listRef.current.scrollTop = listRef.current.scrollHeight
 
     return db.collection('conversations')
       .doc(conversationId)
@@ -165,12 +162,9 @@ const Messages = ({ conversationId, isDragOn }, listRef) => {
 
   }, [
     listRef,
-    loadPrevious,
     onGetMessages,
     conversationId,
-    currentUserId,
     dispatch,
-    shouldFetchMessages,
   ])
 
   async function onScrollList(e) {

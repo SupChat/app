@@ -64,7 +64,7 @@ const Conversation = ({ id, dispatchLocal }) => {
 
   function setActive() {
     if (!activeConversation.includes(id)) {
-      dispatch(setActiveConversation(id))
+      dispatch(setActiveConversation([...activeConversation, id]))
     }
   }
 

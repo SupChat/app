@@ -17,7 +17,9 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     position: 'relative',
     width: '100%',
-    height: '100%',
+    height: 'calc(100% - 20px)',
+    margin: '0 10px',
+    boxShadow: '0 0 2px 0px #3f51b5',
   },
 })
 
@@ -28,6 +30,7 @@ const Chat = ({ conversationId }) => {
   const [file, setFile] = React.useState(null)
   const dispatch = useDispatch()
   const currentUserId = useSelector(store => store.auth.user.uid)
+  const activeConversation = useSelector(store => store.conversations.activeConversation)
 
   async function onSendMessage(text) {
     listRef.current.scrollTop = listRef.current.scrollHeight
@@ -63,7 +66,9 @@ const Chat = ({ conversationId }) => {
   function onDrop(e) {
     e.preventDefault()
     const conversationId = e.dataTransfer.getData('conversationId')
-    dispatch(setActiveConversation(conversationId))
+    if (activeConversation.includes(conversationId)) {
+      dispatch(setActiveConversation([...activeConversation, conversationId]))
+    }
     // console.log(e.dataTransfer.getData('conversationId'))
   }
 
@@ -73,7 +78,7 @@ const Chat = ({ conversationId }) => {
 
   return (
     <div className={classes.root} onDragOver={onDragOver} onDrop={onDrop}>
-      <ChatHeader conversationId={conversationId} />
+      <ChatHeader conversationId={conversationId} attachFile={setFile} />
 
       <Messages conversationId={conversationId} ref={listRef} isDragOn={isDragOn} />
 
