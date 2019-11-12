@@ -34,7 +34,7 @@ export default function Navbar() {
     <AppBar position='relative'>
       <Toolbar className={classes.root}>
         <Typography color="inherit" className="flex">
-          CHAT
+          Sup Chat
         </Typography>
         <div className={classes.leftSize}>
           <SignIn />

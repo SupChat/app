@@ -7,7 +7,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import { useDispatch, useSelector } from 'react-redux'
 import Chip from '@material-ui/core/Chip'
 import { db } from '../../../firebase'
-import { setActiveConversation } from '../../../state/actions/conversations'
+import { addActiveConversation } from '../../../state/actions/conversations'
 import _get from 'lodash/get'
 import ConversationAvatar from './ConversationAvatar'
 import { ConversationTitle } from './ConversationTitle'
@@ -57,15 +57,13 @@ const Conversation = ({ id, dispatchLocal }) => {
   const lastSeen = useSelector(store => _get(store, `conversations.members[${id}][${currentUser.uid}].lastSeen`))
   const { uid: currentUserId } = currentUser
   const dispatch = useDispatch()
-  const activeConversation = useSelector(store => store.conversations.activeConversation)
+  const activeConversations = useSelector(store => store.conversations.activeConversations)
   const typingUsername = useSelector(selectTypingUsername(id))
 
   const timeoutRef = useRef()
 
   function setActive() {
-    if (!activeConversation.includes(id)) {
-      dispatch(setActiveConversation([...activeConversation, id]))
-    }
+    dispatch(addActiveConversation(id))
   }
 
   function parsedDate(date) {
@@ -152,7 +150,7 @@ const Conversation = ({ id, dispatchLocal }) => {
       onDragStart={onDragStart}
       draggable
       onClick={setActive}
-      className={`${classes.root} ${activeConversation.includes(id) ? classes.activeConversation : ''}`}
+      className={`${classes.root} ${activeConversations.includes(id) ? classes.activeConversation : ''}`}
       alignItems="flex-start">
 
       <ListItemAvatar>

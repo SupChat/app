@@ -2,7 +2,7 @@ import React, { forwardRef, useCallback, useEffect, useState } from 'react'
 import ListItem from '@material-ui/core/ListItem'
 import { makeStyles } from '@material-ui/core/styles'
 import { useDispatch, useSelector } from 'react-redux'
-import { setIsLoadingMessages, setMessages } from '../../../state/actions/conversations'
+import { setMessages } from '../../../state/actions/conversations'
 import List from '@material-ui/core/List'
 import moment from 'moment'
 import _get from 'lodash/get'
@@ -88,14 +88,13 @@ const useStyles = makeStyles({
   },
 })
 
-const Messages = ({ conversationId, isDragOn }, listRef) => {
+const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) => {
   const classes = useStyles()
   const dispatch = useDispatch()
 
   const [zoomImg, setZoomImg] = useState(null)
   const [allLoaded, setAllLoaded] = useState(false)
   const [scrollTop, setScrollTop] = useState(false)
-  const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
   const currentUserId = useSelector(store => store.auth.user.uid)
 
   const messages = useSelector(store => store.conversations.messages[conversationId] || [])
@@ -125,7 +124,7 @@ const Messages = ({ conversationId, isDragOn }, listRef) => {
   }, [conversationId, updateLastSeen, dispatch])
 
   const loadPrevious = useCallback(async () => {
-    dispatch(setIsLoadingMessages(true))
+    dispatcher({ type: 'START_LOADING' })
 
     const snapshot = await db.collection('conversations')
       .doc(conversationId)
@@ -141,8 +140,8 @@ const Messages = ({ conversationId, isDragOn }, listRef) => {
 
     onGetMessages(snapshot)
 
-    dispatch(setIsLoadingMessages(false))
-  }, [lastDate, dispatch, conversationId, onGetMessages])
+    dispatcher({ type: 'STOP_LOADING' })
+  }, [lastDate, dispatcher, conversationId, onGetMessages])
 
   useEffect(() => {
     if (shouldFetchMessages) {
@@ -175,7 +174,7 @@ const Messages = ({ conversationId, isDragOn }, listRef) => {
       isScrollingUp &&
       messages.length &&
       !allLoaded &&
-      !isLoadingMessages) {
+      !isLoading) {
 
       if (e.currentTarget.scrollTop === 0) {
         e.currentTarget.scrollTop = 1
@@ -193,7 +192,7 @@ const Messages = ({ conversationId, isDragOn }, listRef) => {
     <div className={`${classes.root} ${isDragOn ? classes.opacity : ''}`}>
       <List ref={listRef}
             className={classes.list}
-            style={isLoadingMessages ? { overflow: 'hidden' } : {}}
+            style={isLoading ? { overflow: 'hidden' } : {}}
             onScroll={onScrollList}>
         {
           Object.entries(dayGroups).map(([day, messages]) => (

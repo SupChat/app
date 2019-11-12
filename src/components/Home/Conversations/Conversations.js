@@ -15,11 +15,11 @@ import _get from 'lodash/get'
 
 const useStyles = makeStyles({
   root: {
+    display: 'flex',
+    alignItems: 'center',
     height: '100%',
-    backgroundColor: 'rgba(63, 81, 181, 0.05)',
     position: 'relative',
     boxSizing: 'border-box',
-    boxShadow: '0px 0 2px 0px rgba(63, 81, 181, 0.6)',
   },
   add: {
     position: 'absolute',
@@ -30,10 +30,13 @@ const useStyles = makeStyles({
     display: 'inline',
   },
   list: {
-    height: '100%',
+    height: 'calc(100% - 20px)',
+    margin: '0 10px',
     overflow: 'auto',
     boxSizing: 'border-box',
     padding: 0,
+    boxShadow: '0 0 2px 0px #3f51b5',
+    width: '100%',
   },
   paper: {
     overflow: 'visible',

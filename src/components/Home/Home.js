@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import makeStyles from '@material-ui/core/styles/makeStyles'
 import Conversations from './Conversations/Conversations'
-import Chat from './Chat/Chat'
 import { useDispatch, useSelector } from 'react-redux'
 import Navbar from './Navbar/Navbar'
 import { db } from '../../firebase'
 import { setUsers } from '../../state/actions/users'
 import SplitPane from 'react-split-pane'
-import Grid from '@material-ui/core/Grid'
+import classnames from 'classnames'
+import Chats from './Chat/Chats'
 
 const useStyles = makeStyles({
   root: {
@@ -16,10 +16,22 @@ const useStyles = makeStyles({
     width: '100vw',
     display: 'flex',
     boxSizing: 'border-box',
+    flexDirection: 'column',
+  },
+  splitPane: {
+    position: 'relative !important',
+    '& .Pane1': {
+      transition: 'width .3s',
+    },
+  },
+  onDrag: {
+    '& .Pane1': {
+      transition: 'none !important',
+    },
   },
   hidePane1: {
     '& .Pane1': {
-      display: 'none !important',
+      width: '0 !important',
     },
     '& .Resizer': {
       display: 'none !important',
@@ -45,15 +57,14 @@ const useStyles = makeStyles({
   },
   chats: {
     height: '100%',
-    alignItems: 'center',
-  }
+  },
 })
 
 const Home = () => {
   const dispatch = useDispatch()
   const showUsers = useSelector(store => store.ui.showUsers)
   const classes = useStyles()
-  const activeConversation = useSelector(store => store.conversations.activeConversation)
+  const [isDrag, setIsDrag] = useState(false)
 
   useEffect(() => {
     return db.collection('users')
@@ -63,27 +74,31 @@ const Home = () => {
       })
   }, [dispatch])
 
+  const onDragStarted = useCallback(() => setIsDrag(true), [])
+  const onDragFinished = useCallback(() => setIsDrag(false), [])
+
   return (
-    <div className={`${classes.root} ${showUsers ? '' : classes.hidePane1}`}>
+    <div className={
+      classnames(classes.root, {
+        [classes.hidePane1]: !showUsers,
+        [classes.onDrag]: isDrag,
+      })
+    }>
+      <Navbar />
+
       <SplitPane
+        className={classes.splitPane}
+        style={{ transition: 'none !important' }}
         split="vertical"
         minSize={250}
+        onDragStarted={onDragStarted}
+        onDragFinished={onDragFinished}
         defaultSize={parseInt(localStorage.getItem('splitPos') || 350, 10)}
-        onChange={size => localStorage.setItem('splitPos', size)}>
-        <Conversations />
-        <div className={classes.main}>
-          <Navbar />
+        onChange={size => localStorage.setItem('splitPos', size.toString())}>
 
-          <Grid container className={classes.chats}>
-            {
-              activeConversation.map((conversationId) => (
-                <Chat
-                  key={conversationId}
-                  conversationId={conversationId} />
-              ))
-            }  
-          </Grid>
-        </div>
+        <Conversations />
+        <Chats />
+
       </SplitPane>
     </div>
   )

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useReducer, useRef, useState } from 'react'
 import Messages from './Messages'
 import ChatBox from './ChatBox'
 import { makeStyles } from '@material-ui/core'
@@ -7,7 +7,7 @@ import uuid from 'uuid'
 import { db, storage } from '../../../firebase'
 import { useDispatch, useSelector } from 'react-redux'
 import FileDialog from './FileDialog'
-import { setActiveConversation } from '../../../state/actions/conversations'
+import { addActiveConversation } from '../../../state/actions/conversations'
 
 const useStyles = makeStyles({
   root: {
@@ -17,20 +17,41 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     position: 'relative',
     width: '100%',
-    height: 'calc(100% - 20px)',
-    margin: '0 10px',
+    height: '100%',
     boxShadow: '0 0 2px 0px #3f51b5',
+    '&:focus-within': {
+      boxShadow: '0 0 2px 1px #3f51b5',
+      outline: 'none',
+    },
   },
 })
+
+const initialState = { isLoading: false }
+
+function chatReducer(state = initialState, action) {
+  switch (action.type) {
+    case 'START_LOADING': {
+      return { ...state, isLoading: true }
+    }
+    case 'STOP_LOADING': {
+      return { ...state, isLoading: false }
+    }
+    default: {
+      return state
+    }
+  }
+}
 
 const Chat = ({ conversationId }) => {
   const classes = useStyles()
   const listRef = useRef()
+  const [state, dispatcher] = useReducer(chatReducer, initialState)
+
   const [isDragOn, setIsDragOn] = useState(false)
   const [file, setFile] = React.useState(null)
   const dispatch = useDispatch()
   const currentUserId = useSelector(store => store.auth.user.uid)
-  const activeConversation = useSelector(store => store.conversations.activeConversation)
+  const activeConversations = useSelector(store => store.conversations.activeConversations)
 
   async function onSendMessage(text) {
     listRef.current.scrollTop = listRef.current.scrollHeight
@@ -66,8 +87,8 @@ const Chat = ({ conversationId }) => {
   function onDrop(e) {
     e.preventDefault()
     const conversationId = e.dataTransfer.getData('conversationId')
-    if (activeConversation.includes(conversationId)) {
-      dispatch(setActiveConversation([...activeConversation, conversationId]))
+    if (activeConversations.includes(conversationId)) {
+      dispatch(addActiveConversation(conversationId))
     }
     // console.log(e.dataTransfer.getData('conversationId'))
   }
@@ -77,10 +98,15 @@ const Chat = ({ conversationId }) => {
   // }
 
   return (
-    <div className={classes.root} onDragOver={onDragOver} onDrop={onDrop}>
-      <ChatHeader conversationId={conversationId} attachFile={setFile} />
+    <div className={`${classes.root} chat`} onDragOver={onDragOver} onDrop={onDrop} tabIndex={-1}>
+      <ChatHeader conversationId={conversationId} attachFile={setFile} isLoading={state.isLoading} />
 
-      <Messages conversationId={conversationId} ref={listRef} isDragOn={isDragOn} />
+      <Messages 
+        conversationId={conversationId} 
+        ref={listRef} 
+        isDragOn={isDragOn} 
+        dispatcher={dispatcher}
+        isLoading={state.isLoading} />
 
       <ChatBox conversationId={conversationId} onSendMessage={onSendMessage} />
 
@@ -90,11 +116,11 @@ const Chat = ({ conversationId }) => {
         onDone={onSendMessage} />
 
       {/*{*/}
-        {/*isDragOn && (*/}
-          {/*<DropZone*/}
-            {/*onDragLeave={onDragLeave}*/}
-            {/*setFile={setFile} />*/}
-        {/*)*/}
+      {/*isDragOn && (*/}
+      {/*<DropZone*/}
+      {/*onDragLeave={onDragLeave}*/}
+      {/*setFile={setFile} />*/}
+      {/*)*/}
       {/*}*/}
 
     </div>
