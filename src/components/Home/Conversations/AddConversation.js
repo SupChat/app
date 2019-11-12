@@ -19,7 +19,7 @@ import _uniq from 'lodash/uniq'
 
 import uuid from 'uuid'
 import { db } from '../../../firebase'
-import { setActiveConversation } from '../../../state/actions/conversations'
+import { addActiveConversation } from '../../../state/actions/conversations'
 
 const useStyles = makeStyles(theme => ({
   add: {
@@ -124,7 +124,7 @@ export default function AddConversation({ onClose }) {
 
       await batch.commit()
     }
-    dispatch(setActiveConversation(id))
+    dispatch(addActiveConversation(id))
     onClose()
   }
 

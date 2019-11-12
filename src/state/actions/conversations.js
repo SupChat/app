@@ -3,17 +3,17 @@ export const setConversations = (conversations) => ({
   conversations,
 })
 
-export const setActiveConversation = (activeConversation) => ({
-  type: 'SET_ACTIVE_CONVERSATION',
-  activeConversation,
+export const removeActiveConversation = (id) => ({
+  type: 'REMOVE_ACTIVE_CONVERSATION',
+  payload: { id },
+})
+
+export const addActiveConversation = (id) => ({
+  type: 'ADD_ACTIVE_CONVERSATION',
+  payload: { id },
 })
 
 export const setMessages = ({ id, messages }) => ({
   type: 'SET_MESSAGES',
   payload: { id, messages }
-})
-
-export const setIsLoadingMessages = (isLoadingMessages) => ({
-  type: 'SET_IS_LOADING_MESSAGES',
-  isLoadingMessages
 })

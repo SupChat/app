@@ -1,6 +1,7 @@
 import _get from 'lodash/get'
 import _sortBy from 'lodash/sortBy'
 import _uniqBy from 'lodash/uniqBy'
+import _uniq from 'lodash/uniq'
 
 const initialState = {
   conversations: {},
@@ -9,9 +10,8 @@ const initialState = {
   typing: {},
 
   lastMessages: {},
-  isLoadingMessages: false,
   unreadMessagesCount: {},
-  activeConversation: (sessionStorage.getItem('activeConversation') || '').split(',').filter(Boolean),
+  activeConversations: (sessionStorage.getItem('activeConversations') || '').split(',').filter(Boolean),
 }
 
 const conversations = (state = initialState, action) => {
@@ -19,9 +19,19 @@ const conversations = (state = initialState, action) => {
     case 'SET_CONVERSATIONS':
       return { ...state, conversations: action.conversations }
 
-    case 'SET_ACTIVE_CONVERSATION':
-      sessionStorage.setItem('activeConversation', action.activeConversation)
-      return { ...state, activeConversation: action.activeConversation, isLoadingMessages: false }
+    case 'ADD_ACTIVE_CONVERSATION': {
+      const { id } = action.payload
+      const activeConversations = _uniq([...state.activeConversations, id])
+      sessionStorage.setItem('activeConversations', activeConversations.toString())
+      return { ...state, activeConversations }
+    }
+
+    case 'REMOVE_ACTIVE_CONVERSATION': {
+      const { id } = action.payload
+      const activeConversations = state.activeConversations.filter(_id => _id !== id)
+      sessionStorage.setItem('activeConversations', activeConversations.toString())
+      return { ...state, activeConversations }
+    }
 
     case 'SET_MEMBERS': {
       const { id, members } = action.payload
@@ -55,10 +65,10 @@ const conversations = (state = initialState, action) => {
 
     case 'SET_MESSAGES':
       const { id, messages } = action.payload
-        
+
       const list = _uniqBy(_sortBy(
         state.messages[id] ? [...state.messages[id], ...messages] : messages,
-        'date'
+        'date',
       ), (msg) => msg.id)
 
       return {
@@ -68,9 +78,6 @@ const conversations = (state = initialState, action) => {
           [id]: list,
         },
       }
-    case 'SET_IS_LOADING_MESSAGES': {
-      return { ...state, isLoadingMessages: action.isLoadingMessages }
-    }
     default:
       return state
   }

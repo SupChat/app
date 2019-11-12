@@ -10,7 +10,7 @@ import Typing from '../Conversations/Typing'
 import { selectTypingUsername } from '../../../state/reducers/conversations'
 import CloseIcon from '@material-ui/icons/Close'
 import IconButton from '@material-ui/core/IconButton'
-import { setActiveConversation } from '../../../state/actions/conversations'
+import { removeActiveConversation } from '../../../state/actions/conversations'
 import AttachFileIcon from '@material-ui/icons/AttachFile'
 
 const useStyles = makeStyles({
@@ -55,13 +55,11 @@ const useStyles = makeStyles({
   }
 })
 
-export default function ChatHeader({ conversationId, attachFile }) {
+export default function ChatHeader({ conversationId, attachFile, isLoading }) {
   const classes = useStyles()
-  const isLoadingMessages = useSelector(store => store.conversations.isLoadingMessages)
 
   const typingUsername = useSelector(selectTypingUsername(conversationId))
   const dispatch = useDispatch()
-  const activeConversation = useSelector(store => store.conversations.activeConversation)
 
   function onChangeFileInput(e) {
     attachFile(e.target.files.length ? e.target.files.item(0) : null)
@@ -69,7 +67,7 @@ export default function ChatHeader({ conversationId, attachFile }) {
   }
 
   function onClose() {
-    dispatch(setActiveConversation(activeConversation.filter(id => id !== conversationId)))
+    dispatch(removeActiveConversation(conversationId))
   }
 
   return (
@@ -91,7 +89,7 @@ export default function ChatHeader({ conversationId, attachFile }) {
           {Boolean(typingUsername) && <Typing username={typingUsername} />}
         </div>
         {
-          isLoadingMessages && (
+          isLoading && (
             <div className={classes.progress}>
               <CircularProgress color="secondary" />
             </div>
