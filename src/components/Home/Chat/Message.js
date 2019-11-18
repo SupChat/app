@@ -14,8 +14,9 @@ import moment from 'moment'
 import _get from 'lodash/get'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Typography from '@material-ui/core/Typography'
+import { fade } from '@material-ui/core/styles'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   avatar: {
     alignSelf: 'baseline',
     maxWidth: 'initial',
@@ -35,10 +36,10 @@ const useStyles = makeStyles({
   },
   ListItemText: {
     whiteSpace: 'pre-line',
-    background: 'rgba(63, 81, 181, 0.03)',
+    background: fade(theme.palette.primary.main, 0.1),
     borderRadius: 8,
     padding: 10,
-    boxShadow: '0 0 2px 0px #3f51b5',
+    boxShadow: `0 0 2px 0px ${theme.palette.primary.main}`,
     wordBreak: 'break-all',
     flex: 'none',
     maxWidth: 'calc(70% - 60px)',
@@ -63,7 +64,7 @@ const useStyles = makeStyles({
   faCheckDouble: {
     color: '#3f51b5',
   },
-})
+}))
 
 export default function Message({ message, conversationId, setZoomImg }) {
   const classes = useStyles()

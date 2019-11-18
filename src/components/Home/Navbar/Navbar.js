@@ -2,12 +2,12 @@ import React from 'react'
 import { AppBar, Toolbar, Typography } from '@material-ui/core'
 import { useDispatch, useSelector } from 'react-redux'
 import makeStyles from '@material-ui/core/styles/makeStyles'
-import Profile from './Profile'
-import SignOut from './SignOut'
+import ProfileAvatar from './ProfileAvatar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUsers } from '@fortawesome/free-solid-svg-icons'
 import Fab from '@material-ui/core/Fab'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
+import { Logo } from '../../Logo'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -32,7 +32,6 @@ const useStyles = makeStyles(theme => ({
     cursor: 'pointer',
   },
   leftSize: {
-    // marginLeft: 'auto',
   },
   rightSize: {
     display: 'flex',
@@ -40,8 +39,6 @@ const useStyles = makeStyles(theme => ({
   },
   showUsers: {
     marginRight: 10,
-    background: 'white',
-    // color: 'white',
   },
 }))
 
@@ -60,7 +57,7 @@ export default function Navbar() {
       <Toolbar className={classes.root}>
         <div className={classes.rightSize}>
           {
-            <Fab size='small' className={classes.showUsers} onClick={handleDrawer}>
+            <Fab size='small' color="secondary" className={classes.showUsers} onClick={handleDrawer}>
               {
                 showUsers ? (
                   <ChevronLeftIcon />
@@ -70,13 +67,12 @@ export default function Navbar() {
               }
             </Fab>
           }
-          <Typography color="inherit" className="flex">
-            CHAT
+          <Typography variant="h6">
+            <Logo />
           </Typography>
         </div>
         <div className={classes.leftSize}>
-          <SignOut />
-          <Profile />
+          <ProfileAvatar />
         </div>
       </Toolbar>
     </AppBar>

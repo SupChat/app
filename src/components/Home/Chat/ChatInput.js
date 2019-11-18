@@ -11,11 +11,10 @@ import { db } from '../../../firebase'
 import _throttle from 'lodash/throttle'
 import { useSelector } from 'react-redux'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
     position: 'relative',
-    color: 'rgba(0, 0, 0, 0.87)',
     cursor: 'text',
     display: 'inline-flex',
     fontSize: 17,
@@ -23,20 +22,19 @@ const useStyles = makeStyles({
     alignItems: 'center',
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     lineHeight: '1.1875em',
-    border: '1px solid #abb3ea',
+    border: `1px solid ${theme.palette.primary.dark}`,
     '&:focus-within': {
-      background: 'rgb(245, 246, 251)',
-      borderColor: '#3f51b5',
+      background: theme.palette.background.paper,
+      borderColor: theme.palette.primary.main,
     },
   },
   input: {
     whiteSpace: 'pre-wrap',
     outline: 'none',
     font: 'inherit',
-    color: 'currentColor',
     width: '100%',
     border: 0,
-    minHeight: 64,
+    minHeight: 50,
     maxHeight: 300,
     overflowY: 'auto',
     overflowX: 'hidden',
@@ -61,9 +59,9 @@ const useStyles = makeStyles({
     display: 'flex',
     alignSelf: 'flex-end',
     padding: 8,
-    borderLeft: '1px solid rgba(171, 179, 234, 0.5)',
+    borderLeft: `1px solid ${theme.palette.primary.light}`,
   },
-})
+}))
 
 
 export default function ChatInput({ value: text, onChange, onSubmit, required, conversationId }) {

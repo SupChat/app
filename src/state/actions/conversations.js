@@ -8,6 +8,11 @@ export const removeActiveConversation = (id) => ({
   payload: { id },
 })
 
+export const setActiveConversations = (activeConversations) => ({
+  type: 'SET_ACTIVE_CONVERSATION',
+  payload: { activeConversations },
+})
+
 export const addActiveConversation = (id) => ({
   type: 'ADD_ACTIVE_CONVERSATION',
   payload: { id },

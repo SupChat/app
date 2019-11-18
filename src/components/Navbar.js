@@ -1,7 +1,8 @@
 import React from 'react'
 import { AppBar, Toolbar, Typography } from '@material-ui/core'
 import makeStyles from '@material-ui/core/styles/makeStyles'
-import SignIn from './SignIn'
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -24,6 +25,10 @@ const useStyles = makeStyles(theme => ({
   leftSize: {
     marginLeft: 'auto',
   },
+  icon: {
+    color: 'white',
+    fontSize: 25,
+  },
 }))
 
 
@@ -34,11 +39,8 @@ export default function Navbar() {
     <AppBar position='relative'>
       <Toolbar className={classes.root}>
         <Typography color="inherit" className="flex">
-          Sup Chat
+          <FontAwesomeIcon className={classes.icon} icon={faCommentDots} />
         </Typography>
-        <div className={classes.leftSize}>
-          <SignIn />
-        </div>
       </Toolbar>
     </AppBar>
   )

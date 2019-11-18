@@ -19,6 +19,12 @@ const conversations = (state = initialState, action) => {
     case 'SET_CONVERSATIONS':
       return { ...state, conversations: action.conversations }
 
+    case 'SET_ACTIVE_CONVERSATION': {
+      const activeConversations = _uniq(action.payload.activeConversations)
+      sessionStorage.setItem('activeConversations', activeConversations.toString())
+      return { ...state, activeConversations }
+    }
+
     case 'ADD_ACTIVE_CONVERSATION': {
       const { id } = action.payload
       const activeConversations = _uniq([...state.activeConversations, id])
@@ -59,7 +65,7 @@ const conversations = (state = initialState, action) => {
       const { id, count } = action.payload
       const updates = { ...state, unreadMessagesCount: { ...state.unreadMessagesCount, [id]: count } }
       const all = Object.values(updates.unreadMessagesCount).reduce((prev, current) => prev + +current, 0)
-      document.title = `Chat App ${all ? `(${all})` : ''}`
+      document.title = `Sup Chat ${all ? `(${all})` : ''}`
       return updates
     }
 

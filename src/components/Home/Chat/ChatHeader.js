@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import Typography from '@material-ui/core/Typography'
 import makeStyles from '@material-ui/core/styles/makeStyles'
 import Grid from '@material-ui/core/Grid'
@@ -9,19 +9,20 @@ import { ConversationTitle } from '../Conversations/ConversationTitle'
 import Typing from '../Conversations/Typing'
 import { selectTypingUsername } from '../../../state/reducers/conversations'
 import CloseIcon from '@material-ui/icons/Close'
+import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
 import IconButton from '@material-ui/core/IconButton'
 import { removeActiveConversation } from '../../../state/actions/conversations'
 import AttachFileIcon from '@material-ui/icons/AttachFile'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
     padding: '0 15px',
     zIndex: 10,
     alignSelf: 'flex-start',
-    background: 'rgba(255, 255, 255, 0.9)',
+    background: theme.palette.background.paper,
     boxSizing: 'border-box',
-    borderBottom: '1px solid #e2e3e7',
+    borderBottom: `1px solid ${theme.palette.primary.dark}`,
     height: 61,
   },
   typography: {
@@ -53,9 +54,9 @@ const useStyles = makeStyles({
     right: 40,
     top: 16,
   }
-})
+}))
 
-export default function ChatHeader({ conversationId, attachFile, isLoading }) {
+export default function ChatHeader({ conversationId, attachFile, isLoading, onDragStart, isDraggable }) {
   const classes = useStyles()
 
   const typingUsername = useSelector(selectTypingUsername(conversationId))
@@ -66,9 +67,9 @@ export default function ChatHeader({ conversationId, attachFile, isLoading }) {
     e.target.value = ''
   }
 
-  function onClose() {
+  const onClose = useCallback(() => {
     dispatch(removeActiveConversation(conversationId))
-  }
+  }, [conversationId, dispatch])
 
   return (
     <Grid
@@ -114,12 +115,17 @@ export default function ChatHeader({ conversationId, attachFile, isLoading }) {
             </IconButton>
           </label>
         </React.Fragment>
+        {
+          isDraggable && (
+            <IconButton size='small' onMouseDown={onDragStart}>
+              <DragIndicatorIcon />
+            </IconButton>
+          ) 
+        }
         <IconButton size='small' onClick={onClose}>
           <CloseIcon />
         </IconButton>
 
-
-    
       </div>
 
     </Grid>

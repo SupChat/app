@@ -9,55 +9,85 @@ import SplitPane from 'react-split-pane'
 import classnames from 'classnames'
 import Chats from './Chat/Chats'
 
-const useStyles = makeStyles({
-  root: {
-    position: 'relative',
-    height: '100vh',
-    width: '100vw',
-    display: 'flex',
-    boxSizing: 'border-box',
-    flexDirection: 'column',
-  },
-  splitPane: {
-    position: 'relative !important',
-    '& .Pane1': {
-      transition: 'width .3s',
+const useStyles = makeStyles((theme) => {
+  console.log(theme)
+  return ({
+    '@global': {
+      '*::-webkit-scrollbar': {
+        width: '0.4em'
+      },
+      '*::-webkit-scrollbar-track': {
+        '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
+      },
+      '*::-webkit-scrollbar-thumb': {
+        backgroundColor: theme.palette.primary.main,
+        outline: '1px solid slategrey'
+      },
+      '.Resizer': {
+        background: `${theme.palette.primary.dark}`,
+        opacity: 1,
+        width: 11,
+        zIndex: 1,
+        boxSizing: 'border-box',
+        backgroundClip: 'padding-box',
+        '&.vertical': {
+          width: 11,
+          margin: '0 -5px',
+          borderLeft: '5px solid rgba(255, 255, 255, 0)',
+          borderRight: '5px solid rgba(255, 255, 255, 0)',
+          cursor: 'col-resize',
+        }
+      },
     },
-  },
-  onDrag: {
-    '& .Pane1': {
-      transition: 'none !important',
+    root: {
+      position: 'relative',
+      height: '100vh',
+      width: '100vw',
+      display: 'flex',
+      boxSizing: 'border-box',
+      flexDirection: 'column',
     },
-  },
-  hidePane1: {
-    '& .Pane1': {
-      width: '0 !important',
+    splitPane: {
+      position: 'relative !important',
+      '& .Pane1': {
+        transition: 'width .3s',
+      },
     },
-    '& .Resizer': {
-      display: 'none !important',
+    onDrag: {
+      '& .Pane1': {
+        transition: 'none !important',
+      },
     },
-  },
-  drawer: {
-    width: 360,
-    flexShrink: 0,
-  },
-  drawerPaper: {
-    width: 360,
-  },
-  drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  main: {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    height: '100%',
-  },
-  chats: {
-    height: '100%',
-  },
+    hidePane1: {
+      '& .Pane1': {
+        width: '0 !important',
+      },
+      '& .Resizer': {
+        display: 'none !important',
+      },
+    },
+    drawer: {
+      width: 360,
+      flexShrink: 0,
+    },
+    drawerPaper: {
+      width: 360,
+    },
+    drawerHeader: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+    },
+    main: {
+      display: 'flex',
+      flexDirection: 'column',
+      flex: 1,
+      height: '100%',
+    },
+    chats: {
+      height: '100%',
+    },
+  })
 })
 
 const Home = () => {

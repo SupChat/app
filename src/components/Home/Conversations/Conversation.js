@@ -16,19 +16,17 @@ import _keyBy from 'lodash/keyBy'
 import { store } from '../../../configureStore'
 import { selectTypingUsername } from '../../../state/reducers/conversations'
 import Typing from './Typing'
-import IconButton from '@material-ui/core/IconButton'
-import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     cursor: 'pointer',
     '&:hover': {
-      background: 'rgba(155, 155, 157, 0.21)',
+      background: theme.palette.background.paper,
     },
     display: 'flex',
   },
   activeConversation: {
-    background: 'rgba(155, 155, 157, 0.21)',
+    background: theme.palette.background.paper,
   },
   counter: {
     top: '50%',
@@ -47,7 +45,7 @@ const useStyles = makeStyles({
     justifyContent: 'space-between',
     margin: 6,
   },
-})
+}))
 
 const Conversation = ({ id, dispatchLocal }) => {
   const [lastMessage, setLastMessage] = useState('')
@@ -180,10 +178,6 @@ const Conversation = ({ id, dispatchLocal }) => {
             size="small"
             label={count} />
         )}
-        <IconButton>
-          <DragIndicatorIcon />
-        </IconButton>
-
       </div>
 
     </ListItem>
