@@ -156,7 +156,7 @@ export default function AddConversation({ onClose }) {
 
       <DialogActions>
         <Button type="button" onClick={onClose}>Cancel</Button>
-        <Button type="submit">Start</Button>
+        <Button variant="contained" color="primary" type="submit">Start</Button>
       </DialogActions>
     </form>
   )

@@ -13,7 +13,7 @@ import Fab from '@material-ui/core/Fab'
 import Dialog from '@material-ui/core/Dialog'
 import _get from 'lodash/get'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -35,14 +35,14 @@ const useStyles = makeStyles({
     overflow: 'auto',
     boxSizing: 'border-box',
     padding: 0,
-    boxShadow: '0 0 2px 0px #3f51b5',
+    boxShadow: `0 0 2px 0px ${theme.palette.primary.dark}`,
     width: '100%',
   },
   paper: {
     overflow: 'visible',
     width: 450,
   },
-})
+}))
 
 const initalState = {
   conversations: {}

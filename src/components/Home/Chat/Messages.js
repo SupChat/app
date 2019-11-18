@@ -13,7 +13,7 @@ import Fab from '@material-ui/core/Fab'
 import CloseIcon from '@material-ui/icons/Close'
 import Message from './Message'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     flex: 1,
     position: 'relative',
@@ -51,8 +51,8 @@ const useStyles = makeStyles({
     fontSize: 16,
     textAlign: 'center',
     '& span': {
-      color: '#3f51b5',
-      background: 'rgba(255, 255, 255, 1)',
+      color: theme.palette.text.secondary,
+      background: theme.palette.background.default,
     },
     margin: '20px auto',
     display: 'flex',
@@ -86,7 +86,7 @@ const useStyles = makeStyles({
     top: 10,
     left: 10,
   },
-})
+}))
 
 const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) => {
   const classes = useStyles()
