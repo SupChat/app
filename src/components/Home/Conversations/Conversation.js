@@ -16,8 +16,6 @@ import _keyBy from 'lodash/keyBy'
 import { store } from '../../../configureStore'
 import { selectTypingUsername } from '../../../state/reducers/conversations'
 import Typing from './Typing'
-import IconButton from '@material-ui/core/IconButton'
-import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
 
 const useStyles = makeStyles(theme => ({
   root: {

@@ -32,7 +32,6 @@ const useStyles = makeStyles(theme => ({
     cursor: 'pointer',
   },
   leftSize: {
-    // marginLeft: 'auto',
   },
   rightSize: {
     display: 'flex',

@@ -1,11 +1,8 @@
 import React, { useCallback } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Dialog from '@material-ui/core/Dialog'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faGoogle } from '@fortawesome/free-brands-svg-icons/faGoogle'
-import DialogContent from '@material-ui/core/DialogContent'
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub'
 import * as firebase from 'firebase/app'
 import { auth } from '../firebase'
@@ -16,7 +13,7 @@ import { blue, green } from '@material-ui/core/colors'
 const useStyles = makeStyles({
   dialog: {
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   title: {
     padding: '10px 30px',
@@ -29,7 +26,7 @@ const useStyles = makeStyles({
       margin: 5,
       textTransform: 'none',
       padding: '8px 50px',
-    }
+    },
   },
   signIn: {
     color: 'white',

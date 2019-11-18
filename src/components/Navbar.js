@@ -1,8 +1,6 @@
 import React from 'react'
 import { AppBar, Toolbar, Typography } from '@material-ui/core'
 import makeStyles from '@material-ui/core/styles/makeStyles'
-import SignUp from './SignUp'
-import { Logo } from './Logo'
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons/faCommentDots'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
