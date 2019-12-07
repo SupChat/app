@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheckDouble } from '@fortawesome/free-solid-svg-icons/faCheckDouble'
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck'
-import React from 'react'
+import React, { useCallback } from 'react'
 import ListItem from '@material-ui/core/ListItem'
 import Avatar from '@material-ui/core/Avatar'
 import { makeStyles } from '@material-ui/core'
@@ -14,7 +14,7 @@ import moment from 'moment'
 import _get from 'lodash/get'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Typography from '@material-ui/core/Typography'
-import { fade } from '@material-ui/core/styles'
+import * as classnames from 'classnames'
 
 const useStyles = makeStyles(theme => ({
   avatar: {
@@ -36,14 +36,18 @@ const useStyles = makeStyles(theme => ({
   },
   ListItemText: {
     whiteSpace: 'pre-line',
-    background: fade(theme.palette.primary.main, 0.1),
-    borderRadius: 8,
+    background: theme.palette.background.paper,
+    borderRadius: 4,
     padding: 10,
-    boxShadow: `0 0 2px 0px ${theme.palette.primary.main}`,
+    boxShadow: `0 0 1px 0 ${theme.palette.primary.main}`,
     wordBreak: 'break-all',
     flex: 'none',
     maxWidth: 'calc(70% - 60px)',
     boxSizing: 'border-box',
+    '&.friend': {
+      background: theme.palette.background.paper,
+      boxShadow: `0 0 1px 0 ${theme.palette.secondary.main}`,
+    },
   },
   listItem: {
     flex: 'initial',
@@ -62,7 +66,7 @@ const useStyles = makeStyles(theme => ({
     margin: '0 3px',
   },
   faCheckDouble: {
-    color: '#3f51b5',
+    color: theme.palette.primary.main,
   },
 }))
 
@@ -70,6 +74,7 @@ export default function Message({ message, conversationId, setZoomImg }) {
   const classes = useStyles()
   const currentUserId = useSelector(store => store.auth.user.uid)
   const avatarPhotoURL = useSelector(store => _get(store, `users.users[${message.from}].photoURL`))
+  const onZoomIn = useCallback(() => setZoomImg(message.file), [setZoomImg, message.file])
 
   return (
     <ListItem key={message.id} className={message.from === currentUserId ? classes.listItemSelf : classes.listItem}>
@@ -81,7 +86,7 @@ export default function Message({ message, conversationId, setZoomImg }) {
         message.file && (
           message.file !== 'pending' ? (
             <div className={classes.imgContainer}>
-              <Button onClick={() => setZoomImg(message.file)}>
+              <Button onClick={onZoomIn}>
                 <img className={classes.img} alt="" src={message.file} />
               </Button>
             </div>
@@ -91,7 +96,7 @@ export default function Message({ message, conversationId, setZoomImg }) {
 
       <ListItemText
         dir="auto"
-        className={classes.ListItemText}
+        className={classnames(classes.ListItemText, { friend: message.from !== currentUserId })}
         primary={<EmojiText text={message.text} />}
         secondary={
           <Typography className={classes.secondary}>

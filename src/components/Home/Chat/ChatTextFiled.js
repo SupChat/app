@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { Picker } from 'emoji-mart'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
@@ -54,6 +54,7 @@ export default function ChatTextFiled({ value = '', onChange, onSubmit, attachFi
   }
 
   const moreProps = { inputProps: { dir: 'auto', ref: textFieldRef } }
+  const onTextFiledChange = useCallback((e) => onChange(e.target.value), [onChange])
 
   return (
     <div className={classes.root}>
@@ -63,7 +64,7 @@ export default function ChatTextFiled({ value = '', onChange, onSubmit, attachFi
           multiline
           autoFocus
           fullWidth
-          onChange={(e) => onChange(e.target.value)}
+          onChange={onTextFiledChange}
           value={value}
           onKeyPress={submitOnEnter}
           InputProps={{

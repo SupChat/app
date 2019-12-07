@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import DialogContent from '@material-ui/core/DialogContent'
 import { DialogActions } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
@@ -37,6 +37,8 @@ export default function FileDialog({ onClose, onDone, file }) {
     }
   }, [file])
 
+  const onSend = useCallback(() => onDone(text), [onDone, text])
+
   return (
     <Dialog
       open={Boolean(file)}
@@ -55,7 +57,7 @@ export default function FileDialog({ onClose, onDone, file }) {
         <Button onClick={onClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={() => onDone(text)} color="primary">
+        <Button onClick={onSend} color="primary">
           Send
         </Button>
       </DialogActions>

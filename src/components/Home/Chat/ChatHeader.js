@@ -22,7 +22,6 @@ const useStyles = makeStyles(theme => ({
     alignSelf: 'flex-start',
     background: theme.palette.background.paper,
     boxSizing: 'border-box',
-    borderBottom: `1px solid ${theme.palette.primary.dark}`,
     height: 61,
   },
   typography: {
@@ -53,19 +52,22 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     right: 40,
     top: 16,
-  }
+  },
+  mainTitle: {
+    cursor: 'pointer',
+  },
 }))
 
-export default function ChatHeader({ conversationId, attachFile, isLoading, onDragStart, isDraggable }) {
+export default function ChatHeader({ conversationId, attachFile, isLoading, onDragStart, isDraggable, showDetails }) {
   const classes = useStyles()
 
   const typingUsername = useSelector(selectTypingUsername(conversationId))
   const dispatch = useDispatch()
 
-  function onChangeFileInput(e) {
+  const onChangeFileInput = useCallback((e) => {
     attachFile(e.target.files.length ? e.target.files.item(0) : null)
     e.target.value = ''
-  }
+  }, [attachFile])
 
   const onClose = useCallback(() => {
     dispatch(removeActiveConversation(conversationId))
@@ -83,7 +85,7 @@ export default function ChatHeader({ conversationId, attachFile, isLoading, onDr
         <ConversationAvatar id={conversationId} />
 
         <div className={classes.titles}>
-          <Typography variant="subtitle1">
+          <Typography variant="subtitle1" className={classes.mainTitle} onClick={showDetails}>
             <ConversationTitle id={conversationId} />
           </Typography>
 
@@ -117,15 +119,17 @@ export default function ChatHeader({ conversationId, attachFile, isLoading, onDr
         </React.Fragment>
         {
           isDraggable && (
-            <IconButton size='small' onMouseDown={onDragStart}>
-              <DragIndicatorIcon />
-            </IconButton>
-          ) 
-        }
-        <IconButton size='small' onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
+            <React.Fragment>
+              <IconButton size='small' onMouseDown={onDragStart}>
+                <DragIndicatorIcon />
+              </IconButton>
 
+              <IconButton size='small' onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            </React.Fragment>
+          )
+        }
       </div>
 
     </Grid>

@@ -7,7 +7,6 @@ import { db, storage } from '../../../firebase'
 import { useDispatch, useSelector } from 'react-redux'
 import FileDialog from './FileDialog'
 import { addActiveConversation } from '../../../state/actions/conversations'
-import { fade } from '@material-ui/core/styles'
 import { store } from '../../../configureStore'
 import _get from 'lodash/get'
 import ChatInput from './ChatInput'
@@ -22,8 +21,7 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
     width: '100%',
     height: '100%',
-    boxShadow: `0 0 2px 0px ${theme.palette.primary.main}`,
-    background: fade(theme.palette.background.default, 1),
+    border: `1px solid ${theme.palette.background.paper}`,
     outline: 'none',
   },
   focusWithin: {
@@ -31,7 +29,7 @@ const useStyles = makeStyles(theme => ({
       boxShadow: `0 0 2px 1px ${theme.palette.primary.main}`,
       zIndex: '10000000 !important',
     },
-  }
+  },
 }))
 
 const initialState = { isLoading: false }
@@ -73,13 +71,6 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
   useEffect(() => {
     dispatch({ type: 'UPDATE_CHAT_INPUT_HISTORY', payload: { [conversationId]: text } })
   }, [conversationId, dispatch, text])
-
-  useEffect(() => {
-    console.log('mount!')
-    return () => {
-      console.log('unmount!')
-    }
-  }, [])
 
   async function onSendMessage(text) {
     setText('')
@@ -126,97 +117,102 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
   //   setIsDragOn(false)
   // }
   const mouseMove = useCallback((event) => {
-    const { dragElement, dropElement, targetElementInitialBoundingBox, brothers  } = dragData.current;
-    const { width: targetWidth, height: targetHeight, left: targetLeft, top: targetTop } = targetElementInitialBoundingBox;
-    const { left, top, width, height } = dragElement.getBoundingClientRect();
+    const { dragElement, dropElement, targetElementInitialBoundingBox, brothers } = dragData.current
+    const { width: targetWidth, height: targetHeight, left: targetLeft, top: targetTop } = targetElementInitialBoundingBox
+    const { left, top, width, height } = dragElement.getBoundingClientRect()
     if (dropElement) {
-      dropElement.style.filter = null;
+      dropElement.style.filter = null
     }
-    dragElement.style.pointerEvents = 'none';
-    const elements = document.elementsFromPoint(left + (width / 2), top + (height / 2));
-    const newDropElement = elements.find((element) => brothers.includes(element));
-      if (newDropElement) {
-        dragElement.style.pointerEvents = null;
-        newDropElement.style.filter = 'blur(2px)';
-      }
-      dragData.current.dropElement = newDropElement;
-      dragElement.style.transition = null;
-      dragElement.style.zIndex = '2000';
-      const translateX = event.clientX - targetLeft - (targetWidth / 2);
-      const translateY = event.clientY - targetTop - (targetHeight / 2);
-      dragElement.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    dragElement.style.pointerEvents = 'none'
+    const elements = document.elementsFromPoint(left + (width / 2), top + (height / 2))
+    const newDropElement = elements.find((element) => brothers.includes(element))
+    if (newDropElement) {
+      dragElement.style.pointerEvents = null
+      newDropElement.style.filter = 'blur(2px)'
+    }
+    dragData.current.dropElement = newDropElement
+    dragElement.style.transition = null
+    dragElement.style.zIndex = '2000'
+    const translateX = event.clientX - targetLeft - (targetWidth / 2)
+    const translateY = event.clientY - targetTop - (targetHeight / 2)
+    dragElement.style.transform = `translate(${translateX}px, ${translateY}px)`
   }, [])
-  
+
   const dragData = useRef()
   const DURATION = 500
 
   const mouseUp = useCallback(() => {
-        document.removeEventListener('mousemove', mouseMove);
-        document.removeEventListener('mouseup', mouseUp);
-        const { dragElement, dropElement, dragElementInitialBoundingBox, brothers } = dragData.current;
-        const { left: initialLeft, top: initialTop } = dragElementInitialBoundingBox;
-        document.body.style.userSelect = null;
-        dragElement.style.transition = `transform ${DURATION}ms`;
-        setTimeout(() => {
-          dragElement.style.pointerEvents = null;
-          dragElement.style.transition = null;
-          dragElement.style.transform = null;
-          dragElement.style.zIndex = null;
-          if (dropElement) {
-            dropElement.style.transform = null;
-            dropElement.style.zIndex = null;
-            dropElement.style.transition = null;
+    document.removeEventListener('mousemove', mouseMove)
+    document.removeEventListener('mouseup', mouseUp)
+    const { dragElement, dropElement, dragElementInitialBoundingBox, brothers } = dragData.current
+    const { left: initialLeft, top: initialTop } = dragElementInitialBoundingBox
+    document.body.style.userSelect = null
+    dragElement.style.transition = `transform ${DURATION}ms`
+    setTimeout(() => {
+      dragElement.style.pointerEvents = null
+      dragElement.style.transition = null
+      dragElement.style.transform = null
+      dragElement.style.zIndex = null
+      if (dropElement) {
+        dropElement.style.transform = null
+        dropElement.style.zIndex = null
+        dropElement.style.transition = null
 
-            const dragIndex = brothers.indexOf(dragElement);
-            const dropIndex = brothers.indexOf(dropElement);
-            onSwap(dragIndex, dropIndex)
-          }
-        }, DURATION)
-        
-        if (dropElement) {
-        const { left: dropLeft, top: dropTop } = dropElement.getBoundingClientRect();
-        dropElement.style.filter = null;
-        dropElement.style.transition = `transform ${DURATION}ms`;
-        dropElement.style.transform = `translate(${initialLeft - dropLeft}px, ${initialTop - dropTop}px)`;
-        dragElement.style.transform = `translate(${dropLeft - initialLeft}px, ${dropTop - initialTop}px)`;
-        dropElement.style.zIndex = '1999';
-        dropElement.classList.remove('droppable');
-      } else {
-        dragElement.style.transform = `translate(0, 0)`;
+        const dragIndex = brothers.indexOf(dragElement)
+        const dropIndex = brothers.indexOf(dropElement)
+        onSwap(dragIndex, dropIndex)
       }
-        dragData.current = null;
+    }, DURATION)
+
+    if (dropElement) {
+      const { left: dropLeft, top: dropTop } = dropElement.getBoundingClientRect()
+      dropElement.style.filter = null
+      dropElement.style.transition = `transform ${DURATION}ms`
+      dropElement.style.transform = `translate(${initialLeft - dropLeft}px, ${initialTop - dropTop}px)`
+      dragElement.style.transform = `translate(${dropLeft - initialLeft}px, ${dropTop - initialTop}px)`
+      dropElement.style.zIndex = '1999'
+      dropElement.classList.remove('droppable')
+    } else {
+      dragElement.style.transform = `translate(0, 0)`
+    }
+    dragData.current = null
   }, [onSwap, mouseMove])
 
   const onDragStart = useCallback((e) => {
     const trigger = e.currentTarget
-    const dragElement = elementRef.current;
-    document.body.style.userSelect = 'none';
-    const dragElementInitialBoundingBox = dragElement.getBoundingClientRect();
-    const targetElementInitialBoundingBox = trigger.getBoundingClientRect();
+    const dragElement = elementRef.current
+    document.body.style.userSelect = 'none'
+    const dragElementInitialBoundingBox = dragElement.getBoundingClientRect()
+    const targetElementInitialBoundingBox = trigger.getBoundingClientRect()
     const brothers = Array.from(elementRef.current.parentElement.children)
 
-    dragData.current = { dragElement, dragElementInitialBoundingBox, targetElementInitialBoundingBox, brothers };
-    document.addEventListener('mousemove', mouseMove);
-    document.addEventListener('mouseup', mouseUp);
+    dragData.current = { dragElement, dragElementInitialBoundingBox, targetElementInitialBoundingBox, brothers }
+    document.addEventListener('mousemove', mouseMove)
+    document.addEventListener('mouseup', mouseUp)
     return () => {
-      document.removeEventListener('mousemove', mouseMove);
-      document.removeEventListener('mouseup', mouseUp);
+      document.removeEventListener('mousemove', mouseMove)
+      document.removeEventListener('mouseup', mouseUp)
     }
   }, [mouseMove, mouseUp])
 
+  const onCloseFileDialog = useCallback(() => {
+    setFile(null)
+  }, [])
+
   return (
-    <div className={classnames(classes.root, 'chat', {[classes.focusWithin]: isDraggable })} onDragOver={onDragOver} onDrop={onDrop} tabIndex={-1} ref={elementRef}>
+    <div className={classnames(classes.root, 'chat', { [classes.focusWithin]: isDraggable })} onDragOver={onDragOver}
+         onDrop={onDrop} tabIndex={-1} ref={elementRef}>
       <ChatHeader
         onDragStart={onDragStart}
         isDraggable={isDraggable}
-        conversationId={conversationId} 
-        attachFile={setFile} 
+        conversationId={conversationId}
+        attachFile={setFile}
         isLoading={state.isLoading} />
 
-      <Messages 
-        conversationId={conversationId} 
-        ref={listRef} 
-        isDragOn={isDragOn} 
+      <Messages
+        conversationId={conversationId}
+        ref={listRef}
+        isDragOn={isDragOn}
         dispatcher={dispatcher}
         isLoading={state.isLoading} />
 
@@ -226,10 +222,10 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
         required
         value={text}
         onChange={setText} />
-        
+
       <FileDialog
         file={file}
-        onClose={() => setFile(null)}
+        onClose={onCloseFileDialog}
         onDone={onSendMessage} />
 
       {/*{*/}

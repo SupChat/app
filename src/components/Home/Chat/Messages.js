@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ListItem from '@material-ui/core/ListItem'
 import { makeStyles } from '@material-ui/core/styles'
 import { useDispatch, useSelector } from 'react-redux'
@@ -6,6 +6,8 @@ import { setMessages } from '../../../state/actions/conversations'
 import List from '@material-ui/core/List'
 import moment from 'moment'
 import _get from 'lodash/get'
+import _isEmpty from 'lodash/isEmpty'
+
 import _groupBy from 'lodash/groupBy'
 import { db } from '../../../firebase'
 import Drawer from '@material-ui/core/Drawer'
@@ -28,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     overflow: 'auto',
     padding: 0,
     position: 'relative',
-    scrollPadding: 10,
+    scrollPadding: '10px',
     '& li': {
       overflowAnchor: 'none',
     },
@@ -94,12 +96,22 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
 
   const [zoomImg, setZoomImg] = useState(null)
   const [allLoaded, setAllLoaded] = useState(false)
-  const [scrollTop, setScrollTop] = useState(false)
+  const [initialized, setInitialized] = useState(false)
+  
   const currentUserId = useSelector(store => store.auth.user.uid)
-
   const messages = useSelector(store => store.conversations.messages[conversationId] || [])
-  const shouldFetchMessages = messages.length < 10
-  const lastDate = _get(messages, '[0].date')
+
+  const dayGroups = useMemo(() => (
+    _groupBy(messages, (message) => (
+      moment(message.date.toDate()).startOf('day').format('DD/MM/YY')
+    ))
+  ), [messages])
+  const isEmptyMessages = useMemo(() => _isEmpty(messages), [messages])
+
+  const scrollTop = useRef(0)
+  const lastDate = useRef(new Date())
+
+  lastDate.current = _get(messages, '[0].date')
 
   const updateLastSeen = useCallback(() => {
     return db
@@ -123,7 +135,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     await updateLastSeen()
   }, [conversationId, updateLastSeen, dispatch])
 
-  const loadPrevious = useCallback(async () => {
+  const loadMessages = useCallback(async () => {
     dispatcher({ type: 'START_LOADING' })
 
     const snapshot = await db.collection('conversations')
@@ -131,62 +143,55 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
       .collection('messages')
       .orderBy('date', 'desc')
       .limit(10)
-      .where('date', '<', lastDate || new Date())
+      .where('date', '<', lastDate.current || new Date())
       .get()
 
     if (snapshot.size < 10) {
       setAllLoaded(true)
     }
 
-    onGetMessages(snapshot)
+    await onGetMessages(snapshot)
 
     dispatcher({ type: 'STOP_LOADING' })
   }, [lastDate, dispatcher, conversationId, onGetMessages])
 
   useEffect(() => {
-    if (shouldFetchMessages) {
-      loadPrevious()
-    }    
-  }, [loadPrevious, shouldFetchMessages])
+    if (initialized) {
+      listRef.current.scrollTop = listRef.current.scrollHeight
 
-  useEffect(() => {
-    listRef.current.scrollTop = listRef.current.scrollHeight
+      return db.collection('conversations')
+        .doc(conversationId)
+        .collection('messages')
+        .orderBy('date', 'desc')
+        .limit(1)
+        .onSnapshot(onGetMessages)
 
-    return db.collection('conversations')
-      .doc(conversationId)
-      .collection('messages')
-      .orderBy('date', 'desc')
-      .limit(1)
-      .onSnapshot(onGetMessages)
+    } else {
+      loadMessages().then(() => setInitialized(true))
+    }
+  }, [initialized, conversationId, loadMessages, listRef, onGetMessages])
 
-  }, [
-    listRef,
-    onGetMessages,
-    conversationId,
-    dispatch,
-  ])
-
-  async function onScrollList(e) {
-    const isScrollingUp = scrollTop > e.currentTarget.scrollTop
-    setScrollTop(e.currentTarget.scrollTop)
-
-    if (e.currentTarget.scrollTop < 30 &&
-      isScrollingUp &&
-      messages.length &&
+  const onScrollList = useCallback(async (e) => {
+    const needToLoadPrevious = (
+      e.currentTarget.scrollTop < 30 &&
+      scrollTop.current > e.currentTarget.scrollTop &&
+      !isEmptyMessages &&
       !allLoaded &&
-      !isLoading) {
+      !isLoading
+    )
 
+    scrollTop.current = e.currentTarget.scrollTop
+
+    if (needToLoadPrevious) {
       if (e.currentTarget.scrollTop === 0) {
         e.currentTarget.scrollTop = 1
       }
-
-      await loadPrevious()
+      await loadMessages()
     }
-  }
+  }, [isEmptyMessages, allLoaded, isLoading, loadMessages, scrollTop])
 
-  const dayGroups = _groupBy(messages, (message) => (
-    moment(message.date.toDate()).startOf('day').format('DD/MM/YY')
-  ))
+  const onCloseZoomIn = useCallback(() => setZoomImg(null), [])
+  const stopPropagation = useCallback(e => e.stopPropagation(), [])
 
   return (
     <div className={`${classes.root} ${isDragOn ? classes.opacity : ''}`}>
@@ -217,13 +222,13 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
         classes={{ paper: classes.paper, docked: classes.docked }}
         anchor='top'
         variant='persistent'
-        onClose={() => setZoomImg(null)}>
+        onClose={onCloseZoomIn}>
 
-        <div className={classes.zoomImg} onClick={() => setZoomImg(null)}>
+        <div className={classes.zoomImg} onClick={onCloseZoomIn}>
           <Fab size='small' className={classes.zoomImgCloseIcon}>
             <CloseIcon />
           </Fab>
-          <img alt="" src={zoomImg} onClick={(e) => e.stopPropagation()} />
+          <img alt="" src={zoomImg} onClick={stopPropagation} />
         </div>
 
       </Drawer>

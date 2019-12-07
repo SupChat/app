@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import ListItemText from '@material-ui/core/ListItemText'
 import Typography from '@material-ui/core/Typography'
 import ListItem from '@material-ui/core/ListItem'
@@ -7,7 +7,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import { useDispatch, useSelector } from 'react-redux'
 import Chip from '@material-ui/core/Chip'
 import { db } from '../../../firebase'
-import { addActiveConversation } from '../../../state/actions/conversations'
+import { setActiveConversations } from '../../../state/actions/conversations'
 import _get from 'lodash/get'
 import ConversationAvatar from './ConversationAvatar'
 import { ConversationTitle } from './ConversationTitle'
@@ -16,17 +16,18 @@ import _keyBy from 'lodash/keyBy'
 import { store } from '../../../configureStore'
 import { selectTypingUsername } from '../../../state/reducers/conversations'
 import Typing from './Typing'
+import { fade } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   root: {
     cursor: 'pointer',
     '&:hover': {
-      background: theme.palette.background.paper,
+      background: fade(theme.palette.primary.main, 0.2),
     },
     display: 'flex',
   },
   activeConversation: {
-    background: theme.palette.background.paper,
+    background: fade(theme.palette.primary.main, 0.2),
   },
   counter: {
     top: '50%',
@@ -47,10 +48,8 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const Conversation = ({ id, dispatchLocal }) => {
-  const [lastMessage, setLastMessage] = useState('')
+const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, dispatchLocal }) => {
   const classes = useStyles()
-  const count = useSelector(store => store.conversations.unreadMessagesCount[id])
   const currentUser = useSelector(store => store.auth.user)
   const lastSeen = useSelector(store => _get(store, `conversations.members[${id}][${currentUser.uid}].lastSeen`))
   const { uid: currentUserId } = currentUser
@@ -61,7 +60,7 @@ const Conversation = ({ id, dispatchLocal }) => {
   const timeoutRef = useRef()
 
   function setActive() {
-    dispatch(addActiveConversation(id))
+    dispatch(setActiveConversations([id]))
   }
 
   function parsedDate(date) {
@@ -78,18 +77,19 @@ const Conversation = ({ id, dispatchLocal }) => {
   }
 
   useEffect(() => {
-    return db
-      .collection('conversations')
-      .doc(id)
-      .collection('messages')
-      .where('date', '>=', lastSeen || new Date(0))
-      .onSnapshot((snapshot) => {
-        const snapshotData = (snapshot.docs || []).map((doc) => doc.data())
-        const count = snapshotData.reduce((count, message) => message.from === currentUserId ? count : count + 1, 0)
-        dispatch({ type: 'SET_UNREAD_MESSAGES_COUNT', payload: { id, count } })
-      })
-
-  }, [dispatch, id, lastSeen, currentUserId])
+    if (lastSeen) {
+      return db
+        .collection('conversations')
+        .doc(id)
+        .collection('messages')
+        .where('date', '>=', lastSeen)
+        .onSnapshot((snapshot) => {
+          const snapshotData = (snapshot.docs || []).map((doc) => doc.data())
+          const count = snapshotData.reduce((count, message) => message.from === currentUserId ? count : count + 1, 0)
+          dispatchLocal({ type: 'SET_CONVERSATION_COUNT', payload: { id, count } })
+        })
+    }
+  }, [dispatchLocal, id, lastSeen, currentUserId])
 
   useEffect(() => {
     return db
@@ -100,8 +100,8 @@ const Conversation = ({ id, dispatchLocal }) => {
       .limit(1)
       .onSnapshot((snapshot) => {
         if (snapshot.docs.length) {
-          setLastMessage(snapshot.docs[0].data())
-          dispatchLocal({ type: 'UPDATE', payload: { [id]: snapshot.docs[0].data().date.toDate() } })
+          const message = snapshot.docs[0].data()
+          dispatchLocal({ type: 'SET_CONVERSATION_MESSAGE', payload: { id, message } })
         }
       })
   }, [dispatchLocal, dispatch, id, currentUserId])
@@ -170,13 +170,13 @@ const Conversation = ({ id, dispatchLocal }) => {
         } />
       <div className={classes.right}>
         {lastMessage && <span>{parsedDate(lastMessage.date)}</span>}
-        {Boolean(count) && (
+        {Boolean(unReadMessagesCount) && (
           <Chip
             variant='default'
             color='primary'
             className={classes.counter}
             size="small"
-            label={count} />
+            label={unReadMessagesCount} />
         )}
       </div>
 

@@ -5,6 +5,7 @@ import makeStyles from '@material-ui/core/styles/makeStyles'
 import Grid from '@material-ui/core/Grid'
 import * as classnames from 'classnames'
 import { setActiveConversations } from '../../../state/actions/conversations'
+import { darken } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -14,13 +15,12 @@ const useStyles = makeStyles(theme => ({
   },
   chats: {
     position: 'absolute',
-    // boxShadow: '0 0 2px 0px #3f51b5',
-    height: 'calc(100% - 20px)',
-    width: 'calc(100% - 20px)',
-    margin: 10,
+    height: '100%',
+    width: '100%',
+    background: darken(theme.palette.background.default, 0.05)
   },
   zero: {
-    boxShadow: `0 0 2px 0px ${theme.palette.primary.main}`,
+    // boxShadow: `0 0 2px 0px ${theme.palette.primary.main}`,
   },
   one: {
     
