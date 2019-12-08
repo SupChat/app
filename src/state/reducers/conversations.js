@@ -10,7 +10,6 @@ const initialState = {
   typing: {},
 
   lastMessages: {},
-  unreadMessagesCount: {},
   activeConversations: (sessionStorage.getItem('activeConversations') || '').split(',').filter(Boolean),
 }
 
@@ -59,14 +58,6 @@ const conversations = (state = initialState, action) => {
           [id]: data,
         },
       }
-    }
-
-    case 'SET_UNREAD_MESSAGES_COUNT': {
-      const { id, count } = action.payload
-      const updates = { ...state, unreadMessagesCount: { ...state.unreadMessagesCount, [id]: count } }
-      const all = Object.values(updates.unreadMessagesCount).reduce((prev, current) => prev + +current, 0)
-      document.title = `Sup Chat ${all ? `(${all})` : ''}`
-      return updates
     }
 
     case 'SET_MESSAGES':

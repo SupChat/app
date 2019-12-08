@@ -5,7 +5,7 @@ import { faUsers } from '@fortawesome/free-solid-svg-icons'
 import { useSelector } from 'react-redux'
 import Avatar from '@material-ui/core/Avatar'
 
-export default function ConversationAvatar({ id }) {
+export default function ConversationAvatar({ id, classes = {} }) {
   const users = useSelector(store => store.users.users)
   const currentUserId = useSelector(store => store.auth.user.uid)
   const members = useSelector(store => _get(store, `conversations.members[${id}]`))
@@ -14,19 +14,21 @@ export default function ConversationAvatar({ id }) {
 
   switch (membersList.length) {
     case 0: {
-      return <Avatar />
+      return <Avatar classes={classes} />
     }
     case 1: {
-      return <Avatar src={_get(users, `${currentUserId}.photoURL`)} />
+      return <Avatar classes={classes} src={_get(users, `${currentUserId}.photoURL`)} />
     }
     case 2: {
       const memberId = membersList.find(userId => userId !== currentUserId)
-      return <Avatar src={_get(users, `${memberId}.photoURL`)} />
+      return <Avatar classes={classes} src={_get(users, `${memberId}.photoURL`)} />
     }
     default: {
-      return <Avatar>
-        <FontAwesomeIcon icon={faUsers} />
-      </Avatar>
+      return (
+        <Avatar classes={classes}>
+          <FontAwesomeIcon icon={faUsers} />
+        </Avatar>
+      )
 
     }
   }

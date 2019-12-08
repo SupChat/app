@@ -6,7 +6,6 @@ import ProfileAvatar from './ProfileAvatar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUsers } from '@fortawesome/free-solid-svg-icons'
 import Fab from '@material-ui/core/Fab'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import { Logo } from '../../Logo'
 
 const useStyles = makeStyles(theme => ({
@@ -31,8 +30,7 @@ const useStyles = makeStyles(theme => ({
     margin: '0 10px',
     cursor: 'pointer',
   },
-  leftSize: {
-  },
+  leftSize: {},
   rightSize: {
     display: 'flex',
     alignItems: 'center',
@@ -57,15 +55,11 @@ export default function Navbar() {
       <Toolbar className={classes.root}>
         <div className={classes.rightSize}>
           {
-            <Fab size='small' color="secondary" className={classes.showUsers} onClick={handleDrawer}>
-              {
-                showUsers ? (
-                  <ChevronLeftIcon />
-                ) : (
-                  <FontAwesomeIcon icon={faUsers} />
-                )
-              }
-            </Fab>
+            !showUsers && (
+              <Fab size='small' color="secondary" className={classes.showUsers} onClick={handleDrawer}>
+                <FontAwesomeIcon icon={faUsers} />
+              </Fab>
+            )
           }
           <Typography variant="h6">
             <Logo />

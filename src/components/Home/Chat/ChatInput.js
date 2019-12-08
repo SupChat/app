@@ -10,6 +10,7 @@ import TagFacesIcon from '@material-ui/icons/TagFaces'
 import { db } from '../../../firebase'
 import _throttle from 'lodash/throttle'
 import { useSelector } from 'react-redux'
+import { darken } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -22,10 +23,13 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     lineHeight: '1.1875em',
-    border: `1px solid ${theme.palette.primary.dark}`,
+    background: theme.palette.background.default,
     '&:focus-within': {
-      background: theme.palette.background.paper,
-      borderColor: theme.palette.primary.main,
+      // background: fade(theme.palette.background.paper, 0.5),
+      // borderColor: theme.palette.primary.dark,
+      '& .child': {
+        // borderColor: theme.palette.primary.dark,
+      }
     },
   },
   input: {
@@ -59,7 +63,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignSelf: 'flex-end',
     padding: 8,
-    borderLeft: `1px solid ${theme.palette.primary.light}`,
+    borderLeft: `1px solid ${darken(theme.palette.background.default, 0.1)}`,
   },
 }))
 
@@ -198,7 +202,8 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
           </ClickAwayListener>
         )
       }
-      <div className={classes.actions}>
+
+      <div className={`${classes.actions} child`}>
        
         <IconButton
           type='button'

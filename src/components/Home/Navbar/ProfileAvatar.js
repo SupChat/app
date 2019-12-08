@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import Fab from '@material-ui/core/Fab'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { makeStyles } from '@material-ui/core'
 import _get from 'lodash/get'
 import Popper from '@material-ui/core/Popper'
@@ -10,6 +10,8 @@ import MenuList from '@material-ui/core/MenuList'
 import MenuItem from '@material-ui/core/MenuItem'
 import { auth } from '../../../firebase'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+import Switch from '@material-ui/core/Switch'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
 
 const useStyles = makeStyles({
   profileImage: {
@@ -25,6 +27,8 @@ const ProfileAvatar = () => {
   const classes = useStyles()
   const user = useSelector(state => state.auth.user)
   const [anchorEl, setAnchorEl] = useState(null)
+  const isDark = useSelector(store=>store.ui.selectedTheme === 'themeDark')
+  const dispatch = useDispatch()
 
   function logout() {
     auth.signOut().then(() => handleClose())
@@ -34,12 +38,18 @@ const ProfileAvatar = () => {
     setAnchorEl(null)
   }
 
+  const onThemeChange = useCallback(() => {
+    dispatch({ type: 'TOGGLE_THEME' })
+  }, [dispatch])
+
+  const onClick = useCallback((e) => setAnchorEl(anchorEl ? null : e.currentTarget), [anchorEl])
+
   return (
     <React.Fragment>
       <Fab
         className={classes.profileImage}
         size='medium'
-        onClick={(e) => setAnchorEl(anchorEl ? null : e.currentTarget)}>
+        onClick={onClick}>
         <img alt='photoURL' src={_get(user, 'providerData[0].photoURL')} />
       </Fab>
 
@@ -51,6 +61,12 @@ const ProfileAvatar = () => {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList>
+                  <MenuItem>
+                    <FormControlLabel
+                      control={<Switch color="primary" value={isDark} onChange={onThemeChange} />}
+                      label="Dark"
+                    />
+                  </MenuItem>
                   <MenuItem onClick={handleClose}>Profile</MenuItem>
                   <MenuItem onClick={logout}>Logout</MenuItem>
                 </MenuList>

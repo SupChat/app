@@ -1,5 +1,4 @@
 import React from 'react'
-import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles({
@@ -24,9 +23,9 @@ const Typing = ({ username }) => {
   const classes = useStyles()
 
   return (
-    <Typography className={classes.typing}>
+    <span className={classes.typing}>
       {username} typing<span>.</span><span>.</span><span>.</span>
-    </Typography>
+    </span>
   )
 }
 

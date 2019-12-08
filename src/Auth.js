@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { auth, db, messaging } from './firebase'
 import { setUser } from './state/actions/auth'
 
-export function Auth({ children }) {
+export default function Auth({ children }) {
   const dispatch = useDispatch()
 
   useEffect(() => {

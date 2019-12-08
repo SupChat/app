@@ -81,3 +81,12 @@ img.emoji-mart-emoji {
     opacity: .2;
   }
 }
+
+@keyframes open {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 300px;
+  }
+}
