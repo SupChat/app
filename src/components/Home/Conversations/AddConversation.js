@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
     width: 450,
   },
   list: {
-    maxHeight: 250,
+    height: 250,
     overflow: 'auto',
   },
   content: {
@@ -47,6 +47,9 @@ const useStyles = makeStyles(theme => ({
     top: theme.spacing(1),
     color: theme.palette.grey[500],
   },
+  chip: {
+    margin: theme.spacing(1),
+  }
 }))
 
 export default function AddConversation({ onClose }) {
@@ -64,13 +67,16 @@ export default function AddConversation({ onClose }) {
     const inputText = input.toLowerCase().trim()
     return usersOptions
       .filter(({ value }) => !selected.some((selected) => selected.value === value))
-      .filter(({ label, value }) => (
-        label.toLowerCase().trim().includes(inputText) ||
-        value.toLowerCase().trim().includes(inputText)
-      ))
-  }, [input, usersOptions, selected])
+      .filter(({ label, value }) => {
+        const user = _get(users, value)
+        return (
+          user.displayName.toLowerCase().trim().includes(inputText) ||
+          user.email.toLowerCase().trim().includes(inputText)
+        )
+      })
+  }, [input, usersOptions, selected, users])
 
-  async function start(e) {
+  const start = useCallback(async (e) => {
     e.preventDefault()
     let id
 
@@ -115,7 +121,7 @@ export default function AddConversation({ onClose }) {
     }
     dispatch(addActiveConversation(id))
     onClose()
-  }
+  }, [conversations, dispatch, onClose, currentUser.uid, selected])
 
   const onAddSelected = useCallback((e) => () => {
     setSelected(selected ? [...selected, e] : [e])
