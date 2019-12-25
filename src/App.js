@@ -12,12 +12,12 @@ const App = () => {
   return (
     <Theme>
       <Auth>
-        <Switch>
-          <BaseStyle>
+        <BaseStyle>
+          <Switch>
             <Route path="/welcome" component={Welcome} />
             <PrivateRoute path="/" component={Home} />
-          </BaseStyle>
-        </Switch>
+          </Switch>
+        </BaseStyle>
       </Auth>
     </Theme>
   )

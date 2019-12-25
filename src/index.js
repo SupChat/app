@@ -8,7 +8,7 @@ import { ConnectedRouter } from 'connected-react-router'
 import { history, store } from './configureStore'
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
 import { ThemeProvider } from '@material-ui/styles'
-import { purple, cyan } from '@material-ui/core/colors'
+import { cyan, purple } from '@material-ui/core/colors'
 
 const theme = createMuiTheme({
   palette: {
