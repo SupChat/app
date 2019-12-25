@@ -13,7 +13,6 @@ export default function User() {
   return (
     <div>
       <Button onClick={back}>Back</Button>
-      
     </div>
   )
 }
