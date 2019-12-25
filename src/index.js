@@ -27,7 +27,7 @@ ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
       <ThemeProvider theme={theme}>
-        <App />
+          <App />
       </ThemeProvider>
     </ConnectedRouter>
   </Provider>,

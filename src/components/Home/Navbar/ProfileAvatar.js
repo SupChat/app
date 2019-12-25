@@ -12,6 +12,7 @@ import { auth } from '../../../firebase'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import Switch from '@material-ui/core/Switch'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
+import { push } from 'connected-react-router'
 
 const useStyles = makeStyles({
   profileImage: {
@@ -25,10 +26,11 @@ const useStyles = makeStyles({
 
 const ProfileAvatar = () => {
   const classes = useStyles()
+  const dispatch = useDispatch()
+
   const user = useSelector(state => state.auth.user)
   const [anchorEl, setAnchorEl] = useState(null)
-  const isDark = useSelector(store=>store.ui.selectedTheme === 'themeDark')
-  const dispatch = useDispatch()
+  const isDark = useSelector(store => store.ui.selectedTheme === 'themeDark')
 
   function logout() {
     auth.signOut().then(() => handleClose())
@@ -44,6 +46,11 @@ const ProfileAvatar = () => {
 
   const onClick = useCallback((e) => setAnchorEl(anchorEl ? null : e.currentTarget), [anchorEl])
 
+  const handleGoProfile = useCallback(() => {
+    setAnchorEl(null)
+    dispatch(push('/user'))
+  }, [dispatch])
+
   return (
     <React.Fragment>
       <Fab
@@ -53,7 +60,8 @@ const ProfileAvatar = () => {
         <img alt='photoURL' src={_get(user, 'providerData[0].photoURL')} />
       </Fab>
 
-      <Popper open={Boolean(anchorEl)} placement='bottom-end' anchorEl={anchorEl} role={undefined} transition disablePortal>
+      <Popper open={Boolean(anchorEl)} placement='bottom-end' anchorEl={anchorEl} role={undefined} transition
+              disablePortal>
         {({ TransitionProps, placement }) => (
           <Grow
             {...TransitionProps}
@@ -67,7 +75,7 @@ const ProfileAvatar = () => {
                       label="Dark"
                     />
                   </MenuItem>
-                  <MenuItem onClick={handleClose}>Profile</MenuItem>
+                  <MenuItem onClick={handleGoProfile}>Profile</MenuItem>
                   <MenuItem onClick={logout}>Logout</MenuItem>
                 </MenuList>
               </ClickAwayListener>
