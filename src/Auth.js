@@ -6,7 +6,7 @@ import { setUser } from './state/actions/auth'
 export default function Auth({ children }) {
   const dispatch = useDispatch()
 
-  useEffect(() => {
+  useEffect(()       => {
     function handleTokenRefresh() {
       return messaging.getToken()
         .then((token) => {

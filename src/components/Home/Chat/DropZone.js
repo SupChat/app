@@ -52,7 +52,7 @@ const DropZone = ({ onDragLeave, setFile }) => {
     if (prevIsDragActive && !isDragActive) {
       onDragLeave()
     }
-  }, [isDragActive])
+  }, [isDragActive, onDragLeave, prevIsDragActive])
 
   return (
     <div

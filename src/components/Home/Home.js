@@ -21,6 +21,7 @@ const Home = () => {
   const dispatch = useDispatch()
   const classes = useStyles()
 
+  
   useEffect(() => {
     return db.collection('users')
       .onSnapshot((snapshot) => {
