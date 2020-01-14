@@ -39,7 +39,7 @@ export default function Navbar() {
     <AppBar position='relative'>
       <Toolbar className={classes.root}>
         <Typography color="inherit" className="flex">
-          <FontAwesomeIcon className={classes.icon} icon={faCommentDots}/>
+          <FontAwesomeIcon className={classes.icon} icon={faCommentDots} />
         </Typography>
       </Toolbar>
     </AppBar>
