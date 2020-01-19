@@ -8,7 +8,7 @@ const users = (state = initialState, action) => {
       return { ...state, users: action.users }
 
     default:
-      return state
+      return [ state ]
   }
 }
 

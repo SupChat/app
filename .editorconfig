@@ -6,3 +6,7 @@ indent_style = space
 indent_size = 2
 insert_final_newline = false
 trim_trailing_whitespace = false
+ij_javascript_spaces_within_object_literal_braces = true
+ij_javascript_spaces_within_array_initializer_brackets = true
+ij_javascript_spaces_within_imports = true
+ij_javascript_enforce_trailing_comma = whenmultiline
