@@ -17,18 +17,16 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     height: '100%',
     width: '100%',
-    background: darken(theme.palette.background.default, 0.05)
+    background: darken(theme.palette.background.default, 0.05),
   },
   zero: {
     // boxShadow: `0 0 2px 0px ${theme.palette.primary.main}`,
   },
-  one: {
-    
-  },
+  one: {},
   two: {
     boxShadow: 'none',
     '& div.chat': {
-      position:'absolute',
+      position: 'absolute',
       height: '100%',
       '&:first-child': {
         top: 0,
@@ -39,13 +37,13 @@ const useStyles = makeStyles(theme => ({
         top: 0,
         right: 0,
         width: 'calc(50% - 5px)',
-      }  
-    }
+      },
+    },
   },
   three: {
     boxShadow: 'none',
     '& div.chat': {
-      position:'absolute',
+      position: 'absolute',
       '&:nth-child(1)': {
         top: 0,
         left: 0,
@@ -64,8 +62,8 @@ const useStyles = makeStyles(theme => ({
         height: 'calc(50% - 10px)',
         width: '100%',
       },
-    }
-  }
+    },
+  },
 }))
 
 const Chats = () => {
@@ -74,24 +72,24 @@ const Chats = () => {
   const dispatch = useDispatch()
 
   const onSwap = useCallback((dragIndex, dropIndex) => {
-    const cloneList = [...activeConversations];
-    cloneList[dragIndex] = activeConversations[dropIndex];
-    cloneList[dropIndex] = activeConversations[dragIndex];
+    const cloneList = [ ...activeConversations ]
+    cloneList[dragIndex] = activeConversations[dropIndex]
+    cloneList[dropIndex] = activeConversations[dragIndex]
     dispatch(setActiveConversations(cloneList))
-  }, [dispatch, activeConversations])
+  }, [ dispatch, activeConversations ])
 
   const isDraggable = activeConversations.length > 1
 
   return (
     <div className={classes.main}>
 
-      <Grid container 
-            alignItems='center' 
+      <Grid container
+            alignItems='center'
             className={classnames(classes.chats, {
               [classes.zero]: activeConversations.length === 0,
               [classes.one]: activeConversations.length === 1,
               [classes.two]: activeConversations.length === 2,
-              [classes.three]: activeConversations.length === 3
+              [classes.three]: activeConversations.length === 3,
             })}>
         {
           activeConversations.map((conversationId) => (

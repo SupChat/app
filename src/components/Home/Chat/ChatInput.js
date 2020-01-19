@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
       // borderColor: theme.palette.primary.dark,
       '& .child': {
         // borderColor: theme.palette.primary.dark,
-      }
+      },
     },
   },
   input: {
@@ -69,9 +69,9 @@ const useStyles = makeStyles(theme => ({
 
 
 export default function ChatInput({ value: text, onChange, onSubmit, required, conversationId }) {
-  const [showEmojis, setShowEmojis] = React.useState(false)
-  const [contentHtml, setContentHtml] = React.useState('')
-  const [range, setRange] = React.useState(null)
+  const [ showEmojis, setShowEmojis ] = React.useState(false)
+  const [ contentHtml, setContentHtml ] = React.useState('')
+  const [ range, setRange ] = React.useState(null)
   const formRef = useRef()
   const contentEditableRef = useRef()
   const classes = useStyles()
@@ -80,10 +80,10 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
   useEffect(() => {
     const html = createTextHTML(text)
     setContentHtml(html)
-  }, [text])
+  }, [ text ])
 
   useEffect(() => {
-    const value = [...contentEditableRef.current.childNodes].map((e) => {
+    const value = [ ...contentEditableRef.current.childNodes ].map((e) => {
       if (e.nodeName === 'IMG') {
         return e.getAttribute('alt')
       } else {
@@ -91,7 +91,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
       }
     }).join('')
     onChange(value)
-  }, [onChange, contentHtml])
+  }, [ onChange, contentHtml ])
 
   const onInput = useCallback(_throttle(() => {
     db
@@ -100,7 +100,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
       .collection('members')
       .doc(currentUserId.toString())
       .set({ typing: new Date() }, { merge: true })
-  }, 200), [conversationId, currentUserId])
+  }, 200), [ conversationId, currentUserId ])
 
   function setCurrentRange(currentRange) {
     const cloneCurrentRange = currentRange.cloneRange()
@@ -204,7 +204,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
       }
 
       <div className={`${classes.actions} child`}>
-       
+
         <IconButton
           type='button'
           color={showEmojis ? 'primary' : 'default'}

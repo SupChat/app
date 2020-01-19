@@ -67,11 +67,11 @@ export default function ChatHeader({ conversationId, attachFile, isLoading, onDr
   const onChangeFileInput = useCallback((e) => {
     attachFile(e.target.files.length ? e.target.files.item(0) : null)
     e.target.value = ''
-  }, [attachFile])
+  }, [ attachFile ])
 
   const onClose = useCallback(() => {
     dispatch(removeActiveConversation(conversationId))
-  }, [conversationId, dispatch])
+  }, [ conversationId, dispatch ])
 
   return (
     <Grid

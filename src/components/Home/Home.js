@@ -27,7 +27,7 @@ const Home = () => {
         const users = snapshot.docs.map(doc => doc.data())
         dispatch(setUsers(users.reduce((prev, user) => ({ ...prev, [user.id]: user }), {})))
       })
-  }, [dispatch])
+  }, [ dispatch ])
 
   return (
     <div className={classes.root}>

@@ -89,9 +89,9 @@ function reducer(state = initialState, action) {
 }
 
 export default function Conversations() {
-  const [open, setOpen] = useState(false)
+  const [ open, setOpen ] = useState(false)
 
-  const [state, dispatchLocal] = useReducer(reducer, initialState)
+  const [ state, dispatchLocal ] = useReducer(reducer, initialState)
   const classes = useStyles()
   const dispatch = useDispatch()
   const conversations = useSelector((store) => store.conversations.conversations)
@@ -101,11 +101,11 @@ export default function Conversations() {
   useEffect(() => {
     const calcCounts = Object.values(state.counts).reduce((prev, current) => prev + current, 0)
     document.title = `Sup Chat ${calcCounts ? `(${calcCounts})` : ''}`
-  }, [state.counts])
+  }, [ state.counts ])
 
   const conversationsIds = useMemo(() => {
     return Object.entries(conversations)
-      .filter(([id, conversation]) => {
+      .filter(([ id, conversation ]) => {
         const search = state.searchInput.trim().toLowerCase()
         const messageText = (_get(state.messages, `${id}.text`) || '').trim().toLowerCase()
 
@@ -126,13 +126,13 @@ export default function Conversations() {
 
         return false
       })
-      .sort(([idA], [idB]) => {
+      .sort(([ idA ], [ idB ]) => {
         const firstDate = _get(state.messages, `${idA}.date`) ? _get(state.messages, `${idA}.date`).toDate() : new Date(0)
         const secondDate = _get(state.messages, `${idB}.date`) ? _get(state.messages, `${idB}.date`).toDate() : new Date(0)
         return firstDate >= secondDate ? -1 : 1
       })
-      .map(([id]) => id)
-  }, [conversations, state.searchInput, state.messages, users])
+      .map(([ id ]) => id)
+  }, [ conversations, state.searchInput, state.messages, users ])
 
   useEffect(() => {
     return db.collection('conversations')
@@ -143,12 +143,12 @@ export default function Conversations() {
         }), {})
         dispatch(setConversations(docsDictionary))
       })
-  }, [dispatch, currentUserId])
+  }, [ dispatch, currentUserId ])
 
   const onOpenDialog = useCallback(() => setOpen(true), [])
   const onCloseDialog = useCallback(() => setOpen(false), [])
 
-  const toggleShown = useCallback(() => dispatch({ type: 'TOGGLE_SHOW_USERS' }), [dispatch])
+  const toggleShown = useCallback(() => dispatch({ type: 'TOGGLE_SHOW_USERS' }), [ dispatch ])
 
   const onChangeInput = useCallback((e) => (
     dispatchLocal({
@@ -176,9 +176,9 @@ export default function Conversations() {
                 <InputAdornment position="end">
                   {
                     state.searchInput ? (
-                      <KeyboardBackspaceIcon 
+                      <KeyboardBackspaceIcon
                         color="secondary"
-                        fontSize="small" style={{ cursor:'pointer' }} onClick={clearInput} />
+                        fontSize="small" style={{ cursor: 'pointer' }} onClick={clearInput} />
                     ) : (
                       <SearchIcon fontSize="small" />
                     )
@@ -211,14 +211,14 @@ export default function Conversations() {
             </React.Fragment>
           ))
         }
+        <Fab
+          className={classes.add}
+          onClick={onOpenDialog}
+          color='primary'>
+          <ChatIcon />
+        </Fab>
       </List>
 
-      <Fab
-        className={classes.add}
-        onClick={onOpenDialog}
-        color='primary'>
-        <ChatIcon />
-      </Fab>
 
       <Dialog
         open={open}

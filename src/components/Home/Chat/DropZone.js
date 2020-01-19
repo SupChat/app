@@ -8,7 +8,7 @@ function usePrevious(value) {
 
   useEffect(() => {
     ref.current = value
-  }, [value])
+  }, [ value ])
 
   return ref.current
 }
@@ -52,7 +52,7 @@ const DropZone = ({ onDragLeave, setFile }) => {
     if (prevIsDragActive && !isDragActive) {
       onDragLeave()
     }
-  }, [isDragActive])
+  }, [ isDragActive ])
 
   return (
     <div

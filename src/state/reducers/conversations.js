@@ -26,7 +26,7 @@ const conversations = (state = initialState, action) => {
 
     case 'ADD_ACTIVE_CONVERSATION': {
       const { id } = action.payload
-      const activeConversations = _uniq([...state.activeConversations, id])
+      const activeConversations = _uniq([ ...state.activeConversations, id ])
       sessionStorage.setItem('activeConversations', activeConversations.toString())
       return { ...state, activeConversations }
     }
@@ -64,7 +64,7 @@ const conversations = (state = initialState, action) => {
       const { id, messages } = action.payload
 
       const list = _uniqBy(_sortBy(
-        state.messages[id] ? [...state.messages[id], ...messages] : messages,
+        state.messages[id] ? [ ...state.messages[id], ...messages ] : messages,
         'date',
       ), (msg) => msg.id)
 

@@ -10,5 +10,5 @@ export default (history) => combineReducers({
   auth,
   conversations,
   users,
-  ui
+  ui,
 })

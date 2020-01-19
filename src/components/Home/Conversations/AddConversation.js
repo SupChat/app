@@ -49,13 +49,13 @@ const useStyles = makeStyles(theme => ({
   },
   chip: {
     margin: theme.spacing(1),
-  }
+  },
 }))
 
 export default function AddConversation({ onClose }) {
   const classes = useStyles()
-  const [selected, setSelected] = useState([])
-  const [input, setInput] = useState('')
+  const [ selected, setSelected ] = useState([])
+  const [ input, setInput ] = useState('')
 
   const users = useSelector(store => store.users.users)
   const usersOptions = Object.values(users).map(({ displayName, id }) => ({ value: id, label: displayName }))
@@ -74,7 +74,7 @@ export default function AddConversation({ onClose }) {
           user.email.toLowerCase().trim().includes(inputText)
         )
       })
-  }, [input, usersOptions, selected, users])
+  }, [ input, usersOptions, selected, users ])
 
   const start = useCallback(async (e) => {
     e.preventDefault()
@@ -84,7 +84,7 @@ export default function AddConversation({ onClose }) {
       return (
         _isEqual(
           _uniq(Object.keys(conversation.members).sort()),
-          _uniq([...selected.map(({ value }) => value), currentUser.uid].sort()),
+          _uniq([ ...selected.map(({ value }) => value), currentUser.uid ].sort()),
         )
       )
     }), 'id')
@@ -121,11 +121,11 @@ export default function AddConversation({ onClose }) {
     }
     dispatch(addActiveConversation(id))
     onClose()
-  }, [conversations, dispatch, onClose, currentUser.uid, selected])
+  }, [ conversations, dispatch, onClose, currentUser.uid, selected ])
 
   const onAddSelected = useCallback((e) => () => {
-    setSelected(selected ? [...selected, e] : [e])
-  }, [selected])
+    setSelected(selected ? [ ...selected, e ] : [ e ])
+  }, [ selected ])
 
   const onChangeSelected = useCallback((e) => setSelected(e), [])
 
@@ -146,7 +146,7 @@ export default function AddConversation({ onClose }) {
         />
       )
     }
-  }, [selected, users])
+  }, [ selected, users ])
 
   const onInputChange = useCallback((e) => setInput(e), [])
 

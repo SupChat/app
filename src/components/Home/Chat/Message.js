@@ -74,7 +74,7 @@ export default function Message({ message, conversationId, setZoomImg }) {
   const classes = useStyles()
   const currentUserId = useSelector(store => store.auth.user.uid)
   const avatarPhotoURL = useSelector(store => _get(store, `users.users[${message.from}].photoURL`))
-  const onZoomIn = useCallback(() => setZoomImg(message.file), [setZoomImg, message.file])
+  const onZoomIn = useCallback(() => setZoomImg(message.file), [ setZoomImg, message.file ])
 
   return (
     <ListItem key={message.id} className={message.from === currentUserId ? classes.listItemSelf : classes.listItem}>

@@ -94,10 +94,10 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
   const classes = useStyles()
   const dispatch = useDispatch()
 
-  const [zoomImg, setZoomImg] = useState(null)
-  const [allLoaded, setAllLoaded] = useState(false)
-  const [initialized, setInitialized] = useState(false)
-  
+  const [ zoomImg, setZoomImg ] = useState(null)
+  const [ allLoaded, setAllLoaded ] = useState(false)
+  const [ initialized, setInitialized ] = useState(false)
+
   const currentUserId = useSelector(store => store.auth.user.uid)
   const messages = useSelector(store => store.conversations.messages[conversationId] || [])
 
@@ -105,8 +105,8 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     _groupBy(messages, (message) => (
       moment(message.date.toDate()).startOf('day').format('DD/MM/YY')
     ))
-  ), [messages])
-  const isEmptyMessages = useMemo(() => _isEmpty(messages), [messages])
+  ), [ messages ])
+  const isEmptyMessages = useMemo(() => _isEmpty(messages), [ messages ])
 
   const scrollTop = useRef(0)
   const lastDate = useRef(new Date())
@@ -124,7 +124,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
         id: currentUserId,
         lastSeen: new Date(),
       }, { merge: true })
-  }, [conversationId, currentUserId])
+  }, [ conversationId, currentUserId ])
 
   const onGetMessages = useCallback(async (snapshot) => {
     dispatch(setMessages({
@@ -133,7 +133,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     }))
 
     await updateLastSeen()
-  }, [conversationId, updateLastSeen, dispatch])
+  }, [ conversationId, updateLastSeen, dispatch ])
 
   const loadMessages = useCallback(async () => {
     dispatcher({ type: 'START_LOADING' })
@@ -153,7 +153,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     await onGetMessages(snapshot)
 
     dispatcher({ type: 'STOP_LOADING' })
-  }, [lastDate, dispatcher, conversationId, onGetMessages])
+  }, [ lastDate, dispatcher, conversationId, onGetMessages ])
 
   useEffect(() => {
     if (initialized) {
@@ -169,7 +169,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     } else {
       loadMessages().then(() => setInitialized(true))
     }
-  }, [initialized, conversationId, loadMessages, listRef, onGetMessages])
+  }, [ initialized, conversationId, loadMessages, listRef, onGetMessages ])
 
   const onScrollList = useCallback(async (e) => {
     const needToLoadPrevious = (
@@ -188,7 +188,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
       }
       await loadMessages()
     }
-  }, [isEmptyMessages, allLoaded, isLoading, loadMessages, scrollTop])
+  }, [ isEmptyMessages, allLoaded, isLoading, loadMessages, scrollTop ])
 
   const onCloseZoomIn = useCallback(() => setZoomImg(null), [])
   const stopPropagation = useCallback(e => e.stopPropagation(), [])
@@ -200,7 +200,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
             style={isLoading ? { overflow: 'hidden' } : {}}
             onScroll={onScrollList}>
         {
-          Object.entries(dayGroups).map(([day, messages]) => (
+          Object.entries(dayGroups).map(([ day, messages ]) => (
             <React.Fragment key={day}>
               <ListItem className={classes.day}> <span> {day} </span> </ListItem>
               {

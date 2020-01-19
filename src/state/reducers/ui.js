@@ -9,7 +9,7 @@ const initialState = {
       palette: {
         type: 'light',
         secondary: {
-            main: purple[700],
+          main: purple[700],
         },
         primary: {
           main: cyan[800],
