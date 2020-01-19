@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme => ({
         cursor: 'col-resize',
       },
     },
-    
+
     '& .Pane1': {
       transition: 'width .3s',
     },
@@ -67,7 +67,7 @@ const useStyles = makeStyles(theme => ({
 
 const ChatsPage = () => {
   const classes = useStyles()
-  const [isDrag, setIsDrag] = useState(false)
+  const [ isDrag, setIsDrag ] = useState(false)
   const showProfile = useSelector(store => store.ui.showProfile)
   const showUsers = useSelector(store => store.ui.showUsers)
 

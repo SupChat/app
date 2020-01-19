@@ -21,7 +21,7 @@ const useStyles = makeStyles({
 
 export default function ChatTextFiled({ value = '', onChange, onSubmit, attachFile, required }) {
   const classes = useStyles()
-  const [showEmojis, setShowEmojis] = React.useState(false)
+  const [ showEmojis, setShowEmojis ] = React.useState(false)
   const formRef = useRef()
   const textFieldRef = useRef()
 
@@ -54,7 +54,7 @@ export default function ChatTextFiled({ value = '', onChange, onSubmit, attachFi
   }
 
   const moreProps = { inputProps: { dir: 'auto', ref: textFieldRef } }
-  const onTextFiledChange = useCallback((e) => onChange(e.target.value), [onChange])
+  const onTextFiledChange = useCallback((e) => onChange(e.target.value), [ onChange ])
 
   return (
     <div className={classes.root}>

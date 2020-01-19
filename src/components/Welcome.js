@@ -42,7 +42,7 @@ export default function Welcome() {
     if (currentUser) {
       dispatch(push('/'))
     }
-  }, [currentUser, dispatch])
+  }, [ currentUser, dispatch ])
 
   return (
     <div className={classes.root}>

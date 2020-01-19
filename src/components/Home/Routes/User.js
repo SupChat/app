@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux'
 import { push } from 'connected-react-router'
 
 export default function User() {
-  const dispatch =useDispatch()
+  const dispatch = useDispatch()
 
   const back = () => {
     dispatch(push('/'))

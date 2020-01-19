@@ -51,11 +51,11 @@ function chatReducer(state = initialState, action) {
 const Chat = ({ conversationId, onSwap, isDraggable }) => {
   const classes = useStyles()
   const listRef = useRef()
-  const [state, dispatcher] = useReducer(chatReducer, initialState)
+  const [ state, dispatcher ] = useReducer(chatReducer, initialState)
 
-  const [isDragOn, setIsDragOn] = useState(false)
-  const [text, setText] = React.useState('')
-  const [file, setFile] = React.useState(null)
+  const [ isDragOn, setIsDragOn ] = useState(false)
+  const [ text, setText ] = React.useState('')
+  const [ file, setFile ] = React.useState(null)
 
   const dispatch = useDispatch()
   const currentUserId = useSelector(store => store.auth.user.uid)
@@ -66,11 +66,11 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
     const state = store.getState()
     const historyText = _get(state, `ui.chatInputHistory[${conversationId}`)
     setText(historyText || '')
-  }, [conversationId])
+  }, [ conversationId ])
 
   useEffect(() => {
     dispatch({ type: 'UPDATE_CHAT_INPUT_HISTORY', payload: { [conversationId]: text } })
-  }, [conversationId, dispatch, text])
+  }, [ conversationId, dispatch, text ])
 
   async function onSendMessage(text) {
     setText('')
@@ -176,7 +176,7 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
       dragElement.style.transform = `translate(0, 0)`
     }
     dragData.current = null
-  }, [onSwap, mouseMove])
+  }, [ onSwap, mouseMove ])
 
   const onDragStart = useCallback((e) => {
     const trigger = e.currentTarget
@@ -193,7 +193,7 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
       document.removeEventListener('mousemove', mouseMove)
       document.removeEventListener('mouseup', mouseUp)
     }
-  }, [mouseMove, mouseUp])
+  }, [ mouseMove, mouseUp ])
 
   const onCloseFileDialog = useCallback(() => {
     setFile(null)

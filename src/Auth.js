@@ -24,7 +24,7 @@ export default function Auth({ children }) {
           .doc(user.uid)
           .set({
             id,
-            displayName,
+            displayName: displayName || email,
             photoURL,
             email,
             phoneNumber,
@@ -38,7 +38,7 @@ export default function Auth({ children }) {
     }
 
     auth.onAuthStateChanged(onAuthStateChanged)
-  }, [dispatch])
+  }, [ dispatch ])
 
   return children
 }

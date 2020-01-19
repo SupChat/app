@@ -60,7 +60,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
   const timeoutRef = useRef()
 
   function setActive() {
-    dispatch(setActiveConversations([id]))
+    dispatch(setActiveConversations([ id ]))
   }
 
   function parsedDate(date) {
@@ -89,7 +89,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
           dispatchLocal({ type: 'SET_CONVERSATION_COUNT', payload: { id, count } })
         })
     }
-  }, [dispatchLocal, id, lastSeen, currentUserId])
+  }, [ dispatchLocal, id, lastSeen, currentUserId ])
 
   useEffect(() => {
     return db
@@ -104,7 +104,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
           dispatchLocal({ type: 'SET_CONVERSATION_MESSAGE', payload: { id, message } })
         }
       })
-  }, [dispatchLocal, dispatch, id, currentUserId])
+  }, [ dispatchLocal, dispatch, id, currentUserId ])
 
 
   useEffect(() => {
@@ -118,8 +118,8 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
           dispatch({ type: 'SET_MEMBERS', payload: { id, members } })
 
           const userId = Object.entries(members)
-            .filter(([id]) => id !== currentUserId)
-            .reduce((result, [id, member]) => {
+            .filter(([ id ]) => id !== currentUserId)
+            .reduce((result, [ id, member ]) => {
               const dateA = member.typing ? member.typing.toDate().getTime() : 0
               const dateB = members[result] || 0
               return Math.max(dateA, dateB) === dateA ? id : result
@@ -137,7 +137,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
           }
         }
       })
-  }, [dispatch, id, currentUserId])
+  }, [ dispatch, id, currentUserId ])
 
   function onDragStart(e) {
     e.dataTransfer.setData('conversationId', id)

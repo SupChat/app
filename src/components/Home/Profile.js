@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 export default function Profile({ conversationId }) {
   const classes = useStyles()
   const dispatch = useDispatch()
-  const [open, setOpen] = useState(false)
+  const [ open, setOpen ] = useState(false)
   const theme = useTheme()
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function Profile({ conversationId }) {
     setTimeout(() => {
       dispatch({ type: 'SHOW_PROFILE', payload: null })
     }, theme.transitions.duration.standard)
-  }, [dispatch, theme.transitions.duration.standard])
+  }, [ dispatch, theme.transitions.duration.standard ])
 
   return (
     <div className={classnames(classes.showProfile, { [classes.mounted]: open })}>
@@ -71,7 +71,7 @@ export default function Profile({ conversationId }) {
         </Grid>
 
         <div>
-          <ConversationTitle id={conversationId}/>
+          <ConversationTitle id={conversationId} />
         </div>
 
       </div>

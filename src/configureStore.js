@@ -18,7 +18,7 @@ export default function configureStore(preloadedState) {
       applyMiddleware(
         routerMiddleware(history), // for dispatching history actions
         // loggerMiddleware,
-        thunkMiddleware
+        thunkMiddleware,
       ),
     ),
   )

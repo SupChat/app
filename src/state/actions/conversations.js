@@ -20,5 +20,5 @@ export const addActiveConversation = (id) => ({
 
 export const setMessages = ({ id, messages }) => ({
   type: 'SET_MESSAGES',
-  payload: { id, messages }
+  payload: { id, messages },
 })

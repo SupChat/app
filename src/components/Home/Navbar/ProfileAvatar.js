@@ -29,7 +29,7 @@ const ProfileAvatar = () => {
   const dispatch = useDispatch()
 
   const user = useSelector(state => state.auth.user)
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [ anchorEl, setAnchorEl ] = useState(null)
   const isDark = useSelector(store => store.ui.selectedTheme === 'themeDark')
 
   function logout() {
@@ -42,14 +42,14 @@ const ProfileAvatar = () => {
 
   const onThemeChange = useCallback(() => {
     dispatch({ type: 'TOGGLE_THEME' })
-  }, [dispatch])
+  }, [ dispatch ])
 
-  const onClick = useCallback((e) => setAnchorEl(anchorEl ? null : e.currentTarget), [anchorEl])
+  const onClick = useCallback((e) => setAnchorEl(anchorEl ? null : e.currentTarget), [ anchorEl ])
 
   const handleGoProfile = useCallback(() => {
     setAnchorEl(null)
     dispatch(push('/user'))
-  }, [dispatch])
+  }, [ dispatch ])
 
   return (
     <React.Fragment>

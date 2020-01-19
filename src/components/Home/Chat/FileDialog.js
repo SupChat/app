@@ -24,8 +24,8 @@ const useStyles = makeStyles({
 
 export default function FileDialog({ onClose, onDone, file }) {
   const classes = useStyles()
-  const [image, setImage] = useState(null)
-  const [text, setText] = useState('')
+  const [ image, setImage ] = useState(null)
+  const [ text, setText ] = useState('')
   const reader = useRef(new FileReader())
 
   useEffect(() => {
@@ -35,9 +35,9 @@ export default function FileDialog({ onClose, onDone, file }) {
       }
       reader.current.readAsDataURL(file)
     }
-  }, [file])
+  }, [ file ])
 
-  const onSend = useCallback(() => onDone(text), [onDone, text])
+  const onSend = useCallback(() => onDone(text), [ onDone, text ])
 
   return (
     <Dialog
