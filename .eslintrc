@@ -1,7 +1,6 @@
 {
   "extends": ["react-app"],
   "rules": {
-    "react-hooks/exhaustive-deps": "error",
-    "semi": "off"
+    "react-hooks/exhaustive-deps": "error"
   }
 }
