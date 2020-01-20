@@ -2,10 +2,10 @@ import React, { useEffect } from 'react'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 import { makeStyles } from '@material-ui/core'
-import Navbar from './Navbar'
+import Navbar from '../Navbar'
 import Typography from '@material-ui/core/Typography'
 import SignUp from './SignUp'
-import { Logo } from './Logo'
+import { Logo } from '../Logo'
 
 const useStyles = makeStyles(theme => ({
   root: {

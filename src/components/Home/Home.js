@@ -6,14 +6,11 @@ import { setUsers } from '../../state/actions/users'
 import Navbar from './Navbar/Navbar'
 import Routes from './Routes/Routes'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   root: {
     position: 'relative',
-    height: '100vh',
-    width: '100vw',
-    display: 'flex',
-    boxSizing: 'border-box',
-    flexDirection: 'column',
+    height: '100%',
+    width: '100%',
   },
 }))
 

@@ -7,7 +7,7 @@ import makeStyles from '@material-ui/core/styles/makeStyles'
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
-    height: '100%',
+    height: 'calc(100% - 64px)',
     width: '100%',
   },
 }))

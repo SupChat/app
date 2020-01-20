@@ -1,10 +1,27 @@
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
-import { auth, db, messaging } from './firebase'
-import { setUser } from './state/actions/auth'
+import { auth, db, messaging } from '../firebase'
+import { setUser } from '../state/actions/auth'
 
 export default function Auth({ children }) {
   const dispatch = useDispatch()
+  const currentUser = useSelector(store => store.auth.user)
+
+  useEffect(() => {
+    if (currentUser) {
+      async function onUnLoad() {
+        await db
+          .collection('users')
+          .doc(currentUser.uid)
+          .set({ isConnected: true }, { merge: true })
+      }
+      
+      window.addEventListener('unload', onUnLoad)
+      return () => {
+        window.removeEventListener('unload', onUnLoad)
+      }
+    }
+  }, [currentUser])
 
   useEffect(() => {
     function handleTokenRefresh() {
@@ -28,6 +45,8 @@ export default function Auth({ children }) {
             photoURL,
             email,
             phoneNumber,
+            lastLogin: new Date(),
+            isConnected: true
           })
 
         Notification.requestPermission().then(handleTokenRefresh)

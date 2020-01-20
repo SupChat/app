@@ -1,24 +1,17 @@
 import React from 'react'
-import './App.css'
-import Theme from './Theme'
-import Auth from './Auth'
-import { Route, Switch } from 'react-router'
-import Welcome from './components/Welcome'
-import Home from './components/Home/Home'
-import PrivateRoute from './components/PrivateRoute'
+import Theme from './components/Theme'
+import Auth from './components/Auth'
+import Routes from './components/Routes'
 import BaseStyle from './components/BaseStyle'
 
 const App = () => {
   return (
     <Theme>
-      <Auth>
-        <BaseStyle>
-          <Switch>
-            <Route path="/welcome" component={Welcome} />
-            <PrivateRoute path="/" component={Home} />
-          </Switch>
-        </BaseStyle>
-      </Auth>
+      <BaseStyle>
+        <Auth>
+          <Routes />
+        </Auth>
+      </BaseStyle>
     </Theme>
   )
 }
