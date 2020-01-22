@@ -13,7 +13,7 @@ export default function Auth({ children }) {
         await db
           .collection('users')
           .doc(currentUser.uid)
-          .set({ isConnected: true }, { merge: true })
+          .set({ isConnected: false }, { merge: true })
       }
       
       window.addEventListener('unload', onUnLoad)
