@@ -15,7 +15,10 @@ const SignOut = () => {
   const classes = useStyles()
 
   function signOut() {
-    auth.signOut()
+    
+    auth.signOut().then(() => {
+      
+    })
   }
 
   return (

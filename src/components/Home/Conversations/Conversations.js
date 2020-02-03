@@ -211,14 +211,14 @@ export default function Conversations() {
             </React.Fragment>
           ))
         }
-        <Fab
-          className={classes.add}
-          onClick={onOpenDialog}
-          color='primary'>
-          <ChatIcon />
-        </Fab>
       </List>
 
+      <Fab
+        className={classes.add}
+        onClick={onOpenDialog}
+        color='primary'>
+        <ChatIcon />
+      </Fab>
 
       <Dialog
         open={open}

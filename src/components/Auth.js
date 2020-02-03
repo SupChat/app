@@ -1,27 +1,29 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
-import { auth, db, messaging } from '../firebase'
+import { auth, database, db, messaging } from '../firebase'
+import * as firebase from 'firebase/app'
 import { setUser } from '../state/actions/auth'
+import _get from 'lodash/get';
 
 export default function Auth({ children }) {
   const dispatch = useDispatch()
-  const currentUser = useSelector(store => store.auth.user)
+  const currentUserId = useSelector(store => _get(store, 'auth.user.uid'))
 
-  useEffect(() => {
-    if (currentUser) {
-      async function onUnLoad() {
-        await db
-          .collection('users')
-          .doc(currentUser.uid)
-          .set({ isConnected: false }, { merge: true })
-      }
-      
-      window.addEventListener('unload', onUnLoad)
-      return () => {
-        window.removeEventListener('unload', onUnLoad)
-      }
-    }
-  }, [currentUser])
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     async function onUnLoad() {
+  //       await db
+  //         .collection('users')
+  //         .doc(currentUser.uid)
+  //         .set({ isConnected: false }, { merge: true })
+  //     }
+  //    
+  //     window.addEventListener('unload', onUnLoad)
+  //     return () => {
+  //       window.removeEventListener('unload', onUnLoad)
+  //     }
+  //   }
+  // }, [currentUser])
 
   useEffect(() => {
     function handleTokenRefresh() {
@@ -46,18 +48,29 @@ export default function Auth({ children }) {
             email,
             phoneNumber,
             lastLogin: new Date(),
-            isConnected: true
-          })
+          }, { merge: true })
 
+        const userStatusDatabaseRef = database.ref('/status/' + id);
+
+        database.ref('.info/connected').off();
+
+        database.ref('.info/connected').on('value', async (snapshot) => {
+          if (snapshot.val()) {
+            userStatusDatabaseRef.onDisconnect().set( { state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP }).then(() => {
+              userStatusDatabaseRef.set({ state: 'online', last_changed: firebase.database.ServerValue.TIMESTAMP })
+            })
+          }
+        })
         Notification.requestPermission().then(handleTokenRefresh)
         messaging.onTokenRefresh(handleTokenRefresh)
+      } else if (currentUserId) {
+        await database.ref(`/status/${currentUserId}`).set({ state: 'offline', last_changed: firebase.database.ServerValue.TIMESTAMP });
       }
-
       dispatch(setUser(user))
     }
 
-    auth.onAuthStateChanged(onAuthStateChanged)
-  }, [ dispatch ])
+    return auth.onAuthStateChanged(onAuthStateChanged)
+  }, [ dispatch, currentUserId ])
 
   return children
 }
