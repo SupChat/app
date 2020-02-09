@@ -9,7 +9,7 @@ import _get from 'lodash/get'
 import _isEmpty from 'lodash/isEmpty'
 
 import _groupBy from 'lodash/groupBy'
-import { db } from '../../../firebase'
+import { firestore } from '../../../firebase'
 import Drawer from '@material-ui/core/Drawer'
 import Fab from '@material-ui/core/Fab'
 import CloseIcon from '@material-ui/icons/Close'
@@ -114,7 +114,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
   lastDate.current = _get(messages, '[0].date')
 
   const updateLastSeen = useCallback(() => {
-    return db
+    return firestore
       .collection('conversations')
       .doc(conversationId)
       .collection('members')
@@ -138,7 +138,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
   const loadMessages = useCallback(async () => {
     dispatcher({ type: 'START_LOADING' })
 
-    const snapshot = await db.collection('conversations')
+    const snapshot = await firestore.collection('conversations')
       .doc(conversationId)
       .collection('messages')
       .orderBy('date', 'desc')
@@ -159,7 +159,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     if (initialized) {
       listRef.current.scrollTop = listRef.current.scrollHeight
 
-      return db.collection('conversations')
+      return firestore.collection('conversations')
         .doc(conversationId)
         .collection('messages')
         .orderBy('date', 'desc')

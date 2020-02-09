@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import { useDispatch, useSelector } from 'react-redux'
 import Chip from '@material-ui/core/Chip'
-import { db } from '../../../firebase'
+import { firestore } from '../../../firebase'
 import { setActiveConversations } from '../../../state/actions/conversations'
 import _get from 'lodash/get'
 import ConversationAvatar from './ConversationAvatar'
@@ -87,7 +87,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
 
   useEffect(() => {
     if (lastSeen) {
-      return db
+      return firestore
         .collection('conversations')
         .doc(id)
         .collection('messages')
@@ -101,7 +101,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
   }, [ dispatchLocal, id, lastSeen, currentUserId ])
 
   useEffect(() => {
-    return db
+    return firestore
       .collection('conversations')
       .doc(id)
       .collection('messages')
@@ -116,7 +116,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
   }, [ dispatchLocal, dispatch, id, currentUserId ])
 
   useEffect(() => {
-    return db
+    return firestore
       .collection('conversations')
       .doc(id)
       .collection('members')

@@ -7,7 +7,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
 import SendIcon from '@material-ui/icons/Send'
 import TagFacesIcon from '@material-ui/icons/TagFaces'
-import { db } from '../../../firebase'
+import { firestore } from '../../../firebase'
 import _throttle from 'lodash/throttle'
 import { useSelector } from 'react-redux'
 import { darken } from '@material-ui/core/styles'
@@ -94,7 +94,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
   }, [ onChange, contentHtml ])
 
   const onInput = useCallback(_throttle(() => {
-    db
+    firestore
       .collection('conversations')
       .doc(conversationId)
       .collection('members')

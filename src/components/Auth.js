@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
-import { auth, database, db, messaging } from '../firebase'
+import { auth, database, firestore, messaging } from '../firebase'
 import * as firebase from 'firebase/app'
 import { setUser } from '../state/actions/auth'
 import _get from 'lodash/get';
@@ -13,7 +13,7 @@ export default function Auth({ children }) {
     function handleTokenRefresh() {
       return messaging.getToken()
         .then((token) => {
-          return db.collection('users')
+          return firestore.collection('users')
             .doc(auth.currentUser.uid)
             .set({ token }, { merge: true })
         })
@@ -22,7 +22,7 @@ export default function Auth({ children }) {
     async function onAuthStateChanged(user) {
       if (user) {
         const { uid: id, displayName, photoURL, email, phoneNumber } = user
-        await db
+        await firestore
           .collection('users')
           .doc(user.uid)
           .set({
