@@ -9,22 +9,6 @@ export default function Auth({ children }) {
   const dispatch = useDispatch()
   const currentUserId = useSelector(store => _get(store, 'auth.user.uid'))
 
-  // useEffect(() => {
-  //   if (currentUser) {
-  //     async function onUnLoad() {
-  //       await db
-  //         .collection('users')
-  //         .doc(currentUser.uid)
-  //         .set({ isConnected: false }, { merge: true })
-  //     }
-  //    
-  //     window.addEventListener('unload', onUnLoad)
-  //     return () => {
-  //       window.removeEventListener('unload', onUnLoad)
-  //     }
-  //   }
-  // }, [currentUser])
-
   useEffect(() => {
     function handleTokenRefresh() {
       return messaging.getToken()
