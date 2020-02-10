@@ -1,5 +1,6 @@
 import * as firebase from 'firebase/app'
 import 'firebase/firestore'
+import 'firebase/database'
 import 'firebase/auth'
 import 'firebase/storage'
 import 'firebase/messaging'
@@ -16,7 +17,9 @@ const firebaseConfig = {
 
 const fire = firebase.initializeApp(firebaseConfig)
 
-export const db = fire.firestore()
+export const firestore = fire.firestore()
+export const database = fire.database()
+
 export const auth = fire.auth()
 export const storage = fire.storage()
 export const messaging = fire.messaging()

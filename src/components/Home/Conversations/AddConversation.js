@@ -18,7 +18,7 @@ import _isEqual from 'lodash/isEqual'
 import _uniq from 'lodash/uniq'
 
 import uuid from 'uuid'
-import { db } from '../../../firebase'
+import { firestore } from '../../../firebase'
 import { addActiveConversation } from '../../../state/actions/conversations'
 import Chip from '@material-ui/core/Chip'
 import List from '@material-ui/core/List'
@@ -93,7 +93,7 @@ export default function AddConversation({ onClose }) {
       id = existConversation
     } else {
       id = uuid()
-      const batch = db.batch()
+      const batch = firestore.batch()
 
       const members = {
         ...selected.reduce((prev, { value: id }) => {
@@ -105,13 +105,13 @@ export default function AddConversation({ onClose }) {
         [currentUser.uid]: true,
       }
 
-      await db.collection('conversations').doc(id).set({
+      await firestore.collection('conversations').doc(id).set({
         id,
         owner: currentUser.uid,
         members,
       })
 
-      const membersCollection = db.collection('conversations').doc(id).collection('members')
+      const membersCollection = firestore.collection('conversations').doc(id).collection('members')
       Object.keys(members).forEach((memberId) => {
         const memberRef = membersCollection.doc(memberId)
         batch.set(memberRef, { id: memberId, active: true, lastSeen: new Date(0) })

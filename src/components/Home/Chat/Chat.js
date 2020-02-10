@@ -3,7 +3,7 @@ import Messages from './Messages'
 import { makeStyles } from '@material-ui/core'
 import ChatHeader from './ChatHeader'
 import uuid from 'uuid'
-import { db, storage } from '../../../firebase'
+import { firestore, storage } from '../../../firebase'
 import { useDispatch, useSelector } from 'react-redux'
 import FileDialog from './FileDialog'
 import { addActiveConversation } from '../../../state/actions/conversations'
@@ -80,7 +80,7 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
 
     const msgId = uuid()
 
-    const messageRef = db
+    const messageRef = firestore
       .collection('conversations')
       .doc(conversationId)
       .collection('messages')

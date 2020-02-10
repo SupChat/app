@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import ListItemText from '@material-ui/core/ListItemText'
 import Typography from '@material-ui/core/Typography'
 import ListItem from '@material-ui/core/ListItem'
@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import { useDispatch, useSelector } from 'react-redux'
 import Chip from '@material-ui/core/Chip'
-import { db } from '../../../firebase'
+import { firestore } from '../../../firebase'
 import { setActiveConversations } from '../../../state/actions/conversations'
 import _get from 'lodash/get'
 import ConversationAvatar from './ConversationAvatar'
@@ -17,6 +17,8 @@ import { store } from '../../../configureStore'
 import { selectTypingUsername } from '../../../state/reducers/conversations'
 import Typing from './Typing'
 import { fade } from '@material-ui/core/styles'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faWifi } from '@fortawesome/free-solid-svg-icons'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -46,24 +48,31 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'space-between',
     margin: 6,
   },
+  connectedIcon: {
+    alignSelf: 'center',
+    margin: '0px 10px',
+    color: 'lightgreen',
+  }
 }))
 
 const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, dispatchLocal }) => {
   const classes = useStyles()
-  const currentUser = useSelector(store => store.auth.user)
-  const lastSeen = useSelector(store => _get(store, `conversations.members[${id}][${currentUser.uid}].lastSeen`))
-  const { uid: currentUserId } = currentUser
-  const dispatch = useDispatch()
+  const currentUserId = useSelector(store => store.auth.user.uid)
+  const lastSeen = useSelector(store => _get(store, `conversations.members[${id}][${currentUserId}].lastSeen`))
   const activeConversations = useSelector(store => store.conversations.activeConversations)
   const typingUsername = useSelector(selectTypingUsername(id))
+  const users = useSelector(store => store.users.users)
+  const membersIds = useSelector(store => store.conversations.conversations[id].members)
+
+  const dispatch = useDispatch()
 
   const timeoutRef = useRef()
 
-  function setActive() {
+  const setActive = useCallback(() => {
     dispatch(setActiveConversations([ id ]))
-  }
+  }, [id, dispatch])
 
-  function parsedDate(date) {
+  const parsedDate = useCallback((date) => {
     const momDate = moment(date.toDate())
     const sameDay = momDate.isSame(new Date(), 'day')
     const sameYear = momDate.isSame(new Date(), 'year')
@@ -74,11 +83,11 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
       return momDate.format('DD/MM')
     }
     return momDate.format('DD/MM/YY')
-  }
+  }, [])
 
   useEffect(() => {
     if (lastSeen) {
-      return db
+      return firestore
         .collection('conversations')
         .doc(id)
         .collection('messages')
@@ -92,7 +101,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
   }, [ dispatchLocal, id, lastSeen, currentUserId ])
 
   useEffect(() => {
-    return db
+    return firestore
       .collection('conversations')
       .doc(id)
       .collection('messages')
@@ -106,9 +115,8 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
       })
   }, [ dispatchLocal, dispatch, id, currentUserId ])
 
-
   useEffect(() => {
-    return db
+    return firestore
       .collection('conversations')
       .doc(id)
       .collection('members')
@@ -139,9 +147,15 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
       })
   }, [ dispatch, id, currentUserId ])
 
-  function onDragStart(e) {
+  const onDragStart = useCallback((e) => {
     e.dataTransfer.setData('conversationId', id)
-  }
+  }, [id])
+
+  const isOnline = useMemo(() => {
+    return Object.keys(membersIds)
+      .filter((id) => id !== currentUserId)
+      .every((id) => _get(users, `${id}.status.state`) === 'online')
+  }, [users, membersIds, currentUserId])
 
   return (
     <ListItem
@@ -154,6 +168,14 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
       <ListItemAvatar>
         <ConversationAvatar id={id} />
       </ListItemAvatar>
+
+      {
+        isOnline && (
+          <FontAwesomeIcon
+            className={classes.connectedIcon}
+            icon={faWifi} />
+        )
+      }
 
       <ListItemText
         primary={

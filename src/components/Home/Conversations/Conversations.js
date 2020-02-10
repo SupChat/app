@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import List from '@material-ui/core/List'
-import { db } from '../../../firebase'
+import { firestore } from '../../../firebase'
 import { useDispatch, useSelector } from 'react-redux'
 import { setConversations } from '../../../state/actions/conversations'
 import Conversation from './Conversation'
@@ -135,7 +135,7 @@ export default function Conversations() {
   }, [ conversations, state.searchInput, state.messages, users ])
 
   useEffect(() => {
-    return db.collection('conversations')
+    return firestore.collection('conversations')
       .where(`members.${currentUserId}`, '==', true)
       .onSnapshot((snapshot) => {
         const docsDictionary = snapshot.docs.reduce((prev, doc) => ({
@@ -211,14 +211,14 @@ export default function Conversations() {
             </React.Fragment>
           ))
         }
-        <Fab
-          className={classes.add}
-          onClick={onOpenDialog}
-          color='primary'>
-          <ChatIcon />
-        </Fab>
       </List>
 
+      <Fab
+        className={classes.add}
+        onClick={onOpenDialog}
+        color='primary'>
+        <ChatIcon />
+      </Fab>
 
       <Dialog
         open={open}
