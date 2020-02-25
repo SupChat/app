@@ -40,7 +40,12 @@ export function createEmojiImg({ emoji, size }) {
   return elem.innerHTML
 }
 
-export function createTextHTML(text) {
+const convertUrls = (text) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  return text.replace(urlRegex, '<a href="$1">$1</a>')
+}
+
+export const convertEmojiTextToHTML = (text) => {
   let comp = text
   let match
   let index = 0
@@ -59,12 +64,16 @@ export function createTextHTML(text) {
   return comp
 }
 
+export function textToHtml(text) {
+  return convertEmojiTextToHTML(convertUrls(text));
+}
+
 export default function EmojiText({ text }) {
   const classes = useStyles()
 
   return (
     <div
       className={classes.select}
-      dangerouslySetInnerHTML={{ __html: createTextHTML(text) }} />
+      dangerouslySetInnerHTML={{ __html: textToHtml(text) }} />
   )
 }

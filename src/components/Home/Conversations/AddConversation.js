@@ -191,8 +191,8 @@ export default function AddConversation({ onClose }) {
 
         <List className={classes.list}>
           {
-            filteredUsers.map((data, index) => (
-              <ListItem key={index} dense button onClick={onAddSelected(data)}>
+            filteredUsers.map((data) => (
+              <ListItem key={data.value} dense button onClick={onAddSelected(data)}>
                 <ListItemAvatar>
                   <Avatar src={_get(users, `${data.value}.photoURL`)} />
                 </ListItemAvatar>

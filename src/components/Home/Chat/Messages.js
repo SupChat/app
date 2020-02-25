@@ -10,10 +10,8 @@ import _isEmpty from 'lodash/isEmpty'
 
 import _groupBy from 'lodash/groupBy'
 import { firestore } from '../../../firebase'
-import Drawer from '@material-ui/core/Drawer'
-import Fab from '@material-ui/core/Fab'
-import CloseIcon from '@material-ui/icons/Close'
 import Message from './Message'
+import ZoomImage from './ZoomImage'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -60,33 +58,6 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'center',
     zIndex: 1,
-  },
-  paper: {
-    background: 'rgba(0, 0, 0, 0.5)',
-    position: 'absolute',
-    height: '100%',
-    top: 0,
-    zIndex: 'initial',
-    width: '100%',
-  },
-  docked: {
-    height: '100%',
-  },
-  zoomImg: {
-    height: '100%',
-    display: 'flex',
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    '& img': {
-      display: 'block',
-      height: '90%',
-    },
-  },
-  zoomImgCloseIcon: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
   },
 }))
 
@@ -156,6 +127,18 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
   }, [ lastDate, dispatcher, conversationId, onGetMessages ])
 
   useEffect(() => {
+    const observer = new MutationObserver((mutationsList) => {
+      mutationsList.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          console.log('A child node has been added or removed.')
+        }
+      })
+    })
+    observer.observe(listRef.current, { childList: true })
+    return observer.disconnect;
+  }, [ listRef ])
+
+  useEffect(() => {
     if (initialized) {
       listRef.current.scrollTop = listRef.current.scrollHeight
 
@@ -172,6 +155,10 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
   }, [ initialized, conversationId, loadMessages, listRef, onGetMessages ])
 
   const onScrollList = useCallback(async (e) => {
+    if (e.currentTarget.scrollTop === 0) {
+      e.currentTarget.scrollTop = 1
+    }
+
     const needToLoadPrevious = (
       e.currentTarget.scrollTop < 30 &&
       scrollTop.current > e.currentTarget.scrollTop &&
@@ -183,15 +170,11 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     scrollTop.current = e.currentTarget.scrollTop
 
     if (needToLoadPrevious) {
-      if (e.currentTarget.scrollTop === 0) {
-        e.currentTarget.scrollTop = 1
-      }
       await loadMessages()
     }
   }, [ isEmptyMessages, allLoaded, isLoading, loadMessages, scrollTop ])
 
   const onCloseZoomIn = useCallback(() => setZoomImg(null), [])
-  const stopPropagation = useCallback(e => e.stopPropagation(), [])
 
   return (
     <div className={`${classes.root} ${isDragOn ? classes.opacity : ''}`}>
@@ -204,9 +187,9 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
             <React.Fragment key={day}>
               <ListItem className={classes.day}> <span> {day} </span> </ListItem>
               {
-                messages.map((message, index) => (
+                messages.map((message) => (
                   <Message
-                    key={index}
+                    key={message.id}
                     message={message}
                     conversationId={conversationId}
                     setZoomImg={setZoomImg} />
@@ -217,21 +200,8 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
         }
         <div className={classes.anchor} />
       </List>
-      <Drawer
-        open={zoomImg}
-        classes={{ paper: classes.paper, docked: classes.docked }}
-        anchor='top'
-        variant='persistent'
-        onClose={onCloseZoomIn}>
 
-        <div className={classes.zoomImg} onClick={onCloseZoomIn}>
-          <Fab size='small' className={classes.zoomImgCloseIcon}>
-            <CloseIcon />
-          </Fab>
-          <img alt="" src={zoomImg} onClick={stopPropagation} />
-        </div>
-
-      </Drawer>
+      <ZoomImage src={zoomImg} onClose={onCloseZoomIn} />
     </div>
   )
 }

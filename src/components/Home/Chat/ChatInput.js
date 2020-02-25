@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { Picker } from 'emoji-mart'
-import { createTextHTML } from './EmujiText'
+import { convertEmojiTextToHTML } from './EmujiText'
 import ContentEditable from 'react-contenteditable'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
@@ -78,7 +78,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
   const currentUserId = useSelector(store => store.auth.user.uid)
 
   useEffect(() => {
-    const html = createTextHTML(text)
+    const html = convertEmojiTextToHTML(text)
     setContentHtml(html)
   }, [ text ])
 
@@ -131,7 +131,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
   }
 
   function addEmoji(emoji) {
-    const html = createTextHTML(emoji.native)
+    const html = convertEmojiTextToHTML(emoji.native)
 
     if (document.activeElement !== contentEditableRef.current) {
       contentEditableRef.current.focus()
@@ -152,7 +152,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
   function onPaste(e) {
     e.preventDefault()
     const text = (e.originalEvent || e).clipboardData.getData('text/plain')
-    const html = createTextHTML(text)
+    const html = convertEmojiTextToHTML(text)
     document.execCommand('insertHTML', false, html)
   }
 
