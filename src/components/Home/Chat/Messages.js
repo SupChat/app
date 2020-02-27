@@ -19,6 +19,15 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
     overflow: 'hidden',
   },
+  transparentContainer: {
+    zIndex: 2,
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    background: 'transparent'
+  },
   opacity: {
     opacity: 0.3,
   },
@@ -77,10 +86,11 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
       moment(message.date.toDate()).startOf('day').format('DD/MM/YY')
     ))
   ), [ messages ])
-  const isEmptyMessages = useMemo(() => _isEmpty(messages), [ messages ])
 
-  const scrollTop = useRef(0)
-  const lastDate = useRef(new Date())
+  const isEmptyMessages = useMemo(() => _isEmpty(messages), [ messages ])
+  const scrollHeight = useRef(null)
+
+  const lastDate = useRef(_get(messages, '[0].date'))
 
   lastDate.current = _get(messages, '[0].date')
 
@@ -108,35 +118,38 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
 
   const loadMessages = useCallback(async () => {
     dispatcher({ type: 'START_LOADING' })
+    try {
 
-    const snapshot = await firestore.collection('conversations')
-      .doc(conversationId)
-      .collection('messages')
-      .orderBy('date', 'desc')
-      .limit(10)
-      .where('date', '<', lastDate.current || new Date())
-      .get()
+      const snapshot = await firestore.collection('conversations')
+        .doc(conversationId)
+        .collection('messages')
+        .orderBy('date', 'desc')
+        .limit(10)
+        .where('date', '<', lastDate.current || new Date())
+        .get()
+      console.log('snapshot!!!!!!!!!!!1', snapshot)
+      if (snapshot.size < 10) {
+        setAllLoaded(true)
+      }
 
-    if (snapshot.size < 10) {
-      setAllLoaded(true)
+      await onGetMessages(snapshot)
+    } catch (e) {  
+      console.log('eeeeeeeeeeeeeeeee', e);
+    } finally {
+      dispatcher({ type: 'STOP_LOADING' })
     }
-
-    await onGetMessages(snapshot)
-
-    dispatcher({ type: 'STOP_LOADING' })
   }, [ lastDate, dispatcher, conversationId, onGetMessages ])
 
   useEffect(() => {
     const observer = new MutationObserver((mutationsList) => {
-      mutationsList.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          console.log('A child node has been added or removed.')
-        }
-      })
+      if (scrollHeight.current) {
+        listRef.current.scrollTop = listRef.current.scrollHeight - scrollHeight.current;
+        scrollHeight.current = null;
+      }
     })
     observer.observe(listRef.current, { childList: true })
-    return observer.disconnect;
-  }, [ listRef ])
+    return () => observer.disconnect();
+  }, [ listRef, scrollHeight ])
 
   useEffect(() => {
     if (initialized) {
@@ -155,32 +168,26 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
   }, [ initialized, conversationId, loadMessages, listRef, onGetMessages ])
 
   const onScrollList = useCallback(async (e) => {
-    if (e.currentTarget.scrollTop === 0) {
-      e.currentTarget.scrollTop = 1
-    }
-
     const needToLoadPrevious = (
-      e.currentTarget.scrollTop < 30 &&
-      scrollTop.current > e.currentTarget.scrollTop &&
+      e.currentTarget.scrollTop === 0 &&
       !isEmptyMessages &&
       !allLoaded &&
       !isLoading
     )
 
-    scrollTop.current = e.currentTarget.scrollTop
-
     if (needToLoadPrevious) {
+      scrollHeight.current = e.currentTarget.scrollHeight;
       await loadMessages()
     }
-  }, [ isEmptyMessages, allLoaded, isLoading, loadMessages, scrollTop ])
+  }, [ isEmptyMessages, allLoaded, isLoading, loadMessages ])
 
   const onCloseZoomIn = useCallback(() => setZoomImg(null), [])
 
   return (
     <div className={`${classes.root} ${isDragOn ? classes.opacity : ''}`}>
+      {isLoading && <div className={classes.transparentContainer} />}
       <List ref={listRef}
             className={classes.list}
-            style={isLoading ? { overflow: 'hidden' } : {}}
             onScroll={onScrollList}>
         {
           Object.entries(dayGroups).map(([ day, messages ]) => (

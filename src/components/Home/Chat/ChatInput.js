@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
 import { Picker } from 'emoji-mart'
-import { convertEmojiTextToHTML } from './EmujiText'
 import ContentEditable from 'react-contenteditable'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import IconButton from '@material-ui/core/IconButton'
@@ -11,6 +10,7 @@ import { firestore } from '../../../firebase'
 import _throttle from 'lodash/throttle'
 import { useSelector } from 'react-redux'
 import { darken } from '@material-ui/core/styles'
+import MessageParser from '../../../helpers/MessageParser'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -78,7 +78,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
   const currentUserId = useSelector(store => store.auth.user.uid)
 
   useEffect(() => {
-    const html = convertEmojiTextToHTML(text)
+    const html = MessageParser.convertEmojiTextToHTML(text)
     setContentHtml(html)
   }, [ text ])
 
@@ -131,7 +131,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
   }
 
   function addEmoji(emoji) {
-    const html = convertEmojiTextToHTML(emoji.native)
+    const html = MessageParser.convertEmojiTextToHTML(emoji.native)
 
     if (document.activeElement !== contentEditableRef.current) {
       contentEditableRef.current.focus()
@@ -152,7 +152,7 @@ export default function ChatInput({ value: text, onChange, onSubmit, required, c
   function onPaste(e) {
     e.preventDefault()
     const text = (e.originalEvent || e).clipboardData.getData('text/plain')
-    const html = convertEmojiTextToHTML(text)
+    const html = MessageParser.convertEmojiTextToHTML(text)
     document.execCommand('insertHTML', false, html)
   }
 
