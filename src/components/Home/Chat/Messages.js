@@ -10,16 +10,23 @@ import _isEmpty from 'lodash/isEmpty'
 
 import _groupBy from 'lodash/groupBy'
 import { firestore } from '../../../firebase'
-import Drawer from '@material-ui/core/Drawer'
-import Fab from '@material-ui/core/Fab'
-import CloseIcon from '@material-ui/icons/Close'
 import Message from './Message'
+import ZoomImage from './ZoomImage'
 
 const useStyles = makeStyles(theme => ({
   root: {
     flex: 1,
     position: 'relative',
     overflow: 'hidden',
+  },
+  transparentContainer: {
+    zIndex: 2,
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    background: 'transparent',
   },
   opacity: {
     opacity: 0.3,
@@ -61,33 +68,6 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'center',
     zIndex: 1,
   },
-  paper: {
-    background: 'rgba(0, 0, 0, 0.5)',
-    position: 'absolute',
-    height: '100%',
-    top: 0,
-    zIndex: 'initial',
-    width: '100%',
-  },
-  docked: {
-    height: '100%',
-  },
-  zoomImg: {
-    height: '100%',
-    display: 'flex',
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    '& img': {
-      display: 'block',
-      height: '90%',
-    },
-  },
-  zoomImgCloseIcon: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-  },
 }))
 
 const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) => {
@@ -106,10 +86,11 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
       moment(message.date.toDate()).startOf('day').format('DD/MM/YY')
     ))
   ), [ messages ])
-  const isEmptyMessages = useMemo(() => _isEmpty(messages), [ messages ])
 
-  const scrollTop = useRef(0)
-  const lastDate = useRef(new Date())
+  const isEmptyMessages = useMemo(() => _isEmpty(messages), [ messages ])
+  const scrollHeight = useRef(null)
+
+  const lastDate = useRef(_get(messages, '[0].date'))
 
   lastDate.current = _get(messages, '[0].date')
 
@@ -151,9 +132,20 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     }
 
     await onGetMessages(snapshot)
-
+    listRef.current.style.overflow = null;
     dispatcher({ type: 'STOP_LOADING' })
-  }, [ lastDate, dispatcher, conversationId, onGetMessages ])
+  }, [ listRef, lastDate, dispatcher, conversationId, onGetMessages ])
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutationsList) => {
+      if (scrollHeight.current) {
+        listRef.current.scrollTop = listRef.current.scrollHeight - scrollHeight.current
+        scrollHeight.current = null
+      }
+    })
+    observer.observe(listRef.current, { childList: true })
+    return () => observer.disconnect()
+  }, [ listRef, scrollHeight ])
 
   useEffect(() => {
     if (initialized) {
@@ -173,40 +165,34 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
 
   const onScrollList = useCallback(async (e) => {
     const needToLoadPrevious = (
-      e.currentTarget.scrollTop < 30 &&
-      scrollTop.current > e.currentTarget.scrollTop &&
+      e.currentTarget.scrollTop === 0 &&
       !isEmptyMessages &&
       !allLoaded &&
       !isLoading
     )
 
-    scrollTop.current = e.currentTarget.scrollTop
-
     if (needToLoadPrevious) {
-      if (e.currentTarget.scrollTop === 0) {
-        e.currentTarget.scrollTop = 1
-      }
+      scrollHeight.current = e.currentTarget.scrollHeight
       await loadMessages()
     }
-  }, [ isEmptyMessages, allLoaded, isLoading, loadMessages, scrollTop ])
+  }, [ isEmptyMessages, allLoaded, isLoading, loadMessages ])
 
   const onCloseZoomIn = useCallback(() => setZoomImg(null), [])
-  const stopPropagation = useCallback(e => e.stopPropagation(), [])
 
   return (
     <div className={`${classes.root} ${isDragOn ? classes.opacity : ''}`}>
+      {isLoading && <div className={classes.transparentContainer} />}
       <List ref={listRef}
             className={classes.list}
-            style={isLoading ? { overflow: 'hidden' } : {}}
             onScroll={onScrollList}>
         {
           Object.entries(dayGroups).map(([ day, messages ]) => (
             <React.Fragment key={day}>
               <ListItem className={classes.day}> <span> {day} </span> </ListItem>
               {
-                messages.map((message, index) => (
+                messages.map((message) => (
                   <Message
-                    key={index}
+                    key={message.id}
                     message={message}
                     conversationId={conversationId}
                     setZoomImg={setZoomImg} />
@@ -217,21 +203,8 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
         }
         <div className={classes.anchor} />
       </List>
-      <Drawer
-        open={zoomImg}
-        classes={{ paper: classes.paper, docked: classes.docked }}
-        anchor='top'
-        variant='persistent'
-        onClose={onCloseZoomIn}>
 
-        <div className={classes.zoomImg} onClick={onCloseZoomIn}>
-          <Fab size='small' className={classes.zoomImgCloseIcon}>
-            <CloseIcon />
-          </Fab>
-          <img alt="" src={zoomImg} onClick={stopPropagation} />
-        </div>
-
-      </Drawer>
+      <ZoomImage src={zoomImg} onClose={onCloseZoomIn} />
     </div>
   )
 }

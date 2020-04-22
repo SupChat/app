@@ -6,7 +6,6 @@ import ListItem from '@material-ui/core/ListItem'
 import Avatar from '@material-ui/core/Avatar'
 import { makeStyles } from '@material-ui/core'
 import { useSelector } from 'react-redux'
-import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import ListItemText from '@material-ui/core/ListItemText'
 import EmojiText from './EmujiText'
@@ -15,6 +14,8 @@ import _get from 'lodash/get'
 import ListItemAvatar from '@material-ui/core/ListItemAvatar'
 import Typography from '@material-ui/core/Typography'
 import * as classnames from 'classnames'
+import { lighten } from '@material-ui/core/styles'
+import ButtonBase from '@material-ui/core/ButtonBase'
 
 const useStyles = makeStyles(theme => ({
   avatar: {
@@ -31,6 +32,10 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 190,
   },
   imgContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
+    background: lighten(theme.palette.secondary.main, 0.9),
     display: 'flex',
     position: 'relative',
   },
@@ -68,7 +73,64 @@ const useStyles = makeStyles(theme => ({
   faCheckDouble: {
     color: theme.palette.primary.main,
   },
+  linkDescriptor: {
+    display: 'flex',
+    width: '100%',
+    margin: '5px 0',
+    padding: 10,
+    background: lighten(theme.palette.secondary.main, 0.95),
+    boxSizing: 'border-box',
+  },
+  linkDescriptorText: {
+    padding: 10,
+  },
+  linkDescriptorImage: {
+    width: 80,
+    height: '100%',
+    alignSelf: 'center',
+  },
 }))
+
+function MessagePrimary({ message, classes, onZoomIn }) {
+  return (
+    <div>
+      {
+        message.file && (
+          message.file !== 'pending' ? (
+            <div className={classes.imgContainer}>
+              <ButtonBase onClick={onZoomIn}>
+                <img className={classes.img} alt="" src={message.file} />
+              </ButtonBase>
+            </div>
+          ) : <CircularProgress color="secondary" />
+        )
+      }
+      {
+        false && (
+          <div className={classes.linkDescriptor}>
+            <div className={classes.linkDescriptorText}>
+              <Typography variant={'subtitle1'}>
+                title of website
+              </Typography>
+
+              <Typography variant={'subtitle2'}>
+                description of website description of website description of website
+              </Typography>
+            </div>
+
+            <img
+              className={classes.linkDescriptorImage}
+              alt={'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'}
+              src={'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'} />
+          </div>
+        )
+      }
+
+
+      <EmojiText text={message.text} />
+    </div>
+  )
+}
 
 export default function Message({ message, conversationId, setZoomImg }) {
   const classes = useStyles()
@@ -77,27 +139,15 @@ export default function Message({ message, conversationId, setZoomImg }) {
   const onZoomIn = useCallback(() => setZoomImg(message.file), [ setZoomImg, message.file ])
 
   return (
-    <ListItem key={message.id} className={message.from === currentUserId ? classes.listItemSelf : classes.listItem}>
+    <ListItem className={message.from === currentUserId ? classes.listItemSelf : classes.listItem}>
       <ListItemAvatar className={classes.avatar}>
         <Avatar className={classes.alignCenter} src={avatarPhotoURL} />
       </ListItemAvatar>
 
-      {
-        message.file && (
-          message.file !== 'pending' ? (
-            <div className={classes.imgContainer}>
-              <Button onClick={onZoomIn}>
-                <img className={classes.img} alt="" src={message.file} />
-              </Button>
-            </div>
-          ) : <CircularProgress color="secondary" />
-        )
-      }
-
       <ListItemText
         dir="auto"
         className={classnames(classes.ListItemText, { friend: message.from !== currentUserId })}
-        primary={<EmojiText text={message.text} />}
+        primary={<MessagePrimary message={message} classes={classes} onZoomIn={onZoomIn} />}
         secondary={
           <Typography className={classes.secondary}>
             {

@@ -224,10 +224,11 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
         onChange={setText} />
 
       <FileDialog
+        conversationId={conversationId}
         file={file}
         onClose={onCloseFileDialog}
         onDone={onSendMessage} />
-
+      
       {/*{*/}
       {/*isDragOn && (*/}
       {/*<DropZone*/}
