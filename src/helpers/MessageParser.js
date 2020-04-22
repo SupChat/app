@@ -29,6 +29,7 @@ class MessageParser {
     elem.innerHTML = e
     elem.firstChild.setAttribute('alt', emoji.native)
     elem.firstChild.style.display = null
+    elem.firstChild.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     return elem.innerHTML
   }
 

@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     top: 0,
     left: 0,
-    background: 'transparent'
+    background: 'transparent',
   },
   opacity: {
     opacity: 0.3,
@@ -118,37 +118,33 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
 
   const loadMessages = useCallback(async () => {
     dispatcher({ type: 'START_LOADING' })
-    try {
 
-      const snapshot = await firestore.collection('conversations')
-        .doc(conversationId)
-        .collection('messages')
-        .orderBy('date', 'desc')
-        .limit(10)
-        .where('date', '<', lastDate.current || new Date())
-        .get()
-      console.log('snapshot!!!!!!!!!!!1', snapshot)
-      if (snapshot.size < 10) {
-        setAllLoaded(true)
-      }
+    const snapshot = await firestore.collection('conversations')
+      .doc(conversationId)
+      .collection('messages')
+      .orderBy('date', 'desc')
+      .limit(10)
+      .where('date', '<', lastDate.current || new Date())
+      .get()
 
-      await onGetMessages(snapshot)
-    } catch (e) {  
-      console.log('eeeeeeeeeeeeeeeee', e);
-    } finally {
-      dispatcher({ type: 'STOP_LOADING' })
+    if (snapshot.size < 10) {
+      setAllLoaded(true)
     }
-  }, [ lastDate, dispatcher, conversationId, onGetMessages ])
+
+    await onGetMessages(snapshot)
+    listRef.current.style.overflow = null;
+    dispatcher({ type: 'STOP_LOADING' })
+  }, [ listRef, lastDate, dispatcher, conversationId, onGetMessages ])
 
   useEffect(() => {
     const observer = new MutationObserver((mutationsList) => {
       if (scrollHeight.current) {
-        listRef.current.scrollTop = listRef.current.scrollHeight - scrollHeight.current;
-        scrollHeight.current = null;
+        listRef.current.scrollTop = listRef.current.scrollHeight - scrollHeight.current
+        scrollHeight.current = null
       }
     })
     observer.observe(listRef.current, { childList: true })
-    return () => observer.disconnect();
+    return () => observer.disconnect()
   }, [ listRef, scrollHeight ])
 
   useEffect(() => {
@@ -176,7 +172,7 @@ const Messages = ({ conversationId, isDragOn, isLoading, dispatcher }, listRef) 
     )
 
     if (needToLoadPrevious) {
-      scrollHeight.current = e.currentTarget.scrollHeight;
+      scrollHeight.current = e.currentTarget.scrollHeight
       await loadMessages()
     }
   }, [ isEmptyMessages, allLoaded, isLoading, loadMessages ])

@@ -74,7 +74,7 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
 
   async function onSendMessage(text) {
     setText('')
-    // listRef.current.scrollTop = listRef.current.scrollHeight
+    listRef.current.scrollTop = listRef.current.scrollHeight
     setIsDragOn(false)
     setFile(null)
 

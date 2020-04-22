@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
+import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 import ContentEditable from 'react-contenteditable'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
