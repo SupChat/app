@@ -16,6 +16,7 @@ import Typography from '@material-ui/core/Typography'
 import * as classnames from 'classnames'
 import { lighten } from '@material-ui/core/styles'
 import ButtonBase from '@material-ui/core/ButtonBase'
+import Tooltip from '@material-ui/core/Tooltip'
 
 const useStyles = makeStyles(theme => ({
   avatar: {
@@ -158,7 +159,9 @@ export default function Message({ message, conversationId, setZoomImg }) {
                   date={message.date} />
               )
             }
-            <span>{moment(message.date.toDate()).format('HH:mm:ss')}</span>
+            <Tooltip title={moment(message.date.toDate()).format('LLLL')}>
+              <span>{moment(message.date.toDate()).format('HH:mm')}</span>
+            </Tooltip>
           </Typography>
         } />
     </ListItem>
