@@ -67,7 +67,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const Chats = () => {
-  const activeConversations = useSelector(store => store.conversations.activeConversations)
+  const activeConversations = useSelector(store => store.ui.activeConversations)
   const classes = useStyles()
   const dispatch = useDispatch()
 

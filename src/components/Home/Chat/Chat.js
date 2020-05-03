@@ -59,7 +59,7 @@ const Chat = ({ conversationId, onSwap, isDraggable }) => {
 
   const dispatch = useDispatch()
   const currentUserId = useSelector(store => store.auth.user.uid)
-  const activeConversations = useSelector(store => store.conversations.activeConversations)
+  const activeConversations = useSelector(store => store.ui.activeConversations)
   const elementRef = useRef()
 
   useEffect(() => {

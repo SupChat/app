@@ -1,53 +1,48 @@
-import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
-import { cyan, purple } from '@material-ui/core/colors'
+import _uniq from 'lodash/uniq'
 
-const initialState = {
-  showUsers: JSON.parse(sessionStorage.getItem('showUsers') || 'true'),
+const initialState = JSON.parse(sessionStorage.getItem('_ui_')) || ({
+  showUsers: true,
   chatInputHistory: {},
-  themes: {
-    themeLight: createMuiTheme({
-      palette: {
-        type: 'light',
-        secondary: {
-          main: purple[700],
-        },
-        primary: {
-          main: cyan[800],
-        },
-      },
-    }),
-    themeDark: createMuiTheme({
-      palette: {
-        type: 'dark',
-        secondary: {
-          main: purple[700],
-        },
-        primary: {
-          main: cyan[800],
-        },
-      },
-    }),
-  },
-  selectedTheme: sessionStorage.getItem('selectedTheme') || 'themeLight',
+  selectedTheme: 'themeLight',
   showProfile: '',
-}
+  activeConversations: [],
+  conversationsSearchInput: ''
+})
 
 const ui = (state = initialState, action) => {
   switch (action.type) {
     case 'TOGGLE_SHOW_USERS':
-      sessionStorage.setItem('showUsers', JSON.stringify(!state.showUsers))
       return { ...state, showUsers: !state.showUsers }
 
+    case 'SET_ACTIVE_CONVERSATION': {
+      const activeConversations = _uniq(action.payload.activeConversations)
+      return { ...state, activeConversations }
+    }
+
+    case 'ADD_ACTIVE_CONVERSATION': {
+      const { id } = action.payload
+      return { ...state, activeConversations: _uniq([ ...state.activeConversations, id ]) }
+    }
+
+    case 'REMOVE_ACTIVE_CONVERSATION': {
+      const { id } = action.payload
+      return { ...state, activeConversations: state.activeConversations.filter(_id => _id !== id) }
+    }
+
     case 'UPDATE_CHAT_INPUT_HISTORY':
-      return { ...state, chatInputHistory: { ...state.chatInputHistory, ...action.payload } }
+      const chatInputHistory = { ...state.chatInputHistory, ...action.payload }
+      return { ...state, chatInputHistory }
 
     case 'TOGGLE_THEME':
       const selectedTheme = state.selectedTheme === 'themeDark' ? 'themeLight' : 'themeDark'
-      sessionStorage.setItem('selectedTheme', selectedTheme)
       return { ...state, selectedTheme }
 
     case 'SHOW_PROFILE':
       return { ...state, showProfile: action.payload }
+
+    case 'SET_CONVERSIONS_SEARCH_INPUT': {
+      return { ...state, conversationsSearchInput: action.payload }
+    }
 
     default:
       return state

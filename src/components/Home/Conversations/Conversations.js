@@ -11,15 +11,12 @@ import AddConversation from './AddConversation'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 
 import ChatIcon from '@material-ui/icons/Chat'
-import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace'
 import Fab from '@material-ui/core/Fab'
 import Dialog from '@material-ui/core/Dialog'
 import _get from 'lodash/get'
 import IconButton from '@material-ui/core/IconButton'
-import Input from '@material-ui/core/Input'
 import FormControl from '@material-ui/core/FormControl'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import SearchIcon from '@material-ui/icons/Search'
+import TextField from '@material-ui/core/TextField'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -78,10 +75,6 @@ function reducer(state = initialState, action) {
       return { ...state, counts: { ...state.counts, [id]: count } }
     }
 
-    case 'SET_SEARCH_INPUT': {
-      return { ...state, searchInput: action.payload }
-    }
-
     default: {
       return state
     }
@@ -97,6 +90,7 @@ export default function Conversations() {
   const conversations = useSelector((store) => store.conversations.conversations)
   const currentUserId = useSelector(store => store.auth.user.uid)
   const users = useSelector(store => store.users.users)
+  const conversationsSearchInput = useSelector(store => store.ui.conversationsSearchInput);
 
   useEffect(() => {
     const calcCounts = Object.values(state.counts).reduce((prev, current) => prev + current, 0)
@@ -106,7 +100,7 @@ export default function Conversations() {
   const conversationsIds = useMemo(() => {
     return Object.entries(conversations)
       .filter(([ id, conversation ]) => {
-        const search = state.searchInput.trim().toLowerCase()
+        const search = conversationsSearchInput.trim().toLowerCase()
         const messageText = (_get(state.messages, `${id}.text`) || '').trim().toLowerCase()
 
         if (messageText.includes(search)) {
@@ -116,6 +110,7 @@ export default function Conversations() {
         if (
           Object.keys(conversation.members)
             .map((memberId) => users[memberId])
+            .filter(Boolean)
             .some(({ displayName, email }) => (
               displayName.trim().toLowerCase().includes(search) ||
               email.trim().toLowerCase().includes(search)
@@ -132,7 +127,7 @@ export default function Conversations() {
         return firstDate >= secondDate ? -1 : 1
       })
       .map(([ id ]) => id)
-  }, [ conversations, state.searchInput, state.messages, users ])
+  }, [ conversations, conversationsSearchInput, state.messages, users ])
 
   useEffect(() => {
     return firestore.collection('conversations')
@@ -151,16 +146,11 @@ export default function Conversations() {
   const toggleShown = useCallback(() => dispatch({ type: 'TOGGLE_SHOW_USERS' }), [ dispatch ])
 
   const onChangeInput = useCallback((e) => (
-    dispatchLocal({
-      type: 'SET_SEARCH_INPUT',
+    dispatch({
+      type: 'SET_CONVERSIONS_SEARCH_INPUT',
       payload: e.target.value,
     })
-  ), [])
-
-  const clearInput = useCallback(() => dispatchLocal({
-    type: 'SET_SEARCH_INPUT',
-    payload: '',
-  }), [])
+  ), [ dispatch ])
 
   return (
     <div className={classes.root}>
@@ -168,24 +158,14 @@ export default function Conversations() {
 
         <div>
           <FormControl className={classes.searchInput}>
-            <Input
+            <TextField
               color="secondary"
-              value={state.searchInput}
+              value={conversationsSearchInput}
               onChange={onChangeInput}
-              endAdornment={
-                <InputAdornment position="end">
-                  {
-                    state.searchInput ? (
-                      <KeyboardBackspaceIcon
-                        color="secondary"
-                        fontSize="small" style={{ cursor: 'pointer' }} onClick={clearInput} />
-                    ) : (
-                      <SearchIcon fontSize="small" />
-                    )
-                  }
-                </InputAdornment>
-              }
-            />
+              fullWidth
+              label="Search"
+              type="search"
+              variant="standard" />
           </FormControl>
         </div>
 
