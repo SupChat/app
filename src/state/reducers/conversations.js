@@ -1,7 +1,6 @@
 import _get from 'lodash/get'
 import _sortBy from 'lodash/sortBy'
 import _uniqBy from 'lodash/uniqBy'
-import _uniq from 'lodash/uniq'
 
 const initialState = {
   conversations: {},

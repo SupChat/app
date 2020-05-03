@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
-import { darken, fade, lighten } from '@material-ui/core/styles'
+import { darken } from '@material-ui/core/styles'
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 import ContentEditable from 'react-contenteditable'

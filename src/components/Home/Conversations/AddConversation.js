@@ -147,7 +147,7 @@ export default function AddConversation({ onClose }) {
         />
       )
     }
-  }, [ selected, users ])
+  }, [ classes, selected, users ])
 
   const onInputChange = useCallback((e) => setInput(e), [])
 
