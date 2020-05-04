@@ -1,7 +1,6 @@
 import _get from 'lodash/get'
 import _sortBy from 'lodash/sortBy'
 import _uniqBy from 'lodash/uniqBy'
-import _uniq from 'lodash/uniq'
 
 const initialState = {
   conversations: {},
@@ -17,26 +16,6 @@ const conversations = (state = initialState, action) => {
   switch (action.type) {
     case 'SET_CONVERSATIONS':
       return { ...state, conversations: action.conversations }
-
-    case 'SET_ACTIVE_CONVERSATION': {
-      const activeConversations = _uniq(action.payload.activeConversations)
-      sessionStorage.setItem('activeConversations', activeConversations.toString())
-      return { ...state, activeConversations }
-    }
-
-    case 'ADD_ACTIVE_CONVERSATION': {
-      const { id } = action.payload
-      const activeConversations = _uniq([ ...state.activeConversations, id ])
-      sessionStorage.setItem('activeConversations', activeConversations.toString())
-      return { ...state, activeConversations }
-    }
-
-    case 'REMOVE_ACTIVE_CONVERSATION': {
-      const { id } = action.payload
-      const activeConversations = state.activeConversations.filter(_id => _id !== id)
-      sessionStorage.setItem('activeConversations', activeConversations.toString())
-      return { ...state, activeConversations }
-    }
 
     case 'SET_MEMBERS': {
       const { id, members } = action.payload

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { makeStyles } from '@material-ui/core'
+import { darken } from '@material-ui/core/styles'
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 import ContentEditable from 'react-contenteditable'
@@ -10,7 +11,6 @@ import TagFacesIcon from '@material-ui/icons/TagFaces'
 import { firestore } from '../../../firebase'
 import _throttle from 'lodash/throttle'
 import { useSelector } from 'react-redux'
-import { darken } from '@material-ui/core/styles'
 import MessageParser from '../../../helpers/MessageParser'
 
 const useStyles = makeStyles(theme => ({
@@ -24,9 +24,10 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     lineHeight: '1.1875em',
-    background: theme.palette.background.default,
+    background: (theme.palette.type === 'dark' ? darken : darken)(theme.palette.background.default, 0.01),
+    outline: 'none',
     '&:focus-within': {
-      // background: fade(theme.palette.background.paper, 0.5),
+      background: theme.palette.background.default,
       // borderColor: theme.palette.primary.dark,
       '& .child': {
         // borderColor: theme.palette.primary.dark,

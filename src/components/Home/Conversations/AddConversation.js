@@ -19,7 +19,7 @@ import _uniq from 'lodash/uniq'
 
 import uuid from 'uuid'
 import { firestore } from '../../../firebase'
-import { addActiveConversation } from '../../../state/actions/conversations'
+import { setActiveConversations } from '../../../state/actions/conversations'
 import Chip from '@material-ui/core/Chip'
 import List from '@material-ui/core/List'
 
@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.grey[500],
   },
   chip: {
-    margin: theme.spacing(1),
+    margin: 2,
   },
 }))
 
@@ -119,7 +119,7 @@ export default function AddConversation({ onClose }) {
 
       await batch.commit()
     }
-    dispatch(addActiveConversation(id))
+    dispatch(setActiveConversations([ id ]))
     onClose()
   }, [ conversations, dispatch, onClose, currentUser.uid, selected ])
 
@@ -127,7 +127,7 @@ export default function AddConversation({ onClose }) {
     setSelected(selected ? [ ...selected, e ] : [ e ])
   }, [ selected ])
 
-  const onChangeSelected = useCallback((e) => setSelected(e), [])
+  const onChangeSelected = useCallback((e) => setSelected(e || []), [])
 
   const MultiValueComponent = useMemo(() => {
     return ({ data }) => {
@@ -140,13 +140,14 @@ export default function AddConversation({ onClose }) {
 
       return (
         <Chip
+          className={classes.chip}
           onDelete={onDelete}
           avatar={<Avatar style={{ width: 30, height: 30 }} src={_get(users, `${data.value}.photoURL`)} />}
           label={label}
         />
       )
     }
-  }, [ selected, users ])
+  }, [ classes, selected, users ])
 
   const onInputChange = useCallback((e) => setInput(e), [])
 

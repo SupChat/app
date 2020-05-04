@@ -59,7 +59,7 @@ const Conversation = ({ id, count: unReadMessagesCount, message: lastMessage, di
   const classes = useStyles()
   const currentUserId = useSelector(store => store.auth.user.uid)
   const lastSeen = useSelector(store => _get(store, `conversations.members[${id}][${currentUserId}].lastSeen`))
-  const activeConversations = useSelector(store => store.conversations.activeConversations)
+  const activeConversations = useSelector(store => store.ui.activeConversations)
   const typingUsername = useSelector(selectTypingUsername(id))
   const users = useSelector(store => store.users.users)
   const membersIds = useSelector(store => store.conversations.conversations[id].members)
